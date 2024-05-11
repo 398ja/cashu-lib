@@ -3,18 +3,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cashu-java</groupId>
-    <artifactId>cashu-java</artifactId>
+    <artifactId>cashu-lib</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>cashu-java</name>
+    <name>cashu-lib</name>
     <url>http://maven.apache.org</url>
     <modules>
-        <module>cashu-java-common</module>
-        <module>cashu-java-util</module>
-        <module>cashu-java-test</module>
-        <module>cashu-java-crypto</module>
-        <module>cashu-java-vault</module>
+        <module>cashu-lib-common</module>
+        <module>cashu-lib-util</module>
+        <module>cashu-lib-test</module>
+        <module>cashu-lib-crypto</module>
+        <module>cashu-lib-vault</module>
     </modules>
 
     <properties>
