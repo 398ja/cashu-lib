@@ -1,7 +1,7 @@
 package cashu.common.json.deserializer;
 
-import cashu.common.model.BlindSignature;
 import cashu.common.json.codec.impl.BlindSignatudeDecoder;
+import cashu.common.model.BlindSignature;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;

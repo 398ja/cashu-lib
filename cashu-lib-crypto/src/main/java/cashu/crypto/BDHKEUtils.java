@@ -1,7 +1,6 @@
 package cashu.crypto;
 
 import cashu.common.model.Hex;
-import cashu.util.Utils;
 import lombok.NonNull;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
@@ -15,7 +14,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.Arrays;
 
 public class BDHKEUtils {
 

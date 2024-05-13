@@ -5,7 +5,6 @@ import cashu.util.Utils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +19,11 @@ import java.math.BigInteger;
 @JsonDeserialize(using = HexDeserializer.class)
 public class Hex {
 
+    protected static final int PRIVATE_KEY_LENGTH = 64;
+    protected static final int PUBLIC_KEY_LENGTH = 66;
+    protected static final int SIGNATURE_LENGTH = 66;
+    protected static final int SECRET_LENGTH = 64;
+
     @EqualsAndHashCode.Include
     private byte[] bytes;
 
@@ -28,11 +32,11 @@ public class Hex {
     private int length;
 
     protected Hex(@NonNull String hexStr) {
-        this(Utils.hexToBytes(hexStr), hexStr.length());
+        this(Utils.hexStringToBytes(hexStr), hexStr.length());
     }
 
     protected Hex(@NonNull String hexStr, int length) {
-        this(Utils.hexToBytes(hexStr), length);
+        this(Utils.hexStringToBytes(hexStr), length);
     }
 
     protected Hex(@NonNull byte[] bytes, int length) {
@@ -42,7 +46,7 @@ public class Hex {
 
 
     public static Hex fromBytes(@NonNull byte[] bytes) {
-        return Hex.fromString(Utils.bytesToHex(bytes));
+        return Hex.fromString(Utils.bytesToHexString(bytes));
     }
 
     public static Hex fromString(@NonNull String s) {
@@ -68,7 +72,7 @@ public class Hex {
     @JsonValue
     @Override
     public String toString() {
-        return Utils.bytesToHex(bytes);
+        return Utils.bytesToHexString(bytes);
     }
 
     public byte[] toBytes() {

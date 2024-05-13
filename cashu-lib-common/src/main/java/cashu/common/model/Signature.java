@@ -11,11 +11,11 @@ import java.math.BigInteger;
 public class Signature extends Hex {
 
     private Signature(@NonNull String value) {
-        super(value, 66);
+        super(value, SIGNATURE_LENGTH);
     }
 
     private Signature(@NonNull byte[] value) {
-        super(value, 66);
+        super(value, SIGNATURE_LENGTH);
     }
 
     public static Signature fromString(@NonNull String s) {
@@ -24,15 +24,15 @@ public class Signature extends Hex {
     }
 
     public static Signature fromBytes(@NonNull byte[] bytes) {
-        return fromString(Utils.bytesToHex(bytes));
+        return fromString(Utils.bytesToHexString(bytes));
     }
 
     public static Signature fromBigInteger(@NonNull BigInteger b) {
-        return fromString(Utils.bytesToHex(b.toByteArray()));
+        return fromString(Utils.bytesToHexString(b.toByteArray()));
     }
 
     private static Signature fromHex(@NonNull Hex hex) {
-        if (hex.toString().length() != 66) {
+        if (hex.toString().length() != SIGNATURE_LENGTH) {
             throw new IllegalArgumentException(String.format("Invalid length: %d", hex.toString().length()));
         }
         return new Signature(hex.getBytes());

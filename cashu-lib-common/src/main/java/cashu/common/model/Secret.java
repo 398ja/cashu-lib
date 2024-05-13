@@ -11,11 +11,11 @@ import java.math.BigInteger;
 public class Secret extends Hex {
 
     private Secret(@NonNull String value) {
-        super(value, 64);
+        super(value, SECRET_LENGTH);
     }
 
     private Secret(@NonNull byte[] value) {
-        super(value, 64);
+        super(value, SECRET_LENGTH);
     }
 
     public static Secret fromString(@NonNull String s) {
@@ -24,15 +24,15 @@ public class Secret extends Hex {
     }
 
     public static Secret fromBytes(@NonNull byte[] bytes) {
-        return fromString(Utils.bytesToHex(bytes));
+        return fromString(Utils.bytesToHexString(bytes));
     }
 
     public static Secret fromBigInteger(@NonNull BigInteger b) {
-        return fromString(Utils.bytesToHex(b.toByteArray()));
+        return fromString(Utils.bytesToHexString(b.toByteArray()));
     }
 
     private static Secret fromHex(@NonNull Hex hex) {
-        if (hex.toString().length() != 64) {
+        if (hex.toString().length() != SECRET_LENGTH) {
             throw new IllegalArgumentException(String.format("Invalid length: %d", hex.toString().length()));
         }
         return new Secret(hex.getBytes());

@@ -1,6 +1,5 @@
 package cashu.common.protocol;
 
-import cashu.common.protocol.Error;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 

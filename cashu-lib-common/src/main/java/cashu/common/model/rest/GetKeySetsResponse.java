@@ -1,6 +1,5 @@
 package cashu.common.model.rest;
 
-import cashu.common.model.ActiveKeySet;
 import cashu.common.model.KeySet;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;

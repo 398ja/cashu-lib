@@ -1,6 +1,5 @@
 package cashu.vault.impl.fs;
 
-import cashu.common.model.PrivateKey;
 import cashu.common.protocol.CashuException;
 import cashu.common.protocol.Error;
 import cashu.vault.FSVault;
@@ -11,7 +10,6 @@ import lombok.NonNull;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,23 +20,16 @@ import java.util.stream.Stream;
 public class FSKeyVault extends FSVault<KeyConfiguration> {
 
     @NonNull
-    private final KeysetConfiguration keyset;
-
-    @NonNull
-    private final BigInteger amount;
+    private final KeyConfiguration keyConfiguration;
 
     @Override
-    public void store(@NonNull KeyConfiguration entity) throws CashuException {
-        KeysetConfiguration keyset = entity.getKeyset();
-        BigInteger amount = entity.getAmount();
+    public void store() throws CashuException {
+        KeysetConfiguration keyset = keyConfiguration.getKeyset();
+        BigInteger amount = keyConfiguration.getAmount();
 
-        if (amount != this.amount) {
-            throw new CashuException(new AssertionError("Invalid amount/key"));
-        }
-
-        FSKeysetVault keysetVault = new FSKeysetVault();
+        FSKeysetVault keysetVault = new FSKeysetVault(keyConfiguration.getKeyset());
         String keysetPath = keysetVault.retrieve(keyset.getId());
-        Path filePath = Paths.get(keysetPath, amount.toString(), entity.getPrivateKey().toString());
+        Path filePath = Paths.get(keysetPath, amount.toString(), keyConfiguration.getPrivateKey().toString());
 
         try {
             Files.createDirectories(filePath.getParent());
@@ -52,9 +43,9 @@ public class FSKeyVault extends FSVault<KeyConfiguration> {
 
     @Override
     public String retrieve(@NonNull String key) throws CashuException {
-        FSKeysetVault keysetVault = new FSKeysetVault();
-        String keysetPath = keysetVault.retrieve(keyset.getId());
-        Path dirPath = Paths.get(keysetPath, amount.toString());
+        FSKeysetVault keysetVault = new FSKeysetVault(keyConfiguration.getKeyset());
+        String keysetPath = keysetVault.retrieve(keyConfiguration.getKeyset().getId());
+        Path dirPath = Paths.get(keysetPath, keyConfiguration.getAmount().toString());
 
         try (Stream<Path> paths = Files.list(dirPath)) {
             Optional<Path> keyFilePath = paths
@@ -81,8 +72,7 @@ public class FSKeyVault extends FSVault<KeyConfiguration> {
             return;
         }
 
-        FSKeysetVault keysetVault = new FSKeysetVault();
-        Path archivePath = Paths.get(keysetVault.mintArchivePath(keyset.getMint()), "keyset", keyset.getId(), key);
+        Path archivePath = Paths.get(FSVault.mintArchivePath(keyConfiguration.getKeyset().getMint()), "keyset", keyConfiguration.getKeyset().getId(), keyConfiguration.getAmount().toString(), key);
         try {
             Files.createDirectories(archivePath.getParent());
             Files.move(Paths.get(keyPath), archivePath);

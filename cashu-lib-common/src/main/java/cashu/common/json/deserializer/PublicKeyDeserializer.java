@@ -1,6 +1,5 @@
 package cashu.common.json.deserializer;
 
-import cashu.common.model.PrivateKey;
 import cashu.common.model.PublicKey;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;

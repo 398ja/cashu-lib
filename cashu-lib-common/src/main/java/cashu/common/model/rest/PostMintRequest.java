@@ -1,7 +1,6 @@
 package cashu.common.model.rest;
 
 import cashu.common.model.BlindedMessage;
-import cashu.common.model.Proof;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

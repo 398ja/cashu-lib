@@ -1,7 +1,7 @@
 package cashu.common.json.deserializer;
 
-import cashu.common.model.Proof;
 import cashu.common.json.codec.impl.ProofDecoder;
+import cashu.common.model.Proof;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;

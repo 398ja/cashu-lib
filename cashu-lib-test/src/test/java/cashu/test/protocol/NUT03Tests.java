@@ -1,6 +1,5 @@
 package cashu.test.protocol;
 
-import cashu.common.model.KeySet;
 import cashu.common.model.Keys;
 import cashu.crypto.KeySetDerivation;
 import com.fasterxml.jackson.core.JsonProcessingException;

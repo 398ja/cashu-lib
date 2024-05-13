@@ -24,6 +24,11 @@
             <artifactId>cashu-lib-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>cashu-lib-crypto</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

@@ -5,15 +5,12 @@ import cashu.common.model.PublicKey;
 import cashu.common.model.Signature;
 import cashu.common.protocol.CashuException;
 import cashu.common.protocol.Error;
-import cashu.util.Configuration;
-import cashu.util.Utils;
+import cashu.crypto.KeysUtils;
 import cashu.vault.FSVault;
-import cashu.vault.config.MintConfiguration;
 import cashu.vault.config.ProofConfiguration;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,19 +18,19 @@ import java.nio.file.Paths;
 @AllArgsConstructor
 public class FSProofVault extends FSVault<ProofConfiguration> {
 
-    private final MintConfiguration mint;
+    @NonNull
+    private final ProofConfiguration proofConfiguration;
 
     @Override
-    public void store(@NonNull ProofConfiguration entity) throws CashuException {
+    public void store() throws CashuException {
         try {
             var baseDir = getBaseDir();
 
-            PrivateKey privateKey = PrivateKey.fromString(entity.getMint().getPrivateKey());
-            PublicKey publicKey = PublicKey.fromBytes(Utils.getPublicKey(privateKey.getBytes()));
-            String secret = entity.getSecret();
-            String unblindedSignature = entity.getUnblindedSignature();
+            PrivateKey privateKey = PrivateKey.fromString(proofConfiguration.getMint().getPrivateKey());
+            String secret = proofConfiguration.getSecret();
+            String unblindedSignature = proofConfiguration.getUnblindedSignature();
 
-            Path path = Paths.get(baseDir, "mint", publicKey.toString(), "proofs", secret);
+            Path path = Paths.get(baseDir, "mint", privateKey.toString(), "proofs", secret);
             Files.createDirectories(path.getParent());
             if (!Files.exists(path)) {
                 Files.createFile(path);
@@ -51,7 +48,7 @@ public class FSProofVault extends FSVault<ProofConfiguration> {
         try {
             var baseDir = getBaseDir();
 
-            Path path = Paths.get(baseDir, "mint", mint.getPrivateKey().toString(), "proofs", key);
+            Path path = Paths.get(baseDir, "mint", proofConfiguration.getMint().getPrivateKey().toString(), "proofs", key);
 
             if (Files.exists(path)) {
                 byte[] keyBytes = Files.readAllBytes(path);

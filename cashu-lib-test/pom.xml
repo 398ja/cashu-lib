@@ -43,9 +43,15 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>cashu-java</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>cashu-lib-crypto</artifactId>
-            <version>0.1-SNAPSHOT</version>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>cashu-lib-vault</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

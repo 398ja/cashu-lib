@@ -1,7 +1,6 @@
 package cashu.common.json.codec.impl;
 
 import cashu.common.json.codec.Decoder;
-import cashu.common.model.Hex;
 import cashu.common.model.Keys;
 import cashu.common.model.PublicKey;
 import com.fasterxml.jackson.core.JsonProcessingException;

@@ -1,6 +1,5 @@
 package cashu.common.json.serializer;
 
-import cashu.common.model.Hex;
 import cashu.common.model.Keys;
 import cashu.common.model.PublicKey;
 import com.fasterxml.jackson.core.JsonGenerator;

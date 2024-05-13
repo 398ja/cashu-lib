@@ -1,6 +1,5 @@
 package cashu.common.json.deserializer;
 
-import cashu.common.json.codec.impl.HexDecoder;
 import cashu.common.model.Secret;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;

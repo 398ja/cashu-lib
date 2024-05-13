@@ -11,11 +11,11 @@ import java.math.BigInteger;
 public class PublicKey extends Hex {
 
     private PublicKey(@NonNull String value) {
-        super(value, 66);
+        super(value, PUBLIC_KEY_LENGTH);
     }
 
     private PublicKey(@NonNull byte[] value) {
-        super(value, 66);
+        super(value, PUBLIC_KEY_LENGTH);
     }
 
     public static PublicKey fromString(@NonNull String s) {
@@ -24,11 +24,11 @@ public class PublicKey extends Hex {
     }
 
     public static PublicKey fromBytes(@NonNull byte[] bytes) {
-        return fromString(Utils.bytesToHex(bytes));
+        return fromString(Utils.bytesToHexString(bytes));
     }
 
     public static PublicKey fromBigInteger(@NonNull BigInteger b) {
-        return fromString(Utils.bytesToHex(b.toByteArray()));
+        return fromString(Utils.bytesToHexString(b.toByteArray()));
     }
 
     private static PublicKey fromHex(@NonNull Hex hex) {

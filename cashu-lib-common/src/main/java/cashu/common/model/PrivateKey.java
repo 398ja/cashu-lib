@@ -11,11 +11,11 @@ import java.math.BigInteger;
 public class PrivateKey extends Hex {
 
     private PrivateKey(@NonNull String value) {
-        super(value, 66);
+        super(value, PRIVATE_KEY_LENGTH);
     }
 
     private PrivateKey(@NonNull byte[] value) {
-        super(value, 66);
+        super(value, PRIVATE_KEY_LENGTH);
     }
 
     public static PrivateKey fromString(@NonNull String s) {
@@ -24,15 +24,15 @@ public class PrivateKey extends Hex {
     }
 
     public static PrivateKey fromBytes(@NonNull byte[] bytes) {
-        return fromString(Utils.bytesToHex(bytes));
+        return fromString(Utils.bytesToHexString(bytes));
     }
 
     public static PrivateKey fromBigInteger(@NonNull BigInteger b) {
-        return fromString(Utils.bytesToHex(b.toByteArray()));
+        return fromString(Utils.bytesToHexString(b.toByteArray()));
     }
 
     private static PrivateKey fromHex(@NonNull Hex hex) {
-        if (hex.toString().length() != 66) {
+        if (hex.toString().length() != PRIVATE_KEY_LENGTH) {
             throw new IllegalArgumentException(String.format("Invalid length: %d", hex.toString().length()));
         }
         return new PrivateKey(hex.getBytes());

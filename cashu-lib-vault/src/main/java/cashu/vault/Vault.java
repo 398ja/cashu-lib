@@ -5,7 +5,7 @@ import cashu.vault.config.EntityConfiguration;
 
 public interface Vault<T extends EntityConfiguration> {
 
-    void store(T entity) throws CashuException;
+    void store() throws CashuException;
 
     String retrieve(String key) throws CashuException;
 

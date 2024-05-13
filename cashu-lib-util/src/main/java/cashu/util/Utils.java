@@ -1,25 +1,14 @@
 package cashu.util;
 
 import lombok.NonNull;
-import nostr.base.PrivateKey;
-import nostr.id.Identity;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
+import java.math.BigInteger;
+import java.util.Arrays;
 
 public class Utils {
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toLowerCase().toCharArray();
 
-
-    public static byte[] getPublicKey(byte[] privateKey) {
-        return Identity.create(new PrivateKey(privateKey)).getPublicKey().getRawData();
-    }
-
-    public static byte[] generatePrivateKey() {
-        return PrivateKey.generateRandomPrivKey().getRawData();
-    }
-
-    public static String bytesToHex(@NonNull byte[] bytes) {
+    public static String bytesToHexString(@NonNull byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
         for (int j = 0; j < bytes.length; j++) {
             int v = bytes[j] & 0xFF;
@@ -29,7 +18,7 @@ public class Utils {
         return new String(hexChars);
     }
 
-    public static byte[] hexToBytes(@NonNull String s) {
+    public static byte[] hexStringToBytes(@NonNull String s) {
         int len = s.length();
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
@@ -44,4 +33,22 @@ public class Utils {
         }
         return data;
     }
+
+    public static byte[] bytesFromBigInteger(@NonNull BigInteger n) {
+        byte[] b = n.toByteArray();
+        if (b.length == 32) {
+            return b;
+        } else if (b.length > 32) {
+            return Arrays.copyOfRange(b, b.length - 32, b.length);
+        } else {
+            byte[] buf = new byte[32];
+            System.arraycopy(b, 0, buf, buf.length - b.length, b.length);
+            return buf;
+        }
+    }
+
+    public static BigInteger bigIntFromBytes(byte[] b) {
+        return new BigInteger(1, b);
+    }
+
 }
