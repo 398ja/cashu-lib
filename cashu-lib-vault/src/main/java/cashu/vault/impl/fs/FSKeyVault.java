@@ -72,7 +72,7 @@ public class FSKeyVault extends FSVault<KeyConfiguration> {
             return;
         }
 
-        Path archivePath = Paths.get(FSVault.mintArchivePath(keyConfiguration.getKeyset().getMint()), "keyset", keyConfiguration.getKeyset().getId(), keyConfiguration.getAmount().toString(), key);
+        Path archivePath = Paths.get(FSVault.mintArchivePath(keyConfiguration.getKeyset().getMint()), "keyset", keyConfiguration.getKeyset().getUnit(), keyConfiguration.getKeyset().getId(), keyConfiguration.getAmount().toString(), key);
         try {
             Files.createDirectories(archivePath.getParent());
             Files.move(Paths.get(keyPath), archivePath);

@@ -24,9 +24,10 @@ public class FSKeysetVault extends FSVault<KeysetConfiguration> {
     public void store() throws CashuException {
         var mint = keysetConfiguration.getMint();
         var id = keysetConfiguration.getId();
+        var unit = keysetConfiguration.getUnit();
 
         String mintPath = mintPath(mint);
-        Path dirPath = Paths.get(mintPath, "keyset", id);
+        Path dirPath = Paths.get(mintPath, "keyset", unit, id);
 
         try {
             Files.createDirectories(dirPath);
@@ -40,8 +41,9 @@ public class FSKeysetVault extends FSVault<KeysetConfiguration> {
     @Override
     public String retrieve(@NonNull String keysetId) throws CashuException {
         var mintPath = mintPath(keysetConfiguration.getMint());
+        var unit = keysetConfiguration.getUnit();
 
-        Path keysetPath = Paths.get(mintPath, "keyset", keysetId);
+        Path keysetPath = Paths.get(mintPath, "keyset", unit, keysetId);
 
         return keysetPath.toString();
     }
@@ -52,8 +54,9 @@ public class FSKeysetVault extends FSVault<KeysetConfiguration> {
         Path sourcePath = Paths.get(keysetPath);
 
         String mintArchivePath = mintArchivePath(keysetConfiguration.getMint());
+        String unit = keysetConfiguration.getUnit();
 
-        Path keysetArchivePath = Paths.get(mintArchivePath, "keyset", key);
+        Path keysetArchivePath = Paths.get(mintArchivePath, "keyset", unit, key);
 
         try {
             Files.createDirectories(keysetArchivePath.getParent());

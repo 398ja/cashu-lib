@@ -11,4 +11,5 @@ public class KeysetConfiguration implements EntityConfiguration {
 
     private final MintConfiguration mint;
     private final String id;
+    private final String unit;
 }

@@ -47,11 +47,11 @@ public class FSVaultTest {
     public void testKeySetVault() throws CashuException {
         String privateKey = KeysUtils.generatePrivateKey().toString();
         MintConfiguration mint = new MintConfiguration(privateKey);
-        KeysetConfiguration keyset = new KeysetConfiguration(mint, "keyset1");
+        KeysetConfiguration keyset = new KeysetConfiguration(mint, "keyset1", "sat");
         FSKeysetVault vault = new FSKeysetVault(keyset);
 
         vault.store();
-        Path ksPath = Path.of(getBaseDir(), "mint", privateKey, "keyset", "keyset1");
+        Path ksPath = Path.of(getBaseDir(), "mint", privateKey, "keyset", "sat", "keyset1");
         Assert.assertTrue(Files.exists(ksPath));
 
         var vaultPath = vault.retrieve("keyset1");
@@ -60,7 +60,7 @@ public class FSVaultTest {
         vault.archive("keyset1");
         Assert.assertFalse(Files.exists(ksPath));
 
-        var ksArchivePath = Path.of(getArchiveDir(), "mint", privateKey, "keyset", "keyset1");
+        var ksArchivePath = Path.of(getArchiveDir(), "mint", privateKey, "keyset", "sat", "keyset1");
         Assert.assertTrue(Files.exists(ksArchivePath));
     }
 
@@ -68,20 +68,20 @@ public class FSVaultTest {
     public void testKeyVault() throws CashuException {
         String privateKey = KeysUtils.generatePrivateKey().toString();
         MintConfiguration mint = new MintConfiguration(privateKey);
-        KeysetConfiguration keyset = new KeysetConfiguration(mint, "keyset1");
+        KeysetConfiguration keyset = new KeysetConfiguration(mint, "keyset1", "sat");
         BigInteger amount = generateRandomBigInteger();
         KeyConfiguration key = new KeyConfiguration(keyset, amount, KeysUtils.generatePrivateKey().toString());
 
         FSKeyVault vault = new FSKeyVault(key);
         vault.store();
 
-        Path keyPath = Paths.get(getBaseDir(), "mint", privateKey, "keyset", "keyset1", amount.toString(), key.getPrivateKey());
+        Path keyPath = Paths.get(getBaseDir(), "mint", privateKey, "keyset", "sat", "keyset1", amount.toString(), key.getPrivateKey());
         assertTrue(Files.exists(keyPath));
 
         var vaultPath = vault.retrieve(key.getPrivateKey());
         assertEquals(keyPath.toString(), vaultPath);
 
-        var archivePath = Paths.get(getArchiveDir(), "mint", privateKey, "keyset", "keyset1", amount.toString(), key.getPrivateKey());
+        var archivePath = Paths.get(getArchiveDir(), "mint", privateKey, "keyset", "sat", "keyset1", amount.toString(), key.getPrivateKey());
         vault.archive(key.getPrivateKey());
         assertTrue(Files.exists(archivePath));
         assertFalse(Files.exists(keyPath));
@@ -145,7 +145,7 @@ public class FSVaultTest {
     public static String generateRandomHexString(int numchars) {
         Random r = new Random();
         StringBuilder sb = new StringBuilder();
-        while(sb.length() < numchars){
+        while (sb.length() < numchars) {
             sb.append(Integer.toHexString(r.nextInt()));
         }
         return sb.toString().substring(0, numchars);
