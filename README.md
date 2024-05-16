@@ -28,6 +28,13 @@ $ cd cashu-lib
 $ mvn clean install
 ```
 
+## Modules
+- ```cashu-lib-common:``` Contains common entity classes and utilities used by other modules.
+- ```cashu-lib-crypto:``` Contains cryptographic functions and utilities used by other modules.
+- ```cashu-lib-vault:``` Contains a basic vault implementation to store private keys.
+- ```cashu-lib-util:``` Contains utility classes and functions used by other modules.
+- ```cashu-lib-test:``` Contains unit test classes.
+
 ## Usage
 Include the following dependencies in your project's pom.xml file:
 
@@ -53,6 +60,7 @@ Include the following dependencies in your project's pom.xml file:
 
 ## Todo
 - Hashicorp Vault integration to store private keys. (The current vault is very basic and not fit for production use)
+- Move ```cashu-lib-vault``` to the ```cashu-mint``` project.
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
