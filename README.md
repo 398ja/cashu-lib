@@ -1,16 +1,16 @@
 # cashu-lib
-Cashu-Lib implements the core functionalities of the Cashu protocol, and provides the building blocks specified in [NUT-00](https://github.com/cashubtc/nuts/blob/main/00.md) for by mints and wallets applications.
+Cashu-Lib implements the core functionalities of the [Cashu](https://cashu.space/) protocol, and provides the building blocks specified in [NUT-00](https://github.com/cashubtc/nuts/blob/main/00.md) for by mints and wallets applications.
 
 ## Requirements
 
-$ java -version
+    $ java -version
 ```    
 openjdk version "21.0.2" 2024-01-16
 OpenJDK Runtime Environment (build 21.0.2+13-Ubuntu-123.10.1)
 OpenJDK 64-Bit Server VM (build 21.0.2+13-Ubuntu-123.10.1, mixed mode, sharing)
 ```
 
-$ mvn -version
+    $ mvn -version
 ```
 Apache Maven 3.8.7
 Maven home: /usr/share/maven
@@ -18,8 +18,6 @@ Java version: 21.0.2, vendor: Private Build, runtime: /usr/lib/jvm/java-21-openj
 Default locale: en_GB, platform encoding: UTF-8
 OS name: "linux", version: "6.5.0-28-generic", arch: "amd64", family: "unix"
 ```
-
-PostgreSQL
 
 ## Build and install cashu-lib
 
@@ -52,15 +50,6 @@ Include the following dependencies in your project's pom.xml file:
     <version>0.1-SNAPSHOT</version>
 </dependency>
 ```
-
-## Supported NUTs
-- [NUT-00](https://github.com/cashubtc/nuts/blob/main/00.md)
-- [NUT-01](https://github.com/cashubtc/nuts/blob/main/01.md)
-- [NUT-02](https://github.com/cashubtc/nuts/blob/main/02.md)
-- [NUT-03](https://github.com/cashubtc/nuts/blob/main/03.md)
-- [NUT-04](https://github.com/cashubtc/nuts/blob/main/04.md)
-- [NUT-05](https://github.com/cashubtc/nuts/blob/main/05.md)
-- [NUT-06](https://github.com/cashubtc/nuts/blob/main/06.md)
 
 ## Todo
 - Hashicorp Vault integration to store private keys. (The current vault is very basic and not fit for production use)
