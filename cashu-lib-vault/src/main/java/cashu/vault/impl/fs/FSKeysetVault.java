@@ -39,7 +39,7 @@ public class FSKeysetVault extends FSVault<KeysetConfiguration> {
     }
 
     @Override
-    public String retrieve(@NonNull String keysetId) throws CashuException {
+    public String retrieve(@NonNull String keysetId) {
         var mintPath = mintPath(keysetConfiguration.getMint());
         var unit = keysetConfiguration.getUnit();
 

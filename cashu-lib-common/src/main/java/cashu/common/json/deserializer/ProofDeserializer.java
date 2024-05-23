@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class ProofDeserializer extends JsonDeserializer<Proof> {
     @Override
-    public Proof deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+    public Proof deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         JsonNode node = p.readValueAsTree();
         if (node.isObject()) {
             ProofDecoder decoder = new ProofDecoder(node.toString());

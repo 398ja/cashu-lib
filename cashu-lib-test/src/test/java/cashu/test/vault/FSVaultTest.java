@@ -20,6 +20,7 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
@@ -105,13 +106,13 @@ public class FSVaultTest {
 
     private static String getBaseDir() {
         InputStream inputStream = FSVault.class.getResourceAsStream("/application.properties");
-        Configuration configuration = Configuration.load(inputStream);
+        Configuration configuration = Configuration.load(Objects.requireNonNull(inputStream));
         return configuration.getValue("base_dir");
     }
 
     private static String getArchiveDir() {
         InputStream inputStream = FSVault.class.getResourceAsStream("/application.properties");
-        Configuration configuration = Configuration.load(inputStream);
+        Configuration configuration = Configuration.load(Objects.requireNonNull(inputStream));
         return configuration.getValue("archive_dir");
     }
 
@@ -148,6 +149,6 @@ public class FSVaultTest {
         while (sb.length() < numchars) {
             sb.append(Integer.toHexString(r.nextInt()));
         }
-        return sb.toString().substring(0, numchars);
+        return sb.substring(0, numchars);
     }
 }

@@ -46,7 +46,7 @@ public class FSProofVault extends FSVault<ProofConfiguration> {
         try {
             var baseDir = getBaseDir();
 
-            Path path = Paths.get(baseDir, "mint", proofConfiguration.getMint().getPrivateKey().toString(), "proofs", key);
+            Path path = Paths.get(baseDir, "mint", proofConfiguration.getMint().getPrivateKey(), "proofs", key);
 
             if (Files.exists(path)) {
                 byte[] keyBytes = Files.readAllBytes(path);

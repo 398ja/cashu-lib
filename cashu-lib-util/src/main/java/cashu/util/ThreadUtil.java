@@ -67,9 +67,9 @@ public class ThreadUtil<T extends ThreadUtil.Task> {
         }
     }
 
-    public static interface Task<T> {
+    public interface Task<T> {
 
-        T execute() throws Exception;
+        T execute();
     }
 
     public static class Locks {

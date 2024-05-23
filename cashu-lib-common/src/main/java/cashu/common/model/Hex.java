@@ -50,7 +50,7 @@ public class Hex {
     }
 
     public static Hex fromString(@NonNull String s) {
-        if (s.matches("[0-9A-Fa-f]+") == false) {
+        if (!s.matches("[0-9A-Fa-f]+")) {
             throw new IllegalArgumentException(String.format("Invalid hex string: %s", s));
         }
 

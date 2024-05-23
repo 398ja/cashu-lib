@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class HexDeserializer extends JsonDeserializer<Hex> {
     @Override
-    public Hex deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+    public Hex deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         JsonNode node = p.readValueAsTree();
         if (node.isTextual()) {
             return new HexDecoder(node.textValue()).decode();

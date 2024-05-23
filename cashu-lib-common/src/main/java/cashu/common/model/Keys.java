@@ -5,11 +5,13 @@ import cashu.common.json.serializer.KeysSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
+@Getter
 @JsonDeserialize(using = KeysDeserializer.class)
 @JsonSerialize(using = KeysSerializer.class)
 @AllArgsConstructor
@@ -22,11 +24,7 @@ public class Keys {
         return this;
     }
 
-    public Map<BigInteger, PublicKey> getValues() {
-        return values;
-    }
-
     public PublicKey get(int key) {
-        return values.get(key);
+        return values.get(BigInteger.valueOf(key));
     }
 }

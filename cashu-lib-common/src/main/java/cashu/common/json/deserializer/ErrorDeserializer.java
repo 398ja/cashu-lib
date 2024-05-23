@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class ErrorDeserializer extends JsonDeserializer<Error> {
     @Override
-    public Error deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+    public Error deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         JsonNode node = p.readValueAsTree();
         if (node.isObject()) {
             ErrorDecoder decoder = new ErrorDecoder(node.toString());

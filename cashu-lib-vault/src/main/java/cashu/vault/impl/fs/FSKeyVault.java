@@ -29,7 +29,7 @@ public class FSKeyVault extends FSVault<KeyConfiguration> {
 
         FSKeysetVault keysetVault = new FSKeysetVault(keyConfiguration.getKeyset());
         String keysetPath = keysetVault.retrieve(keyset.getId());
-        Path filePath = Paths.get(keysetPath, amount.toString(), keyConfiguration.getPrivateKey().toString());
+        Path filePath = Paths.get(keysetPath, amount.toString(), keyConfiguration.getPrivateKey());
 
         try {
             Files.createDirectories(filePath.getParent());
@@ -49,9 +49,7 @@ public class FSKeyVault extends FSVault<KeyConfiguration> {
 
         try (Stream<Path> paths = Files.list(dirPath)) {
             Optional<Path> keyFilePath = paths
-                    .filter(path -> path.getFileName().toString().equals(key))
-                    .sorted((p1, p2) -> -Long.compare(p1.toFile().lastModified(), p2.toFile().lastModified()))
-                    .findFirst();
+                    .filter(path -> path.getFileName().toString().equals(key)).min((p1, p2) -> -Long.compare(p1.toFile().lastModified(), p2.toFile().lastModified()));
 
             if (keyFilePath.isPresent()) {
                 return keyFilePath.get().toString();

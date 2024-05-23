@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class TokenDeserializer  extends JsonDeserializer<Token> {
     @Override
-    public Token deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+    public Token deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         JsonNode node = p.readValueAsTree();
         if (node.isObject()) {
             TokenDecoder decoder = new TokenDecoder(node.toString());

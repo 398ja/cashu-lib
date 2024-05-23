@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class SignatureDeserializer extends JsonDeserializer<Signature> {
     @Override
-    public Signature deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+    public Signature deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         JsonNode node = p.readValueAsTree();
         if (node.isTextual()) {
             return Signature.fromString(node.textValue());

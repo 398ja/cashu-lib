@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class PrivateKeyDeserializer extends JsonDeserializer<PrivateKey> {
     @Override
-    public PrivateKey deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+    public PrivateKey deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         JsonNode node = p.readValueAsTree();
         if (node.isTextual()) {
             return PrivateKey.fromString(node.textValue());

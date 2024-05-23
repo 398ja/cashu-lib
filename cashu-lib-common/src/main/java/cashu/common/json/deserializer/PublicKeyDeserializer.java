@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class PublicKeyDeserializer extends JsonDeserializer<PublicKey> {
     @Override
-    public PublicKey deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+    public PublicKey deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         JsonNode node = p.readValueAsTree();
         if (node.isTextual()) {
             return PublicKey.fromString(node.textValue());

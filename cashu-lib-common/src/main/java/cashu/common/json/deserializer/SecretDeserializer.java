@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class SecretDeserializer extends JsonDeserializer<Secret> {
     @Override
-    public Secret deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+    public Secret deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         JsonNode node = p.readValueAsTree();
         if (node.isTextual()) {
             return Secret.fromString(node.textValue());

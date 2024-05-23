@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class KeysDeserializer extends JsonDeserializer<Keys> {
     @Override
-    public Keys deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+    public Keys deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         JsonNode node = p.readValueAsTree();
         if (node.isObject()) {
             KeysDecoder decoder = new KeysDecoder(node.toString());

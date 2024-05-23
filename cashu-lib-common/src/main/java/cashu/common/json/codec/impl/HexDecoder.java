@@ -11,7 +11,7 @@ public class HexDecoder implements Decoder<Hex> {
     private final String jsonString;
 
     @Override
-    public Hex decode() throws JsonProcessingException {
+    public Hex decode() {
         return Hex.fromString(jsonString);
     }
 }

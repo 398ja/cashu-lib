@@ -9,18 +9,19 @@ import lombok.NonNull;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 public abstract class FSVault<T extends EntityConfiguration> implements Vault<T> {
 
     protected static String getBaseDir() {
         InputStream inputStream = FSVault.class.getResourceAsStream("/application.properties");
-        Configuration configuration = Configuration.load(inputStream);
+        Configuration configuration = Configuration.load(Objects.requireNonNull(inputStream));
         return configuration.getValue("base_dir");
     }
 
     protected static String getArchiveDir() {
         InputStream inputStream = FSVault.class.getResourceAsStream("/application.properties");
-        Configuration configuration = Configuration.load(inputStream);
+        Configuration configuration = Configuration.load(Objects.requireNonNull(inputStream));
         return configuration.getValue("archive_dir");
     }
 
