@@ -1,7 +1,7 @@
 package cashu.test.vault;
 
+import cashu.common.model.PrivateKey;
 import cashu.common.protocol.CashuException;
-import cashu.crypto.KeysUtils;
 import cashu.util.Configuration;
 import cashu.vault.FSVault;
 import cashu.vault.config.KeyConfiguration;
@@ -30,7 +30,7 @@ public class FSVaultTest {
 
     @Test
     public void testMintVault() throws CashuException {
-        String privateKey = KeysUtils.generatePrivateKey().toString();
+        String privateKey = PrivateKey.generate().toString();
         MintConfiguration mint = new MintConfiguration(privateKey);
         FSMintVault vault = new FSMintVault(mint);
 
@@ -45,7 +45,7 @@ public class FSVaultTest {
 
     @Test
     public void testKeySetVault() throws CashuException {
-        String privateKey = KeysUtils.generatePrivateKey().toString();
+        String privateKey = PrivateKey.generate().toString();
         MintConfiguration mint = new MintConfiguration(privateKey);
         KeysetConfiguration keyset = new KeysetConfiguration(mint, "keyset1", "sat");
         FSKeysetVault vault = new FSKeysetVault(keyset);
@@ -66,11 +66,11 @@ public class FSVaultTest {
 
     @Test
     public void testKeyVault() throws CashuException {
-        String privateKey = KeysUtils.generatePrivateKey().toString();
+        String privateKey = PrivateKey.generate().toString();
         MintConfiguration mint = new MintConfiguration(privateKey);
         KeysetConfiguration keyset = new KeysetConfiguration(mint, "keyset1", "sat");
         BigInteger amount = generateRandomBigInteger();
-        KeyConfiguration key = new KeyConfiguration(keyset, amount, KeysUtils.generatePrivateKey().toString());
+        KeyConfiguration key = new KeyConfiguration(keyset, amount, PrivateKey.generate().toString());
 
         FSKeyVault vault = new FSKeyVault(key);
         vault.store();
@@ -130,7 +130,7 @@ public class FSVaultTest {
     }
 
     private ProofConfiguration createProof() {
-        String privateKey = KeysUtils.generatePrivateKey().toString();
+        String privateKey = PrivateKey.generate().toString();
         MintConfiguration mint = new MintConfiguration(privateKey);
         var unblindedSignature = generateRandomHexString(66);
         var secret = generateRandomHexString(64);

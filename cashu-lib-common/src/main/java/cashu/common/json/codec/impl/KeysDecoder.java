@@ -22,6 +22,7 @@ public class KeysDecoder implements Decoder<Keys> {
         Map<String, PublicKey> map = objectMapper.readValue(jsonString, new TypeReference<>() {});
         Keys keys = new Keys();
         for (Map.Entry<String, PublicKey> entry : map.entrySet()) {
+            var privateKey = entry.getValue();
             keys.put(new BigInteger(entry.getKey()), entry.getValue());
         }
         return keys;

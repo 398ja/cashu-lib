@@ -3,7 +3,6 @@ package cashu.vault.impl.fs;
 import cashu.common.model.PrivateKey;
 import cashu.common.model.PublicKey;
 import cashu.common.protocol.CashuException;
-import cashu.crypto.KeysUtils;
 import cashu.util.Utils;
 import cashu.vault.FSVault;
 import cashu.vault.config.MintConfiguration;
@@ -24,7 +23,7 @@ public class FSMintVault extends FSVault<MintConfiguration> {
     @Override
     public void store() throws CashuException {
         PrivateKey privateKey = PrivateKey.fromString(mintConfiguration.getPrivateKey());
-        PublicKey publicKey = KeysUtils.derivePublicKey(privateKey);
+        PublicKey publicKey = PrivateKey.derivePublicKey(privateKey);
         String privateKeyHex = Utils.bytesToHexString(privateKey.getBytes());
 
         var baseDir = getBaseDir();

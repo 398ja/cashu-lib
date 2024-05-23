@@ -1,10 +1,7 @@
 package cashu.vault;
 
 import cashu.common.model.PrivateKey;
-import cashu.common.model.PublicKey;
-import cashu.crypto.KeysUtils;
 import cashu.util.Configuration;
-import cashu.util.Utils;
 import cashu.vault.config.EntityConfiguration;
 import cashu.vault.config.MintConfiguration;
 import lombok.NonNull;

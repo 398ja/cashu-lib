@@ -1,11 +1,9 @@
 package cashu.vault.impl.fs;
 
 import cashu.common.model.PrivateKey;
-import cashu.common.model.PublicKey;
 import cashu.common.model.Signature;
 import cashu.common.protocol.CashuException;
 import cashu.common.protocol.Error;
-import cashu.crypto.KeysUtils;
 import cashu.vault.FSVault;
 import cashu.vault.config.ProofConfiguration;
 import lombok.AllArgsConstructor;

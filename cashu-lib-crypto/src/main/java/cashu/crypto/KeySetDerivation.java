@@ -19,8 +19,9 @@ public class KeySetDerivation {
 
     private final KeySet keySet;
 
-    public String deriveKeySetId() {
-        return deriveKeySetId(keySet.getKeys());
+    public void deriveKeySetId() {
+        var ksId = deriveKeySetId(keySet.getKeys());
+        this.keySet.setId(ksId);
     }
 
     public static String deriveKeySetId(@NonNull Keys keys) {
