@@ -1,8 +1,6 @@
 package cashu.common.model.rest;
 
-import cashu.common.model.ActiveKeySet;
 import cashu.common.model.KeySet;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;

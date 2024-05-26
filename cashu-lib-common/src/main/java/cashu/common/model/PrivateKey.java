@@ -29,7 +29,7 @@ public class PrivateKey extends Hex {
         super(value, PRIVATE_KEY_LENGTH);
     }
 
-    private PrivateKey(@NonNull byte[] value) {
+    private PrivateKey(byte[] value) {
         super(value, PRIVATE_KEY_LENGTH);
     }
 
@@ -38,7 +38,7 @@ public class PrivateKey extends Hex {
         return fromHex(hex);
     }
 
-    public static PrivateKey fromBytes(@NonNull byte[] bytes) {
+    public static PrivateKey fromBytes(byte[] bytes) {
         return fromString(Utils.bytesToHexString(bytes));
     }
 
@@ -87,7 +87,7 @@ public class PrivateKey extends Hex {
             return fromBytes(generateRawPrivateKey());
         }
 
-        static byte[] derivePublicKey(@NonNull byte[] secKey) {
+        static byte[] derivePublicKey(byte[] secKey) {
             ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("secp256k1");
             ECDomainParameters domain = new ECDomainParameters(spec.getCurve(), spec.getG(), spec.getN());
             ECPrivateKeyParameters privateKeyParameters = new ECPrivateKeyParameters(Utils.bigIntFromBytes(secKey), domain);

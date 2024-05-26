@@ -1,6 +1,5 @@
 package cashu.vault.config;
 
-import cashu.common.model.KeySet;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

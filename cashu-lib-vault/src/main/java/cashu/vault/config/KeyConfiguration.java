@@ -1,7 +1,5 @@
 package cashu.vault.config;
 
-import cashu.common.model.Keys;
-import cashu.common.model.PrivateKey;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

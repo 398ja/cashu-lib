@@ -1,27 +1,21 @@
 package cashu.vault.impl.fs;
 
 import cashu.common.model.KeySet;
-import cashu.common.model.Keys;
 import cashu.common.model.PrivateKey;
 import cashu.common.protocol.CashuException;
 import cashu.common.protocol.Error;
 import cashu.vault.FSVault;
-import cashu.vault.config.KeyConfiguration;
 import cashu.vault.config.KeysetConfiguration;
 import cashu.vault.config.MintConfiguration;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toList;
 
 @AllArgsConstructor
 public class FSKeysetVault extends FSVault<KeysetConfiguration> {

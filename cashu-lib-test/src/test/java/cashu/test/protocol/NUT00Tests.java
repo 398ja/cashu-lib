@@ -56,29 +56,30 @@ public class NUT00Tests {
     @Test
     public void serializationOfTokenV3() throws JsonProcessingException {
 
-        String strToken = "{\n" +
-                "  \"token\": [\n" +
-                "    {\n" +
-                "      \"mint\": \"https://8333.space:3338\",\n" +
-                "      \"proofs\": [\n" +
-                "        {\n" +
-                "          \"amount\": 2,\n" +
-                "          \"id\": \"009a1f293253e41e\",\n" +
-                "          \"secret\": \"407915bc212be61a77e3e6d2aeb4c727980bda51cd06a6afc29e2861768a7837\",\n" +
-                "          \"C\": \"02bc9097997d81afb2cc7346b5e4345a9346bd2a506eb7958598a72f0cf85163ea\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"amount\": 8,\n" +
-                "          \"id\": \"009a1f293253e41e\",\n" +
-                "          \"secret\": \"fe15109314e61d7756b0f8ee0f23a624acaa3f4e042f61433c728c7057b931be\",\n" +
-                "          \"C\": \"029e8e5050b890a7d6c0968db16bc1d5d5fa040ea1de284f6ec69d61299f671059\"\n" +
-                "        }\n" +
-                "      ]\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"unit\": \"sat\",\n" +
-                "  \"memo\": \"Thank you.\"\n" +
-                "}";
+        String strToken = """
+                {
+                  "token": [
+                    {
+                      "mint": "https://8333.space:3338",
+                      "proofs": [
+                        {
+                          "amount": 2,
+                          "id": "009a1f293253e41e",
+                          "secret": "407915bc212be61a77e3e6d2aeb4c727980bda51cd06a6afc29e2861768a7837",
+                          "C": "02bc9097997d81afb2cc7346b5e4345a9346bd2a506eb7958598a72f0cf85163ea"
+                        },
+                        {
+                          "amount": 8,
+                          "id": "009a1f293253e41e",
+                          "secret": "fe15109314e61d7756b0f8ee0f23a624acaa3f4e042f61433c728c7057b931be",
+                          "C": "029e8e5050b890a7d6c0968db16bc1d5d5fa040ea1de284f6ec69d61299f671059"
+                        }
+                      ]
+                    }
+                  ],
+                  "unit": "sat",
+                  "memo": "Thank you."
+                }""";
 
         String expected = "cashuAeyJ0b2tlbiI6W3sibWludCI6Imh0dHBzOi8vODMzMy5zcGFjZTozMzM4IiwicHJvb2ZzIjpbeyJhbW91bnQiOjIsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6IjQwNzkxNWJjMjEyYmU2MWE3N2UzZTZkMmFlYjRjNzI3OTgwYmRhNTFjZDA2YTZhZmMyOWUyODYxNzY4YTc4MzciLCJDIjoiMDJiYzkwOTc5OTdkODFhZmIyY2M3MzQ2YjVlNDM0NWE5MzQ2YmQyYTUwNmViNzk1ODU5OGE3MmYwY2Y4NTE2M2VhIn0seyJhbW91bnQiOjgsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6ImZlMTUxMDkzMTRlNjFkNzc1NmIwZjhlZTBmMjNhNjI0YWNhYTNmNGUwNDJmNjE0MzNjNzI4YzcwNTdiOTMxYmUiLCJDIjoiMDI5ZThlNTA1MGI4OTBhN2Q2YzA5NjhkYjE2YmMxZDVkNWZhMDQwZWExZGUyODRmNmVjNjlkNjEyOTlmNjcxMDU5In1dfV0sInVuaXQiOiJzYXQiLCJtZW1vIjoiVGhhbmsgeW91LiJ9";
         assertEquals(expected, Token.serialize(strToken, false));

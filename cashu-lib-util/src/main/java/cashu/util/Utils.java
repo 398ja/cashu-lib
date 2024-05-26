@@ -8,7 +8,7 @@ import java.util.Arrays;
 public class Utils {
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toLowerCase().toCharArray();
 
-    public static String bytesToHexString(@NonNull byte[] bytes) {
+    public static String bytesToHexString(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
         for (int j = 0; j < bytes.length; j++) {
             int v = bytes[j] & 0xFF;

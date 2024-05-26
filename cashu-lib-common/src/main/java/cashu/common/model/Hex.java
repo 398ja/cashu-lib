@@ -39,13 +39,13 @@ public class Hex {
         this(Utils.hexStringToBytes(hexStr), length);
     }
 
-    protected Hex(@NonNull byte[] bytes, int length) {
+    protected Hex(byte[] bytes, int length) {
         this.bytes = bytes;
         this.length = length;
     }
 
 
-    public static Hex fromBytes(@NonNull byte[] bytes) {
+    public static Hex fromBytes(byte[] bytes) {
         return Hex.fromString(Utils.bytesToHexString(bytes));
     }
 

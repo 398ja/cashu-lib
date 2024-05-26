@@ -14,7 +14,7 @@ public class Signature extends Hex {
         super(value, SIGNATURE_LENGTH);
     }
 
-    private Signature(@NonNull byte[] value) {
+    private Signature(byte[] value) {
         super(value, SIGNATURE_LENGTH);
     }
 
@@ -23,7 +23,7 @@ public class Signature extends Hex {
         return fromHex(hex);
     }
 
-    public static Signature fromBytes(@NonNull byte[] bytes) {
+    public static Signature fromBytes(byte[] bytes) {
         return fromString(Utils.bytesToHexString(bytes));
     }
 

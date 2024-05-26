@@ -14,7 +14,7 @@ public class Secret extends Hex {
         super(value, SECRET_LENGTH);
     }
 
-    private Secret(@NonNull byte[] value) {
+    private Secret(byte[] value) {
         super(value, SECRET_LENGTH);
     }
 
@@ -23,7 +23,7 @@ public class Secret extends Hex {
         return fromHex(hex);
     }
 
-    public static Secret fromBytes(@NonNull byte[] bytes) {
+    public static Secret fromBytes(byte[] bytes) {
         return fromString(Utils.bytesToHexString(bytes));
     }
 

@@ -43,7 +43,7 @@ public class BDHKEUtils {
         throw new RuntimeException("No valid point found");
     }
 
-    public static byte[][] blindMessage(@NonNull byte[] secret) throws NoSuchAlgorithmException {
+    public static byte[][] blindMessage(byte[] secret) throws NoSuchAlgorithmException {
         byte[][] result = new byte[2][];
         ECPoint[] blindedMessage = blindMessage(new String(secret));
         result[0] = blindedMessage[0].getEncoded(true);

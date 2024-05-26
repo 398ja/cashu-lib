@@ -1,7 +1,6 @@
 package cashu.vault;
 
 import cashu.common.model.PrivateKey;
-import cashu.common.protocol.CashuException;
 import cashu.util.Configuration;
 import cashu.vault.config.EntityConfiguration;
 import cashu.vault.config.MintConfiguration;

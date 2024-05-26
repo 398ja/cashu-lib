@@ -14,7 +14,7 @@ public class PublicKey extends Hex {
         super(value, PUBLIC_KEY_LENGTH);
     }
 
-    private PublicKey(@NonNull byte[] value) {
+    private PublicKey(byte[] value) {
         super(value, PUBLIC_KEY_LENGTH);
     }
 
@@ -23,7 +23,7 @@ public class PublicKey extends Hex {
         return fromHex(hex);
     }
 
-    public static PublicKey fromBytes(@NonNull byte[] bytes) {
+    public static PublicKey fromBytes(byte[] bytes) {
         return fromString(Utils.bytesToHexString(bytes));
     }
 

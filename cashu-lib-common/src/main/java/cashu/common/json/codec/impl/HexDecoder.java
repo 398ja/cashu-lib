@@ -2,7 +2,6 @@ package cashu.common.json.codec.impl;
 
 import cashu.common.json.codec.Decoder;
 import cashu.common.model.Hex;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
