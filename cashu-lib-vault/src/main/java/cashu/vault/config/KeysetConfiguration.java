@@ -1,8 +1,10 @@
 package cashu.vault.config;
 
+import cashu.common.model.KeySet;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Builder
 @AllArgsConstructor
@@ -10,6 +12,8 @@ import lombok.Getter;
 public class KeysetConfiguration implements EntityConfiguration {
 
     private final MintConfiguration mint;
-    private final String id;
+
+    @Setter
+    private String id;
     private final String unit;
 }

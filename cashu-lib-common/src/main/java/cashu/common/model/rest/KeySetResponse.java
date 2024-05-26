@@ -1,0 +1,21 @@
+package cashu.common.model.rest;
+
+import cashu.common.model.ActiveKeySet;
+import cashu.common.model.KeySet;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+
+import java.util.List;
+
+@Data
+@NoArgsConstructor
+public class KeySetResponse {
+
+    private List<KeySet> keysets;
+
+    public KeySetResponse(@NonNull List<KeySet> keysets) {
+        this.keysets = keysets;
+    }
+}

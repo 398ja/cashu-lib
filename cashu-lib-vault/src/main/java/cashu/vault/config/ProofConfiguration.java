@@ -1,5 +1,6 @@
 package cashu.vault.config;
 
+import cashu.common.model.Proof;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

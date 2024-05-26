@@ -28,7 +28,8 @@ public class FSProofVault extends FSVault<ProofConfiguration> {
             String secret = proofConfiguration.getSecret();
             String unblindedSignature = proofConfiguration.getUnblindedSignature();
 
-            Path path = Paths.get(baseDir, "mint", privateKey.toString(), "proofs", secret);
+            // <baseDir>/mint/<privateKey>/.proofs/[secret]
+            Path path = Paths.get(baseDir, "mint", privateKey.toString(), ".proofs", secret);
             Files.createDirectories(path.getParent());
             if (!Files.exists(path)) {
                 Files.createFile(path);
@@ -42,11 +43,11 @@ public class FSProofVault extends FSVault<ProofConfiguration> {
     }
 
     @Override
-    public String retrieve(@NonNull String key) throws CashuException {
+    public String retrieve(@NonNull String key, boolean archive) throws CashuException {
         try {
-            var baseDir = getBaseDir();
+            var baseDir = getBaseDir(archive);
 
-            Path path = Paths.get(baseDir, "mint", proofConfiguration.getMint().getPrivateKey(), "proofs", key);
+            Path path = Paths.get(baseDir, "mint", proofConfiguration.getMint().getPrivateKey(), ".proofs", key);
 
             if (Files.exists(path)) {
                 byte[] keyBytes = Files.readAllBytes(path);

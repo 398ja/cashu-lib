@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonPropertyOrder({"id", "unit", "keys"})
-public class KeySet {
+public class KeySet implements Archivable {
 
     @JsonProperty
     private String id;

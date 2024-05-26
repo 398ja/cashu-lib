@@ -1,5 +1,7 @@
 package cashu.vault.config;
 
+import cashu.common.model.Keys;
+import cashu.common.model.PrivateKey;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,5 +16,4 @@ public class KeyConfiguration implements EntityConfiguration {
     private final KeysetConfiguration keyset;
     private final BigInteger amount;
     private final String privateKey;
-
 }

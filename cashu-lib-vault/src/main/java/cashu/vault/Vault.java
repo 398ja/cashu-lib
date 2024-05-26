@@ -7,7 +7,7 @@ public interface Vault<T extends EntityConfiguration> {
 
     void store() throws CashuException;
 
-    String retrieve(String key) throws CashuException;
+    String retrieve(String key, boolean archive) throws CashuException;
 
     void archive(String key) throws CashuException;
 }

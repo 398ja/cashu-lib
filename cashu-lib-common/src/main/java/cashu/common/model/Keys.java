@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -15,7 +16,7 @@ import java.util.Map;
 @JsonDeserialize(using = KeysDeserializer.class)
 @JsonSerialize(using = KeysSerializer.class)
 @AllArgsConstructor
-public class Keys {
+public class Keys implements Archivable {
 
     private final Map<BigInteger, PublicKey> values = new HashMap<>();
 

@@ -1,5 +1,6 @@
 package cashu.vault.config;
 
+import cashu.common.model.Mint;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

@@ -1,6 +1,7 @@
 package cashu.vault;
 
 import cashu.common.model.PrivateKey;
+import cashu.common.protocol.CashuException;
 import cashu.util.Configuration;
 import cashu.vault.config.EntityConfiguration;
 import cashu.vault.config.MintConfiguration;
@@ -14,13 +15,17 @@ import java.util.Objects;
 public abstract class FSVault<T extends EntityConfiguration> implements Vault<T> {
 
     protected static String getBaseDir() {
-        InputStream inputStream = FSVault.class.getResourceAsStream("/application.properties");
+        return getBaseDir(false);
+    }
+
+    public static String getBaseDir(boolean archive) {
+        InputStream inputStream = FSVault.class.getResourceAsStream("/vault.properties");
         Configuration configuration = Configuration.load(Objects.requireNonNull(inputStream));
-        return configuration.getValue("base_dir");
+        return archive ? configuration.getValue("archive_dir") : configuration.getValue("base_dir");
     }
 
     protected static String getArchiveDir() {
-        InputStream inputStream = FSVault.class.getResourceAsStream("/application.properties");
+        InputStream inputStream = FSVault.class.getResourceAsStream("/vault.properties");
         Configuration configuration = Configuration.load(Objects.requireNonNull(inputStream));
         return configuration.getValue("archive_dir");
     }

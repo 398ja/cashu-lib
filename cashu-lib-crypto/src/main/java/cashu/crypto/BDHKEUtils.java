@@ -43,6 +43,14 @@ public class BDHKEUtils {
         throw new RuntimeException("No valid point found");
     }
 
+    public static byte[][] blindMessage(@NonNull byte[] secret) throws NoSuchAlgorithmException {
+        byte[][] result = new byte[2][];
+        ECPoint[] blindedMessage = blindMessage(new String(secret));
+        result[0] = blindedMessage[0].getEncoded(true);
+        result[1] = blindedMessage[1].getEncoded(true);
+        return result;
+    }
+
     public static ECPoint[] blindMessage(@NonNull String secret) throws NoSuchAlgorithmException {
         ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("secp256k1");
         ECCurve curve = spec.getCurve();

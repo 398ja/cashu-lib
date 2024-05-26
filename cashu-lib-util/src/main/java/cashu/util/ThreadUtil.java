@@ -36,7 +36,7 @@ public class ThreadUtil<T extends ThreadUtil.Task> {
     }
 
     public void run() throws TimeoutException {
-        log.log(Level.FINE, "Executing thread on {0}...", task);
+        log.log(Level.INFO, "Executing thread on {0}...", task);
         ExecutorService threadPool = Executors.newCachedThreadPool();
         Future<?> futureTask = threadPool.submit(() -> {
             if (lock != null) {

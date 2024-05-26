@@ -31,7 +31,7 @@ public class FSVaultTest {
 
     @Test
     public void testMintVault() throws CashuException {
-        String privateKey = PrivateKey.generate().toString();
+        String privateKey = PrivateKey.generateRandom().toString();
         MintConfiguration mint = new MintConfiguration(privateKey);
         FSMintVault vault = new FSMintVault(mint);
 
@@ -40,49 +40,49 @@ public class FSVaultTest {
         Path mintVault = Path.of(getBaseDir(), "mint", privateKey);
         Assert.assertTrue(Files.exists(mintVault));
 
-        var vaultPath = vault.retrieve(privateKey);
+        var vaultPath = vault.retrieve(privateKey, false);
         assertEquals(mintVault.toString(), vaultPath);
     }
 
     @Test
     public void testKeySetVault() throws CashuException {
-        String privateKey = PrivateKey.generate().toString();
+        String privateKey = PrivateKey.generateRandom().toString();
         MintConfiguration mint = new MintConfiguration(privateKey);
         KeysetConfiguration keyset = new KeysetConfiguration(mint, "keyset1", "sat");
         FSKeysetVault vault = new FSKeysetVault(keyset);
 
         vault.store();
-        Path ksPath = Path.of(getBaseDir(), "mint", privateKey, "keyset", "sat", "keyset1");
+        Path ksPath = Path.of(getBaseDir(), "mint", privateKey, "sat", ".keyset1");
         Assert.assertTrue(Files.exists(ksPath));
 
-        var vaultPath = vault.retrieve("keyset1");
+        var vaultPath = vault.retrieve("keyset1", false);
         assertEquals(ksPath.toString(), vaultPath);
 
         vault.archive("keyset1");
         Assert.assertFalse(Files.exists(ksPath));
 
-        var ksArchivePath = Path.of(getArchiveDir(), "mint", privateKey, "keyset", "sat", "keyset1");
+        var ksArchivePath = Path.of(getArchiveDir(), "mint", privateKey, "sat", ".keyset1");
         Assert.assertTrue(Files.exists(ksArchivePath));
     }
 
     @Test
     public void testKeyVault() throws CashuException {
-        String privateKey = PrivateKey.generate().toString();
+        String privateKey = PrivateKey.generateRandom().toString();
         MintConfiguration mint = new MintConfiguration(privateKey);
         KeysetConfiguration keyset = new KeysetConfiguration(mint, "keyset1", "sat");
         BigInteger amount = generateRandomBigInteger();
-        KeyConfiguration key = new KeyConfiguration(keyset, amount, PrivateKey.generate().toString());
+        KeyConfiguration key = new KeyConfiguration(keyset, amount, PrivateKey.generateRandom().toString());
 
         FSKeyVault vault = new FSKeyVault(key);
         vault.store();
 
-        Path keyPath = Paths.get(getBaseDir(), "mint", privateKey, "keyset", "sat", "keyset1", amount.toString(), key.getPrivateKey());
+        Path keyPath = Paths.get(getBaseDir(), "mint", privateKey, "sat", amount.toString(), key.getPrivateKey());
         assertTrue(Files.exists(keyPath));
 
-        var vaultPath = vault.retrieve(key.getPrivateKey());
+        var vaultPath = vault.retrieve(key.getPrivateKey(), false);
         assertEquals(keyPath.toString(), vaultPath);
 
-        var archivePath = Paths.get(getArchiveDir(), "mint", privateKey, "keyset", "sat", "keyset1", amount.toString(), key.getPrivateKey());
+        var archivePath = Paths.get(getArchiveDir(), "mint", privateKey, "sat", amount.toString(), key.getPrivateKey());
         vault.archive(key.getPrivateKey());
         assertTrue(Files.exists(archivePath));
         assertFalse(Files.exists(keyPath));
@@ -95,23 +95,18 @@ public class FSVaultTest {
 
         vault.store();
 
-        var proofPath = Paths.get(getBaseDir(), "mint", proofConfiguration.getMint().getPrivateKey(), "proofs", proofConfiguration.getSecret());
+        var proofPath = Paths.get(getBaseDir(), "mint", proofConfiguration.getMint().getPrivateKey(), ".proofs", proofConfiguration.getSecret());
         assertTrue(Files.exists(proofPath));
-
-/*
-        var retrieveProof = vault.retrieve(proofConfiguration.getSecret());
-        assertEquals(proofConfiguration.getUnblindedSignature(), retrieveProof);
-*/
     }
 
     private static String getBaseDir() {
-        InputStream inputStream = FSVault.class.getResourceAsStream("/application.properties");
+        InputStream inputStream = FSVault.class.getResourceAsStream("/vault.properties");
         Configuration configuration = Configuration.load(Objects.requireNonNull(inputStream));
         return configuration.getValue("base_dir");
     }
 
     private static String getArchiveDir() {
-        InputStream inputStream = FSVault.class.getResourceAsStream("/application.properties");
+        InputStream inputStream = FSVault.class.getResourceAsStream("/vault.properties");
         Configuration configuration = Configuration.load(Objects.requireNonNull(inputStream));
         return configuration.getValue("archive_dir");
     }
@@ -131,7 +126,7 @@ public class FSVaultTest {
     }
 
     private ProofConfiguration createProof() {
-        String privateKey = PrivateKey.generate().toString();
+        String privateKey = PrivateKey.generateRandom().toString();
         MintConfiguration mint = new MintConfiguration(privateKey);
         var unblindedSignature = generateRandomHexString(66);
         var secret = generateRandomHexString(64);

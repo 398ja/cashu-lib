@@ -50,7 +50,7 @@ public class PrivateKey extends Hex {
         return KeysUtils.derivePublicKey(privateKey);
     }
 
-    public static PrivateKey generate() {
+    public static PrivateKey generateRandom() {
         return KeysUtils.generatePrivateKey();
     }
 

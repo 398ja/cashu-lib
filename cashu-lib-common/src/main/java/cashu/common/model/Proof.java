@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonPropertyOrder({"amount", "id", "secret", "C"})
-public class Proof {
+public class Proof implements Archivable {
 
     @JsonProperty
     private int amount;
