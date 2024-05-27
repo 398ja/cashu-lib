@@ -19,8 +19,13 @@ public class BDHKEUtils {
 
     private static final String DOMAIN_SEPARATOR = "Secp256k1_HashToCurve_Cashu_";
 
-    public static ECPoint hashToCurve(byte[] message) throws NoSuchAlgorithmException {
-        MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+    public static ECPoint hashToCurve(byte[] message) {
+        MessageDigest sha256;
+        try {
+            sha256 = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
         byte[] msgToHash = sha256.digest(concat(DOMAIN_SEPARATOR.getBytes(StandardCharsets.UTF_8), message));
         int counter = 0;
         while (counter < Math.pow(2, 16)) {
@@ -43,7 +48,7 @@ public class BDHKEUtils {
         throw new RuntimeException("No valid point found");
     }
 
-    public static byte[][] blindMessage(byte[] secret) throws NoSuchAlgorithmException {
+    public static byte[][] blindMessage(byte[] secret) {
         byte[][] result = new byte[2][];
         ECPoint[] blindedMessage = blindMessage(new String(secret));
         result[0] = blindedMessage[0].getEncoded(true);
@@ -51,7 +56,7 @@ public class BDHKEUtils {
         return result;
     }
 
-    public static ECPoint[] blindMessage(@NonNull String secret) throws NoSuchAlgorithmException {
+    public static ECPoint[] blindMessage(@NonNull String secret) {
         ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("secp256k1");
         ECCurve curve = spec.getCurve();
         BigInteger r = new BigInteger(256, new SecureRandom());
@@ -85,11 +90,11 @@ public class BDHKEUtils {
         return C;
     }
 
-    public static boolean verify(String secret, byte[] k, byte[] C) throws NoSuchAlgorithmException {
+    public static boolean verify(String secret, byte[] k, byte[] C) {
         return verify(secret, new BigInteger(k), ECNamedCurveTable.getParameterSpec("secp256k1").getCurve().decodePoint(C));
     }
 
-    public static boolean verify(String secret, BigInteger k, ECPoint C) throws NoSuchAlgorithmException {
+    public static boolean verify(String secret, BigInteger k, ECPoint C) {
         ECPoint Y = hashToCurve(secret.getBytes());
         boolean valid = verify(Y, k, C);
         if (!valid) {
@@ -99,8 +104,13 @@ public class BDHKEUtils {
         return valid;
     }
 
-    public static ECPoint hashToCurveDeprecated(byte[] message) throws NoSuchAlgorithmException {
-        MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+    public static ECPoint hashToCurveDeprecated(byte[] message) {
+        MessageDigest sha256;
+        try {
+            sha256 = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
         ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("secp256k1");
         ECCurve curve = spec.getCurve();
         ECPoint point = null;
