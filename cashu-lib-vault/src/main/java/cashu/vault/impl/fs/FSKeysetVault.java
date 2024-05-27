@@ -81,7 +81,6 @@ public class FSKeysetVault extends FSVault<KeysetConfiguration> {
             throw new RuntimeException(e);
         }
 
-        return;
     }
 
     @Override

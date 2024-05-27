@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 public class NUT00Tests {
 
     @Test
-    public void hashToCurveFunction() throws NoSuchAlgorithmException {
+    public void hashToCurveFunction() {
         Secret message = Secret.fromString("0000000000000000000000000000000000000000000000000000000000000000");
         String expected = "024cce997d3b518f739663b757deaec95bcd9473c30a14ac2fd04023a739d1a725";
         var result = BDHKEUtils.hashToCurve(message.toBytes());
