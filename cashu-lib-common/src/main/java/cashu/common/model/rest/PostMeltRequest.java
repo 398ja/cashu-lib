@@ -4,18 +4,21 @@ import cashu.common.model.Proof;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @AllArgsConstructor
-@Getter
+@NoArgsConstructor
+@Data
 @Builder
 public class PostMeltRequest {
 
     @JsonProperty("quote")
-    private final String quoteId;
+    private String quoteId;
 
     @JsonProperty("inputs")
-    private final List<Proof> proofs;
+    private List<Proof> proofs;
 }

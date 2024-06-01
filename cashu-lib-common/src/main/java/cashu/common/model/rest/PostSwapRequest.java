@@ -5,16 +5,18 @@ import cashu.common.model.Proof;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class PostSwapRequest {
 
     @JsonProperty("inputs")
-    private final List<Proof> proofs;
+    private List<Proof> proofs;
 
     @JsonProperty("outputs")
-    private final List<BlindedMessage> blindedMessages;
+    private List<BlindedMessage> blindedMessages;
 }

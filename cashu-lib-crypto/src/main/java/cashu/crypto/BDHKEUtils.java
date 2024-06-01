@@ -1,6 +1,8 @@
 package cashu.crypto;
 
 import cashu.common.model.Hex;
+import cashu.common.model.PrivateKey;
+import cashu.util.Utils;
 import lombok.NonNull;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
@@ -50,41 +52,48 @@ public class BDHKEUtils {
 
     public static byte[][] blindMessage(byte[] secret) {
         byte[][] result = new byte[2][];
-        ECPoint[] blindedMessage = blindMessage(new String(secret));
-        result[0] = blindedMessage[0].getEncoded(true);
-        result[1] = blindedMessage[1].getEncoded(true);
+
+        ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("secp256k1");
+        //ECCurve curve = spec.getCurve();
+        BigInteger r = PrivateKey.generateRandom().toBigInteger();
+        ECPoint G = spec.getG();
+        ECPoint Y = hashToCurve(secret);
+        ECPoint rG = G.multiply(r);
+        ECPoint B_ = Y.add(rG);
+
+        result[0] = B_.getEncoded(true);
+        result[1] = Utils.bytesFromBigInteger(r);
+
         return result;
     }
 
-    public static ECPoint[] blindMessage(@NonNull String secret) {
+/*
+    private static ECPoint[] blindMessage(byte[] secret) {
         ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("secp256k1");
         ECCurve curve = spec.getCurve();
         BigInteger r = new BigInteger(256, new SecureRandom());
         ECPoint G = spec.getG();
-        ECPoint Y = hashToCurve(secret.getBytes());
+        ECPoint Y = hashToCurve(Utils.hexStringToBytes(secret));
         ECPoint rG = G.multiply(r);
         ECPoint B_ = Y.add(rG);
         return new ECPoint[]{B_, curve.createPoint(r, BigInteger.ZERO)};
     }
+*/
 
     public static byte[] signBlindedMessage(byte[] B_, byte[] k) {
-        return signBlindedMessage(ECNamedCurveTable.getParameterSpec("secp256k1").getCurve().decodePoint(B_), new BigInteger(k)).getEncoded(true);
+        return signBlindedMessage(ECNamedCurveTable.getParameterSpec("secp256k1").getCurve().decodePoint(B_), Utils.bigIntFromBytes(k)).getEncoded(true);
     }
 
     public static ECPoint signBlindedMessage(ECPoint B_, BigInteger k) {
-        ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("secp256k1");
-        ECCurve curve = spec.getCurve();
         ECPoint C_ = B_.multiply(k);
         return C_;
     }
 
     public static byte[] unblindSignature(byte[] C_, byte[] r, byte[] K) {
-        return unblindSignature(ECNamedCurveTable.getParameterSpec("secp256k1").getCurve().decodePoint(C_), new BigInteger(r), ECNamedCurveTable.getParameterSpec("secp256k1").getCurve().decodePoint(K)).getEncoded(true);
+        return unblindSignature(ECNamedCurveTable.getParameterSpec("secp256k1").getCurve().decodePoint(C_), Utils.bigIntFromBytes(r), ECNamedCurveTable.getParameterSpec("secp256k1").getCurve().decodePoint(K)).getEncoded(true);
     }
 
     public static ECPoint unblindSignature(ECPoint C_, BigInteger r, ECPoint K) {
-        ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("secp256k1");
-        ECCurve curve = spec.getCurve();
         ECPoint rK = K.multiply(r.negate());
         ECPoint C = C_.add(rK);
         return C;

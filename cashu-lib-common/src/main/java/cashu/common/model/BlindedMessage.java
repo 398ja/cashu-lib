@@ -21,5 +21,5 @@ public class BlindedMessage {
     private String keySetId;
 
     @JsonProperty("B_")
-    private PrivateKey blindedMessage;
+    private PublicKey blindedMessage;
 }

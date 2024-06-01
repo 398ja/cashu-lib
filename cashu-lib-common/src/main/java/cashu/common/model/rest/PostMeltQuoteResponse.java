@@ -3,25 +3,28 @@ package cashu.common.model.rest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-@Getter
+@Data
 public class PostMeltQuoteResponse {
 
     @JsonProperty("quote")
-    private final String quoteId;
+    private String quoteId;
 
     @JsonProperty
-    private final int amount;
+    private int amount;
 
     @JsonProperty("fee_reserve")
-    private final int feeReserve;
+    private int feeReserve;
 
     @JsonProperty
-    private final boolean paid;
+    private boolean paid;
 
     @JsonProperty
-    private final int expiry;
+    private int expiry;
 }

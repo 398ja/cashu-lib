@@ -4,17 +4,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class PostMintQuoteResponse {
 
     @JsonProperty("quote")
-    private final String quoteId;
+    private String quoteId;
 
     @JsonProperty
-    private final String request;
+    private String request;
 
     @JsonProperty
     @Builder.Default

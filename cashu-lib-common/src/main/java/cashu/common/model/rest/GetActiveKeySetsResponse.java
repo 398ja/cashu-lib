@@ -2,14 +2,18 @@ package cashu.common.model.rest;
 
 import cashu.common.model.ActiveKeySet;
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import java.util.List;
 
 @AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class GetActiveKeySetsResponse {
 
-    private final List<ActiveKeySet> activeKeySets;
+    private List<ActiveKeySet> activeKeySets;
 
     public void addActiveKeySet(@NonNull ActiveKeySet activeKeySet) {
         activeKeySets.add(activeKeySet);
