@@ -1,13 +1,9 @@
 package cashu.common.model.rest;
 
 import cashu.common.model.BlindSignature;
-import cashu.common.model.Secret;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import java.util.ArrayList;

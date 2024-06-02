@@ -15,6 +15,7 @@ import cashu.vault.impl.fs.FSProofVault;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.file.Files;
@@ -100,15 +101,21 @@ public class FSVaultTest {
     }
 
     private static String getBaseDir() {
-        InputStream inputStream = FSVault.class.getResourceAsStream("/vault.properties");
-        Configuration configuration = Configuration.load(Objects.requireNonNull(inputStream));
-        return configuration.getValue("base_dir");
+        try (InputStream inputStream = FSVault.class.getResourceAsStream("/vault.properties")) {
+            Configuration configuration = Configuration.load(Objects.requireNonNull(inputStream));
+            return configuration.getValue("base_dir");
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load vault properties", e);
+        }
     }
 
     private static String getArchiveDir() {
-        InputStream inputStream = FSVault.class.getResourceAsStream("/vault.properties");
-        Configuration configuration = Configuration.load(Objects.requireNonNull(inputStream));
-        return configuration.getValue("archive_dir");
+        try (InputStream inputStream = FSVault.class.getResourceAsStream("/vault.properties")) {
+            Configuration configuration = Configuration.load(Objects.requireNonNull(inputStream));
+            return configuration.getValue("archive_dir");
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load vault properties", e);
+        }
     }
 
     public static BigInteger generateRandomBigInteger() {
