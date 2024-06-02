@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public abstract class PostMeltQuoteRequest {
+public class PostMeltQuoteRequest {
 
     @JsonProperty("request")
     private String requestId;

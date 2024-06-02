@@ -67,19 +67,6 @@ public class BDHKEUtils {
         return result;
     }
 
-/*
-    private static ECPoint[] blindMessage(byte[] secret) {
-        ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("secp256k1");
-        ECCurve curve = spec.getCurve();
-        BigInteger r = new BigInteger(256, new SecureRandom());
-        ECPoint G = spec.getG();
-        ECPoint Y = hashToCurve(Utils.hexStringToBytes(secret));
-        ECPoint rG = G.multiply(r);
-        ECPoint B_ = Y.add(rG);
-        return new ECPoint[]{B_, curve.createPoint(r, BigInteger.ZERO)};
-    }
-*/
-
     public static byte[] signBlindedMessage(byte[] B_, byte[] k) {
         return signBlindedMessage(ECNamedCurveTable.getParameterSpec("secp256k1").getCurve().decodePoint(B_), Utils.bigIntFromBytes(k)).getEncoded(true);
     }
@@ -100,14 +87,19 @@ public class BDHKEUtils {
     }
 
     public static boolean verify(String secret, byte[] k, byte[] C) {
-        return verify(secret, new BigInteger(k), ECNamedCurveTable.getParameterSpec("secp256k1").getCurve().decodePoint(C));
+        ECCurve secp256k1Curve = ECNamedCurveTable.getParameterSpec("secp256k1").getCurve();
+        return verify(
+                secret,
+                Utils.bigIntFromBytes(k),
+                secp256k1Curve.decodePoint(C)
+        );
     }
 
     public static boolean verify(String secret, BigInteger k, ECPoint C) {
-        ECPoint Y = hashToCurve(secret.getBytes());
+        ECPoint Y = hashToCurve(Utils.hexStringToBytes(secret));
         boolean valid = verify(Y, k, C);
         if (!valid) {
-            Y = hashToCurveDeprecated(secret.getBytes());
+            Y = hashToCurveDeprecated(Utils.hexStringToBytes(secret));
             valid = verify(Y, k, C);
         }
         return valid;
