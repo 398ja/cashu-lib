@@ -61,6 +61,9 @@ Include the following dependencies in your project's pom.xml file:
 ## Todo
 - Hashicorp Vault integration to store private keys. (The current vault is very basic and not fit for production use)
 - Move ```cashu-lib-vault``` to the ```cashu-mint``` project.
+- Move ```cashu-mint-gateway*``` to the ```cashu-lib``` project.
+- Add more unit tests.
+- Introduce JaCoCo for code coverage.
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
