@@ -1,6 +1,5 @@
 package cashu.common.model.rest;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,12 +10,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostMeltQuoteBolt11Request extends PostMeltQuoteRequest {
+public class PostMeltQuoteMockRequest extends PostMeltQuoteRequest {
 
-    @JsonProperty
     private String unit;
 
-    public PostMeltQuoteBolt11Request(@NonNull String requestId, @NonNull String unit) {
+    public PostMeltQuoteMockRequest(@NonNull String requestId, @NonNull String unit) {
         super(requestId);
         this.unit = unit;
     }
