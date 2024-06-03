@@ -32,7 +32,7 @@ $ mvn clean install
 - ```cashu-lib-common:``` Contains common entity classes and utilities used by other modules.
 - ```cashu-lib-crypto:``` Contains cryptographic functions and utilities used by other modules.
 - ```cashu-lib-gateway:``` Contains interfaces for gateways to interact with the Cashu protocol.
-- ```cashu-lib-gateway-mock:``` Contains a mock vault implementation to store private keys.
+- ```cashu-lib-gateway-mock:``` Contains a mock gateway implementation for testing purpose only.
 - ```cashu-lib-util:``` Contains utility classes and functions used by other modules.
 - ```cashu-lib-test:``` Contains unit test classes.
 
