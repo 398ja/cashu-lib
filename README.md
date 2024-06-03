@@ -46,17 +46,22 @@ Include the following dependencies in your project's pom.xml file:
     <version>0.1-SNAPSHOT</version>
 </dependency>
 
-<dependency>
+<dependency><dependency>
     <groupId>cashu-lib</groupId>
     <artifactId>cashu-lib-crypto</artifactId>
     <version>0.1-SNAPSHOT</version>
 </dependency>
+
+<groupId>cashu-lib</groupId>
+    <artifactId>cashu-lib-gateway-mock</artifactId>
+    <version>0.1-SNAPSHOT</version>
+</dependency>
+
 ```
 
 ## Todo
-- Hashicorp Vault integration to store private keys. (The current vault is very basic and not fit for production use)
 - Add more unit tests.
-- Introduce JaCoCo for code coverage.
+- Configure JaCoCo for code coverage.
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
