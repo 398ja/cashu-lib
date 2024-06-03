@@ -31,7 +31,8 @@ $ mvn clean install
 ## Modules
 - ```cashu-lib-common:``` Contains common entity classes and utilities used by other modules.
 - ```cashu-lib-crypto:``` Contains cryptographic functions and utilities used by other modules.
-- ```cashu-lib-vault:``` Contains a basic vault implementation to store private keys.
+- ```cashu-lib-gateway:``` Contains interfaces for gateways to interact with the Cashu protocol.
+- ```cashu-lib-gateway-mock:``` Contains a mock vault implementation to store private keys.
 - ```cashu-lib-util:``` Contains utility classes and functions used by other modules.
 - ```cashu-lib-test:``` Contains unit test classes.
 
@@ -39,12 +40,6 @@ $ mvn clean install
 Include the following dependencies in your project's pom.xml file:
 
 ```xml
-<dependency>
-    <groupId>cashu-lib</groupId>
-    <artifactId>cashu-lib-vault</artifactId>
-    <version>0.1-SNAPSHOT</version>
-</dependency>
-
 <dependency>
     <groupId>cashu-lib</groupId>
     <artifactId>cashu-lib-common</artifactId>
@@ -60,8 +55,6 @@ Include the following dependencies in your project's pom.xml file:
 
 ## Todo
 - Hashicorp Vault integration to store private keys. (The current vault is very basic and not fit for production use)
-- Move ```cashu-lib-vault``` to the ```cashu-mint``` project.
-- Move ```cashu-mint-gateway*``` to the ```cashu-lib``` project.
 - Add more unit tests.
 - Introduce JaCoCo for code coverage.
 
