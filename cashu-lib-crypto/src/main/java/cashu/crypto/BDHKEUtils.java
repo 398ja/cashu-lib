@@ -4,6 +4,7 @@ import cashu.common.model.Hex;
 import cashu.common.model.PrivateKey;
 import cashu.util.Utils;
 import lombok.NonNull;
+import lombok.extern.java.Log;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.math.ec.ECCurve;
@@ -15,12 +16,15 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.logging.Level;
 
+@Log
 public class BDHKEUtils {
 
     private static final String DOMAIN_SEPARATOR = "Secp256k1_HashToCurve_Cashu_";
 
     public static ECPoint hashToCurve(byte[] message) {
+        log.log(Level.INFO, "hashToCurve({0})", Utils.bytesToHexString(message));
         MessageDigest sha256;
         try {
             sha256 = MessageDigest.getInstance("SHA-256");
@@ -43,6 +47,7 @@ public class BDHKEUtils {
                 }
             } catch (IllegalArgumentException e) {
                 // Ignore and continue with the next counter value
+                log.log(Level.WARNING, "Invalid point: {0}. Ignoring...", Utils.bytesToHexString(pkHash));
             }
             counter++;
         }
@@ -53,7 +58,6 @@ public class BDHKEUtils {
         byte[][] result = new byte[2][];
 
         ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("secp256k1");
-        //ECCurve curve = spec.getCurve();
         BigInteger r = PrivateKey.generateRandom().toBigInteger();
         ECPoint G = spec.getG();
         ECPoint Y = hashToCurve(secret);
@@ -105,6 +109,7 @@ public class BDHKEUtils {
     }
 
     public static ECPoint hashToCurveDeprecated(byte[] message) {
+        log.log(Level.INFO, "hashToCurveDeprecated({0})", Utils.bytesToHexString(message));
         MessageDigest sha256;
         try {
             sha256 = MessageDigest.getInstance("SHA-256");
@@ -117,7 +122,12 @@ public class BDHKEUtils {
         while (point == null || !point.isValid()) {
             byte[] hash = sha256.digest(message);
             byte[] pkHash = concat(new byte[]{0x02}, hash);
-            point = curve.decodePoint(pkHash);
+            log.log(Level.INFO, "hashToCurveDeprecated: {0}", Utils.bytesToHexString(pkHash));
+            try {
+                point = curve.decodePoint(pkHash);
+            } catch (IllegalArgumentException e) {
+                log.log(Level.WARNING, "Invalid point: {0}. Ignoring...", Utils.bytesToHexString(pkHash));
+            }
             message = hash;
         }
         return point;
@@ -133,6 +143,7 @@ public class BDHKEUtils {
     }
 
     private static boolean verify(ECPoint Y, BigInteger k, ECPoint C) {
+        log.log(Level.INFO, "verify({0}, {1}, {2})", new Object[]{pointToHex(Y), Utils.bytesToHexString(Utils.bytesFromBigInteger(k)), pointToHex(C)});
         ECPoint result = Y.multiply(k);
         return C.equals(result);
     }

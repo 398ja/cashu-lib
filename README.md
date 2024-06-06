@@ -46,13 +46,14 @@ Include the following dependencies in your project's pom.xml file:
     <version>0.1-SNAPSHOT</version>
 </dependency>
 
-<dependency><dependency>
+<dependency>
     <groupId>cashu-lib</groupId>
     <artifactId>cashu-lib-crypto</artifactId>
     <version>0.1-SNAPSHOT</version>
 </dependency>
 
-<groupId>cashu-lib</groupId>
+<dependency>
+    <groupId>cashu-lib</groupId>
     <artifactId>cashu-lib-gateway-mock</artifactId>
     <version>0.1-SNAPSHOT</version>
 </dependency>
