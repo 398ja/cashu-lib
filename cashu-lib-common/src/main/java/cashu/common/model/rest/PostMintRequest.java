@@ -33,12 +33,12 @@ public class PostMintRequest {
         this.blindingFactors = new ArrayList<>();
     }
 
-    public void addSecret(@NonNull Secret secret) {
-        this.secrets.add(secret);
+    public void addSecret(@NonNull Secret secret, int index) {
+        this.secrets.add(index, secret);
     }
 
-    public void addBlindingFactor(@NonNull byte[] blindingFactor) {
-        this.blindingFactors.add(blindingFactor);
+    public void addBlindingFactor(@NonNull byte[] blindingFactor, int index) {
+        this.blindingFactors.add(index, blindingFactor);
     }
 
     public Secret getSecret(int index) {

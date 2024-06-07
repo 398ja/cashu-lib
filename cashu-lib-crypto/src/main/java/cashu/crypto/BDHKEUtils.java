@@ -74,7 +74,7 @@ public class BDHKEUtils {
         return signBlindedMessage(ECNamedCurveTable.getParameterSpec("secp256k1").getCurve().decodePoint(B_), Utils.bigIntFromBytes(k)).getEncoded(true);
     }
 
-    public static ECPoint signBlindedMessage(ECPoint B_, BigInteger k) {
+    public static ECPoint signBlindedMessage(@NonNull ECPoint B_, @NonNull BigInteger k) {
         ECPoint C_ = B_.multiply(k);
         return C_;
     }
@@ -83,13 +83,13 @@ public class BDHKEUtils {
         return unblindSignature(ECNamedCurveTable.getParameterSpec("secp256k1").getCurve().decodePoint(C_), Utils.bigIntFromBytes(r), ECNamedCurveTable.getParameterSpec("secp256k1").getCurve().decodePoint(K)).getEncoded(true);
     }
 
-    public static ECPoint unblindSignature(ECPoint C_, BigInteger r, ECPoint K) {
+    public static ECPoint unblindSignature(@NonNull ECPoint C_, @NonNull BigInteger r, @NonNull ECPoint K) {
         ECPoint rK = K.multiply(r.negate());
         ECPoint C = C_.add(rK);
         return C;
     }
 
-    public static boolean verify(String secret, byte[] k, byte[] C) {
+    public static boolean verify(@NonNull String secret, byte[] k, byte[] C) {
         ECCurve secp256k1Curve = ECNamedCurveTable.getParameterSpec("secp256k1").getCurve();
         return verify(
                 secret,
@@ -98,39 +98,11 @@ public class BDHKEUtils {
         );
     }
 
-    public static boolean verify(String secret, BigInteger k, ECPoint C) {
+    public static boolean verify(@NonNull String secret, @NonNull BigInteger k, @NonNull ECPoint C) {
         ECPoint Y = hashToCurve(Utils.hexStringToBytes(secret));
         boolean valid = verify(Y, k, C);
-        if (!valid) {
-            Y = hashToCurveDeprecated(Utils.hexStringToBytes(secret));
-            valid = verify(Y, k, C);
-        }
+        log.log(Level.INFO, "Verification successful? {0}", valid);
         return valid;
-    }
-
-    public static ECPoint hashToCurveDeprecated(byte[] message) {
-        log.log(Level.INFO, "hashToCurveDeprecated({0})", Utils.bytesToHexString(message));
-        MessageDigest sha256;
-        try {
-            sha256 = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-        ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("secp256k1");
-        ECCurve curve = spec.getCurve();
-        ECPoint point = null;
-        while (point == null || !point.isValid()) {
-            byte[] hash = sha256.digest(message);
-            byte[] pkHash = concat(new byte[]{0x02}, hash);
-            log.log(Level.INFO, "hashToCurveDeprecated: {0}", Utils.bytesToHexString(pkHash));
-            try {
-                point = curve.decodePoint(pkHash);
-            } catch (IllegalArgumentException e) {
-                log.log(Level.WARNING, "Invalid point: {0}. Ignoring...", Utils.bytesToHexString(pkHash));
-            }
-            message = hash;
-        }
-        return point;
     }
 
     public static Hex pointToHex(@NonNull ECPoint point) {
@@ -139,6 +111,8 @@ public class BDHKEUtils {
     }
 
     private static boolean verify(byte[] Y, byte[] k, byte[] C) {
+        log.log(Level.INFO, "verify({0}, {1}, {2})", new Object[]{Utils.bytesToHexString(Y), Utils.bytesToHexString(k), Utils.bytesToHexString(C)});
+
         return verify(ECNamedCurveTable.getParameterSpec("secp256k1").getCurve().decodePoint(Y), new BigInteger(k), ECNamedCurveTable.getParameterSpec("secp256k1").getCurve().decodePoint(C));
     }
 
