@@ -1,6 +1,5 @@
 package cashu.common.model;
 
-import cashu.common.protocol.Actor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +11,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Getter
-public class Mint implements Actor, Archivable {
+public class Mint {
 
     private final PrivateKey privateKey;
     private final Set<KeySet> keySets;

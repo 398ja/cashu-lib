@@ -2,5 +2,5 @@ package cashu.common.protocol;
 
 public interface Ability<T> {
 
-    T apply();
+    T apply() throws CashuErrorException;
 }
