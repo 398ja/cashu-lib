@@ -108,18 +108,12 @@ public class BDHKEUtils {
     }
 
     public synchronized static boolean verify(@NonNull String secret, byte[] k, byte[] C) {
-        log.log(Level.INFO, "C size: {0}", C.length);
-
         boolean valid = verify(
                 secret,
                 Utils.bigIntFromBytes(k),
                 CURVE.decodePoint(C)
         );
-        log.log(Level.INFO, "Verification successful? {0}", valid);
-        if (!valid) {
-            valid = verify(secret, Utils.bigIntFromBytes(k), Utils.bytesToHexString(C));
-        }
-        log.log(Level.INFO, "Verification successful? {0}", valid);
+        log.log(Level.FINE, "Verification successful? {0}", valid);
         return valid;
     }
 
@@ -129,25 +123,15 @@ public class BDHKEUtils {
         return valid;
     }
 
-    private static boolean verify(@NonNull String secret, @NonNull BigInteger k, @NonNull String strC) {
-        log.log(Level.INFO, "verify({0}, {1}, {2})", new Object[]{secret, Utils.bytesToHexString(Utils.bytesFromBigInteger(k)), strC});
-        ECPoint Y = hashToCurve(Utils.hexStringToBytes(secret));
-        ECPoint C = CURVE.decodePoint(Utils.hexStringToBytes(strC));
-        boolean result = verify(Y, k, C);
-        //log.log(Level.INFO, "Verification successful? {0}", result);
-        return result;
-    }
-
-
 
     private static boolean verify(byte[] Y, byte[] k, byte[] C) {
-        log.log(Level.INFO, "verify({0}, {1}, {2})", new Object[]{Utils.bytesToHexString(Y), Utils.bytesToHexString(k), Utils.bytesToHexString(C)});
+        log.log(Level.FINE, "verify({0}, {1}, {2})", new Object[]{Utils.bytesToHexString(Y), Utils.bytesToHexString(k), Utils.bytesToHexString(C)});
 
         return verify(CURVE.decodePoint(Y), Utils.bigIntFromBytes(k), CURVE.decodePoint(C));
     }
 
     private static boolean verify(ECPoint Y, BigInteger k, ECPoint C) {
-        log.log(Level.INFO, "verify({0}, {1}, {2})", new Object[]{pointToHex(Y), Utils.bytesToHexString(Utils.bytesFromBigInteger(k)), pointToHex(C)});
+        log.log(Level.FINE, "verify({0}, {1}, {2})", new Object[]{pointToHex(Y), Utils.bytesToHexString(Utils.bytesFromBigInteger(k)), pointToHex(C)});
         ECPoint result = Y.multiply(k);
         return C.equals(result);
     }
