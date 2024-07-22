@@ -1,85 +1,82 @@
 package cashu.common.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@NoArgsConstructor
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class MintInformation {
-
-    @JsonProperty
     private String name;
-
     @JsonProperty("pubkey")
     private PublicKey publicKey;
-
-    @JsonProperty
     private String version;
-
-    @JsonProperty
     private String description;
-
     @JsonProperty("description_long")
     private String descriptionLong;
-
-    @JsonProperty
-    private Map<String, String> contacts;
-
-    @JsonProperty
+    private List<Contact> contacts;
     private String motd;
-
-    @JsonProperty
     private Map<String, NutConfig> nuts;
-
-    public void addNut(@NonNull Integer nut, @NonNull NutConfig config) {
-        if (nuts.containsKey(nut.toString())) {
-            return;
-        }
-        nuts.put(nut.toString(), config);
-    }
-
-    public interface NutConfig {
-    }
 
     @Data
     @NoArgsConstructor
-    public static class NutMethodsConfig implements NutConfig {
+    @AllArgsConstructor
+    public static class Contact {
 
-        @JsonProperty
-        private final List<Method> methods = new ArrayList<>();
+        public enum ContactMethod {
+            EMAIL("email"),
+            TELEGRAM("telegram"),
+            TWITTER("twitter"),
+            GITHUB("github"),
+            DISCORD("discord"),
+            FACEBOOK("facebook"),
+            LINKEDIN("linkedin"),
+            WEBSITE("website"),
+            NOSTR("nostr"),
+            OTHER("other");
 
-        public void addMethod(@NonNull Method method) {
-            if (methods.contains(method)) {
-                return;
+            private final String value;
+
+            ContactMethod(String value) {
+                this.value = value;
             }
-            methods.add(method);
+
+            @JsonValue
+            public String getValue() {
+                return value;
+            }
         }
 
-        @Data
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class Method {
-
-            @JsonProperty
-            private Map<String, String> methodInfo;
-
-            @JsonProperty
-            private boolean disabled;
-        }
+        @JsonProperty("method")
+        private ContactMethod contactMethod;
+        private String info;
     }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class NutSupportConfig implements NutConfig {
-        @JsonProperty
-        private boolean supported = false;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class NutConfig {
+        private List<Method> methods;
+        private Boolean disabled;
+        private Boolean supported;
+
+        @Data
+        @NoArgsConstructor
+        @AllArgsConstructor
+        public static class Method {
+            private String method;
+            private String unit;
+            @JsonProperty("min_amount")
+            private int minAmount;
+            @JsonProperty("max_amount")
+            private int maxAmount;
+        }
     }
 }

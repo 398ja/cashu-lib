@@ -2,18 +2,25 @@ package cashu.mint.gateway.mock;
 
 import cashu.common.model.PaymentMethod;
 import cashu.mint.gateway.Gateway;
+import cashu.util.Configuration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Objects;
 import java.util.UUID;
 
-public class MockGateway implements Gateway {
+@RequiredArgsConstructor
+public abstract class MockGateway implements Gateway {
 
     private static final String BASE_URL = "http://localhost:7777";
+
+    private final String code;
+    private final String operation;
 
     @Override
     public String createRequest(int amount) {
@@ -22,7 +29,7 @@ public class MockGateway implements Gateway {
 
     @Override
     public String getRequest(@NonNull String quoteId) {
-        var url = BASE_URL + "/mint/quote/" + quoteId;
+        var url = BASE_URL + "/" + operation + "/quote/" + quoteId;
         try {
             HttpURLConnection con = (HttpURLConnection) new URI(url).toURL().openConnection();
             con.setRequestMethod("GET");
@@ -37,7 +44,7 @@ public class MockGateway implements Gateway {
 
     @Override
     public boolean checkPaymentStatus(@NonNull String quoteId) {
-        return Math.random() < .85;
+        return getPaymentStatus();
     }
 
     @Override
@@ -51,21 +58,35 @@ public class MockGateway implements Gateway {
 
     @Override
     public int getAmount(@NonNull String quoteId) {
-        return 96;
+        return getAmount();
     }
 
     @Override
     public int getPaymentExpiry(@NonNull String quoteId) {
-        return (int) (System.currentTimeMillis() / 1000L + 60 * 60 * 24);
-    }
-
-    @Override
-    public int getFeeReserve(@NonNull String requestId) {
-        return 0;
+        return (int) (System.currentTimeMillis() / 1000L + getExpiry());
     }
 
     @Override
     public String getMethod() {
         return PaymentMethod.MOCK.name().toLowerCase();
+    }
+
+    protected String getParameter(@NonNull String name) {
+        Configuration configuration = Configuration.load(Objects.requireNonNull(MockGateway.class.getResourceAsStream("/gateway_" + code + "_" + operation + ".properties")));
+        return configuration.getValue(name);
+    }
+
+    private Integer getAmount() {
+        return Integer.valueOf(getParameter("amount"));
+    }
+
+    private Integer getExpiry() {
+        return Integer.valueOf(getParameter("expiry"));
+    }
+
+    private boolean getPaymentStatus() {
+        String paymentStatus = getParameter("payment_status");
+        int status = Integer.parseInt(paymentStatus);
+        return Math.random() < status / 100.0;
     }
 }

@@ -20,6 +20,10 @@ public class Utils {
 
     public static byte[] hexStringToBytes(@NonNull String s) {
         int len = s.length();
+        if (len % 2 != 0) {
+            throw new IllegalArgumentException("Hex string must have an even length");
+        }
+
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
             int digit1 = Character.digit(s.charAt(i), 16);

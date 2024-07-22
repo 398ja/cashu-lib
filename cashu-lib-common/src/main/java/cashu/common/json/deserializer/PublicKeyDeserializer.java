@@ -15,6 +15,6 @@ public class PublicKeyDeserializer extends JsonDeserializer<PublicKey> {
         if (node.isTextual()) {
             return PublicKey.fromString(node.textValue());
         }
-        throw new RuntimeException("Invalid Hex format");
+        throw new RuntimeException("Invalid CryptoElement format");
     }
 }

@@ -6,35 +6,34 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.NonNull;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
 
 @JsonDeserialize(using = SecretDeserializer.class)
-public class Secret extends Hex {
+public class Secret extends PrivateKey {
 
     private Secret(@NonNull String value) {
-        super(value, SECRET_LENGTH);
+        super(value);
     }
 
     private Secret(byte[] value) {
-        super(value, SECRET_LENGTH);
+        super(value);
+    }
+
+    public static Secret create() {
+        byte[] bytes = new byte[32];
+        new SecureRandom().nextBytes(bytes);
+        return new Secret(bytes);
     }
 
     public static Secret fromString(@NonNull String s) {
-        Hex hex = Hex.fromString(s);
-        return fromHex(hex);
+        return new Secret(s);
     }
 
     public static Secret fromBytes(byte[] bytes) {
-        return fromString(Utils.bytesToHexString(bytes));
+        return new Secret(bytes);
     }
 
     public static Secret fromBigInteger(@NonNull BigInteger b) {
         return fromString(Utils.bytesToHexString(b.toByteArray()));
-    }
-
-    private static Secret fromHex(@NonNull Hex hex) {
-        if (hex.toString().length() != SECRET_LENGTH) {
-            throw new IllegalArgumentException(String.format("Invalid length: %d", hex.toString().length()));
-        }
-        return new Secret(hex.getBytes());
     }
 }

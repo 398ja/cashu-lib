@@ -1,6 +1,6 @@
 package cashu.test.protocol;
 
-import cashu.common.model.Hex;
+import cashu.common.model.CryptoElement;
 import cashu.common.model.PrivateKey;
 import cashu.common.model.PublicKey;
 import cashu.common.model.Secret;
@@ -37,9 +37,9 @@ public class NUT00Tests {
     @Test
     public void blindedSignatures() {
         // Test 1
-        Hex k = PrivateKey.fromString("0000000000000000000000000000000000000000000000000000000000000001");
-        Hex B_ = PublicKey.fromString("02a9acc1e48c25eeeb9289b5031cc57da9fe72f3fe2861d264bdc074209b107ba2");
-        Hex C_ = Signature.fromString("02a9acc1e48c25eeeb9289b5031cc57da9fe72f3fe2861d264bdc074209b107ba2");
+        CryptoElement k = PrivateKey.fromString("0000000000000000000000000000000000000000000000000000000000000001");
+        CryptoElement B_ = PublicKey.fromString("02a9acc1e48c25eeeb9289b5031cc57da9fe72f3fe2861d264bdc074209b107ba2");
+        CryptoElement C_ = Signature.fromString("02a9acc1e48c25eeeb9289b5031cc57da9fe72f3fe2861d264bdc074209b107ba2");
 
         var result = BDHKEUtils.signBlindedMessage(B_.toBytes(), k.toBytes());
         assertEquals(C_, Signature.fromBytes(result));
@@ -48,6 +48,14 @@ public class NUT00Tests {
         k = PrivateKey.fromString("7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f");
         B_ = PublicKey.fromString("02a9acc1e48c25eeeb9289b5031cc57da9fe72f3fe2861d264bdc074209b107ba2");
         C_ = Signature.fromString("0398bc70ce8184d27ba89834d19f5199c84443c31131e48d3c1214db24247d005d");
+
+        result = BDHKEUtils.signBlindedMessage(B_.toBytes(), k.toBytes());
+        assertEquals(C_, Signature.fromBytes(result));
+
+        // Test 3, mine
+        k = PrivateKey.fromString("811d912719d64d21444862da82fe802223509c684825ed8d6ec569ebbb681f9b");
+        B_ = PublicKey.fromString("03a633b63d81df8522946d09c19548561493de05b81dfc2bb2f308d3328d973537");
+        C_ = Signature.fromString("03b890b660bf5d5c3ad7651c7afe3a08793be57c150ad8d0646441e68aa77ef830");
 
         result = BDHKEUtils.signBlindedMessage(B_.toBytes(), k.toBytes());
         assertEquals(C_, Signature.fromBytes(result));

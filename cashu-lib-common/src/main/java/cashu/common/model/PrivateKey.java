@@ -23,23 +23,22 @@ import java.security.interfaces.ECPrivateKey;
 import java.security.spec.ECGenParameterSpec;
 
 @JsonDeserialize(using = SecretDeserializer.class)
-public class PrivateKey extends Hex {
+public class PrivateKey extends CryptoElement {
 
-    private PrivateKey(@NonNull String value) {
+    protected PrivateKey(@NonNull String value) {
         super(value, PRIVATE_KEY_LENGTH);
     }
 
-    private PrivateKey(byte[] value) {
+    protected PrivateKey(byte[] value) {
         super(value, PRIVATE_KEY_LENGTH);
     }
 
     public static PrivateKey fromString(@NonNull String s) {
-        Hex hex = Hex.fromString(s);
-        return fromHex(hex);
+        return new PrivateKey(s);
     }
 
     public static PrivateKey fromBytes(byte[] bytes) {
-        return fromString(Utils.bytesToHexString(bytes));
+        return new PrivateKey(bytes);
     }
 
     public static PrivateKey fromBigInteger(@NonNull BigInteger b) {
@@ -52,13 +51,6 @@ public class PrivateKey extends Hex {
 
     public static PrivateKey generateRandom() {
         return KeysUtils.generatePrivateKey();
-    }
-
-    private static PrivateKey fromHex(@NonNull Hex hex) {
-        if (hex.toString().length() != PRIVATE_KEY_LENGTH) {
-            throw new IllegalArgumentException(String.format("Invalid length: %d", hex.toString().length()));
-        }
-        return new PrivateKey(hex.getBytes());
     }
 
     private static class KeysUtils {
@@ -75,9 +67,7 @@ public class PrivateKey extends Hex {
                 kpg.initialize(new ECGenParameterSpec("secp256k1"), SecureRandom.getInstanceStrong());
                 KeyPair processorKeyPair = kpg.genKeyPair();
 
-
                 return Utils.bytesFromBigInteger(((ECPrivateKey) processorKeyPair.getPrivate()).getS());
-
             } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException | NoSuchProviderException e) {
                 throw new RuntimeException(e);
             }
@@ -98,6 +88,5 @@ public class PrivateKey extends Hex {
         static PublicKey derivePublicKey(@NonNull PrivateKey privateKey) {
             return PublicKey.fromBytes(derivePublicKey(privateKey.getBytes()));
         }
-
     }
 }

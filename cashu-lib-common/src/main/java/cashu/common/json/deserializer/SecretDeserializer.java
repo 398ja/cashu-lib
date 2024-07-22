@@ -15,6 +15,6 @@ public class SecretDeserializer extends JsonDeserializer<Secret> {
         if (node.isTextual()) {
             return Secret.fromString(node.textValue());
         }
-        throw new RuntimeException("Invalid Hex format");
+        throw new RuntimeException("Invalid CryptoElement format");
     }
 }

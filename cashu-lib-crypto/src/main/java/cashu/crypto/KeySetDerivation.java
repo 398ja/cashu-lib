@@ -1,8 +1,8 @@
 package cashu.crypto;
 
-import cashu.common.model.Hex;
 import cashu.common.model.KeySet;
 import cashu.common.model.Keys;
+import cashu.common.model.PublicKey;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
@@ -25,18 +25,18 @@ public class KeySetDerivation {
     }
 
     public static String deriveKeySetId(@NonNull Keys keys) {
-        Map<BigInteger, Hex> sortedKeys = new TreeMap<>(keys.getValues());
+        Map<BigInteger, PublicKey> sortedKeys = new TreeMap<>(keys.getValues());
 
         try (ByteArrayOutputStream pubkeysConcat = new ByteArrayOutputStream()) {
-            for (Hex hex : sortedKeys.values()) {
-                pubkeysConcat.write(hex.getBytes());
+            for (PublicKey publicKey : sortedKeys.values()) {
+                pubkeysConcat.write(publicKey.toBytes());
             }
 
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] hash = md.digest(pubkeysConcat.toByteArray());
 
-            Hex hexHash = Hex.fromBytes(hash);
-            return "00" + hexHash.toString().substring(0, 14);
+            PublicKey pkHash = PublicKey.fromBytes(hash);
+            return "00" + pkHash.toString().substring(0, 14);
         } catch (IOException | NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }

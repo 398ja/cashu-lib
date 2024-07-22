@@ -12,8 +12,8 @@ public abstract class BaseAbility<T> implements Ability<T> {
         return task.execute();
     }
 
-    public static interface Task<T> {
+    public interface Task<T> {
 
-        T execute() throws CashuErrorException;
+        T execute();
     }
 }

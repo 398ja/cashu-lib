@@ -15,6 +15,6 @@ public class SignatureDeserializer extends JsonDeserializer<Signature> {
         if (node.isTextual()) {
             return Signature.fromString(node.textValue());
         }
-        throw new RuntimeException("Invalid Hex format");
+        throw new RuntimeException("Invalid CryptoElement format");
     }
 }

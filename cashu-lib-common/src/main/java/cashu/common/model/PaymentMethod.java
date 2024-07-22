@@ -2,11 +2,11 @@ package cashu.common.model;
 
 public enum PaymentMethod {
     BOLT11,
+    BOLT12,
+    ON_CHAIN,
     CASH,
     CREDIT_CARD,
     MOBILE_MONEY,
-    PAYPAL,
-    STRIPE,
-    STRIKE,
+    PAYMENT_API,
     MOCK
 }

@@ -13,7 +13,7 @@ public class Configuration {
 
     private Properties properties;
 
-    private Configuration(InputStream file) {
+    private Configuration(@NonNull InputStream file) {
         init(file);
     }
 
@@ -21,7 +21,7 @@ public class Configuration {
         return new Configuration(file);
     }
 
-    private void init(InputStream file) {
+    private void init(@NonNull InputStream file) {
         properties = new Properties();
         try {
             properties.load(file);

@@ -1,6 +1,5 @@
 package cashu.common.protocol;
 
-import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
 public class CashuErrorException extends Exception {
