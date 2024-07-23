@@ -16,6 +16,7 @@
         <module>cashu-lib-crypto</module>
         <module>cashu-lib-gateway</module>
         <module>cashu-lib-gateway-mock</module>
+        <module>cashu-lib-token</module>
     </modules>
 
     <properties>

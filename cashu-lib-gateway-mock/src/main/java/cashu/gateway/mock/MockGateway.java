@@ -1,7 +1,7 @@
-package cashu.mint.gateway.mock;
+package cashu.gateway.mock;
 
 import cashu.common.model.PaymentMethod;
-import cashu.mint.gateway.Gateway;
+import cashu.gateway.Gateway;
 import cashu.util.Configuration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;

@@ -1,4 +1,4 @@
-package cashu.mint.gateway;
+package cashu.gateway;
 
 public interface Gateway {
 

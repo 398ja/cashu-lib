@@ -5,12 +5,14 @@ import cashu.common.model.PrivateKey;
 import cashu.common.model.PublicKey;
 import cashu.common.model.Secret;
 import cashu.common.model.Signature;
-import cashu.common.model.Token;
 import cashu.crypto.BDHKEUtils;
+import cashu.token.Token;
+import cashu.token.TokenV3;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
+import static cashu.token.AbstractBaseToken.serialize;
 import static org.junit.Assert.assertEquals;
 
 public class NUT00Tests {
@@ -67,7 +69,7 @@ public class NUT00Tests {
 
         String strToken = """
                 {
-                  "token": [
+                  "tokenV3": [
                     {
                       "mint": "https://8333.space:3338",
                       "proofs": [
@@ -91,22 +93,31 @@ public class NUT00Tests {
                 }""";
 
         String expected = "cashuAeyJ0b2tlbiI6W3sibWludCI6Imh0dHBzOi8vODMzMy5zcGFjZTozMzM4IiwicHJvb2ZzIjpbeyJhbW91bnQiOjIsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6IjQwNzkxNWJjMjEyYmU2MWE3N2UzZTZkMmFlYjRjNzI3OTgwYmRhNTFjZDA2YTZhZmMyOWUyODYxNzY4YTc4MzciLCJDIjoiMDJiYzkwOTc5OTdkODFhZmIyY2M3MzQ2YjVlNDM0NWE5MzQ2YmQyYTUwNmViNzk1ODU5OGE3MmYwY2Y4NTE2M2VhIn0seyJhbW91bnQiOjgsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6ImZlMTUxMDkzMTRlNjFkNzc1NmIwZjhlZTBmMjNhNjI0YWNhYTNmNGUwNDJmNjE0MzNjNzI4YzcwNTdiOTMxYmUiLCJDIjoiMDI5ZThlNTA1MGI4OTBhN2Q2YzA5NjhkYjE2YmMxZDVkNWZhMDQwZWExZGUyODRmNmVjNjlkNjEyOTlmNjcxMDU5In1dfV0sInVuaXQiOiJzYXQiLCJtZW1vIjoiVGhhbmsgeW91LiJ9";
-        assertEquals(expected, Token.serialize(strToken, false));
+        //TokenV3 tokenV3 = new TokenV3();
+        assertEquals(expected, serialize(strToken, "cashu", Token.Version.V3, false));
 
         ObjectMapper mapper = new ObjectMapper();
-        Token token = mapper.readValue(strToken, Token.class);
-        assertEquals(token, Token.deserialize(expected));
+        TokenV3 tokenV3 = mapper.readValue(strToken, TokenV3.class);
+        assertEquals(tokenV3, tokenV3.deserialize(expected));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void deserializationOfIncorrectPrefixTokenV3 () {
+    public void deserializationOfIncorrectPrefixTokenV3 () throws JsonProcessingException {
         String incorrectPrefixToken = "casshuAeyJ0b2tlbiI6W3sibWludCI6Imh0dHBzOi8vODMzMy5zcGFjZTozMzM4IiwicHJvb2ZzIjpbeyJhbW91bnQiOjIsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6IjQwNzkxNWJjMjEyYmU2MWE3N2UzZTZkMmFlYjRjNzI3OTgwYmRhNTFjZDA2YTZhZmMyOWUyODYxNzY4YTc4MzciLCJDIjoiMDJiYzkwOTc5OTdkODFhZmIyY2M3MzQ2YjVlNDM0NWE5MzQ2YmQyYTUwNmViNzk1ODU5OGE3MmYwY2Y4NTE2M2VhIn0seyJhbW91bnQiOjgsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6ImZlMTUxMDkzMTRlNjFkNzc1NmIwZjhlZTBmMjNhNjI0YWNhYTNmNGUwNDJmNjE0MzNjNzI4YzcwNTdiOTMxYmUiLCJDIjoiMDI5ZThlNTA1MGI4OTBhN2Q2YzA5NjhkYjE2YmMxZDVkNWZhMDQwZWExZGUyODRmNmVjNjlkNjEyOTlmNjcxMDU5In1dfV0sInVuaXQiOiJzYXQiLCJtZW1vIjoiVGhhbmsgeW91LiJ9";
-        Token.deserialize(incorrectPrefixToken);
+
+        ObjectMapper mapper = new ObjectMapper();
+        TokenV3 tokenV3 = mapper.readValue(incorrectPrefixToken, TokenV3.class);
+        assertEquals(tokenV3, tokenV3.deserialize(incorrectPrefixToken));
+        tokenV3.deserialize(incorrectPrefixToken);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void deserializationOfNoPrefixTokenV3 () {
+    public void deserializationOfNoPrefixTokenV3 () throws JsonProcessingException {
         String noPrefixToken  = "eyJ0b2tlbiI6W3sibWludCI6Imh0dHBzOi8vODMzMy5zcGFjZTozMzM4IiwicHJvb2ZzIjpbeyJhbW91bnQiOjIsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6IjQwNzkxNWJjMjEyYmU2MWE3N2UzZTZkMmFlYjRjNzI3OTgwYmRhNTFjZDA2YTZhZmMyOWUyODYxNzY4YTc4MzciLCJDIjoiMDJiYzkwOTc5OTdkODFhZmIyY2M3MzQ2YjVlNDM0NWE5MzQ2YmQyYTUwNmViNzk1ODU5OGE3MmYwY2Y4NTE2M2VhIn0seyJhbW91bnQiOjgsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6ImZlMTUxMDkzMTRlNjFkNzc1NmIwZjhlZTBmMjNhNjI0YWNhYTNmNGUwNDJmNjE0MzNjNzI4YzcwNTdiOTMxYmUiLCJDIjoiMDI5ZThlNTA1MGI4OTBhN2Q2YzA5NjhkYjE2YmMxZDVkNWZhMDQwZWExZGUyODRmNmVjNjlkNjEyOTlmNjcxMDU5In1dfV0sInVuaXQiOiJzYXQiLCJtZW1vIjoiVGhhbmsgeW91LiJ9";
-        Token.deserialize(noPrefixToken);
+
+        ObjectMapper mapper = new ObjectMapper();
+        TokenV3 tokenV3 = mapper.readValue(noPrefixToken, TokenV3.class);
+        assertEquals(tokenV3, tokenV3.deserialize(noPrefixToken));
+        tokenV3.deserialize(noPrefixToken);
     }
 }

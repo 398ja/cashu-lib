@@ -8,6 +8,7 @@ import org.bouncycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 
+@Deprecated
 @RequiredArgsConstructor
 public class SignatureUtils {
 

@@ -1,15 +1,15 @@
-package cashu.common.json.serializer;
+package cashu.token.json.serializer;
 
-import cashu.common.model.Token;
+import cashu.token.TokenV3;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
 
-public class TokenSerializer extends JsonSerializer<Token> {
+public class TokenV3Serializer extends JsonSerializer<TokenV3> {
     @Override
-    public void serialize(Token value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    public void serialize(TokenV3 value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
 
         gen.writeObjectField("token", value.getMintProofs());

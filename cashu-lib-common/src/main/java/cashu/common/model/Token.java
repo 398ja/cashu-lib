@@ -1,10 +1,8 @@
 package cashu.common.model;
 
-import cashu.common.json.serializer.TokenSerializer;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,7 +18,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonSerialize(using = TokenSerializer.class)
+//@JsonSerialize(using = TokenV3Serializer.class)
+@Deprecated(forRemoval = true)
 public class Token {
 
     private final static String TOKEN_PREFIX = "cashu";

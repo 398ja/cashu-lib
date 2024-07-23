@@ -6,23 +6,46 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class MintInformation {
+    @JsonProperty
     private String name;
+
     @JsonProperty("pubkey")
     private PublicKey publicKey;
+
+    @JsonProperty
     private String version;
+
+    @JsonProperty
     private String description;
+
     @JsonProperty("description_long")
     private String descriptionLong;
+
+    @JsonProperty
     private List<Contact> contacts;
+
+    @JsonProperty
     private String motd;
-    private Map<String, NutConfig> nuts;
+
+    @JsonProperty
+    private Map<String, NutConfig> nuts = new HashMap<>();
+
+    public void put(@NonNull String key, @NonNull NutConfig value) {
+        nuts.put(key, value);
+    }
 
     @Data
     @NoArgsConstructor
@@ -55,26 +78,42 @@ public class MintInformation {
 
         @JsonProperty("method")
         private ContactMethod contactMethod;
+
+        @JsonProperty
         private String info;
     }
 
     @Data
     @NoArgsConstructor
-    @AllArgsConstructor
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class NutConfig {
-        private List<Method> methods;
+
+        @JsonProperty
+        private Set<Method> methods = new HashSet<>();
+
+        @JsonProperty
         private Boolean disabled;
+
+        @JsonProperty
         private Boolean supported;
+
+        public void addMethod(Method... methods) {
+            Collections.addAll(this.methods, methods);
+        }
 
         @Data
         @NoArgsConstructor
-        @AllArgsConstructor
         public static class Method {
+
+            @JsonProperty
             private String method;
+
+            @JsonProperty
             private String unit;
+
             @JsonProperty("min_amount")
             private int minAmount;
+
             @JsonProperty("max_amount")
             private int maxAmount;
         }

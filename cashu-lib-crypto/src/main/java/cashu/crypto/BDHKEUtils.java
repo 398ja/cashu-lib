@@ -126,7 +126,6 @@ public class BDHKEUtils {
 
     private static boolean verify(byte[] Y, byte[] k, byte[] C) {
         log.log(Level.FINE, "verify({0}, {1}, {2})", new Object[]{Utils.bytesToHexString(Y), Utils.bytesToHexString(k), Utils.bytesToHexString(C)});
-
         return verify(CURVE.decodePoint(Y), Utils.bigIntFromBytes(k), CURVE.decodePoint(C));
     }
 

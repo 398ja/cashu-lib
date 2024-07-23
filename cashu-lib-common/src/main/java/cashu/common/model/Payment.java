@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Data
+@Deprecated
 public class Payment {
 
     public enum Protocol {

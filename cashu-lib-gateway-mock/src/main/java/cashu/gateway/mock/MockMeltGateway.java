@@ -1,4 +1,4 @@
-package cashu.mint.gateway.mock;
+package cashu.gateway.mock;
 
 import lombok.NonNull;
 
