@@ -1,6 +1,6 @@
 package cashu.common.json.serializer;
 
-import cashu.common.protocol.Error;
+import cashu.common.util.Error;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;

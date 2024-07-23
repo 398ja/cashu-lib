@@ -1,4 +1,4 @@
-package cashu.common.protocol;
+package cashu.common.util;
 
 import cashu.common.json.deserializer.ErrorDeserializer;
 import cashu.common.json.serializer.ErrorSerializer;

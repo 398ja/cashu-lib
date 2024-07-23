@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/cashu-java-common/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-java-common/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-java-crypto/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-java-crypto/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-java-test/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-java-test/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-java-util/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-java-util/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-java-vault/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-java-vault/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-common/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-common/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-crypto/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-crypto/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-gateway-mock/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-gateway-mock/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-gateway-test/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-gateway-test/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-gateway/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-test/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-test/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-token-v3/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-token-v3/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-token-v4/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-token-v4/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-token/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-token/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-util/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-util/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-vault/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cashu-lib-vault/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+  </component>
+</project>
