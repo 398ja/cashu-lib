@@ -1,5 +1,5 @@
 # cashu-lib
-Cashu-Lib implements the core functionalities of the [Cashu](https://cashu.space/) protocol, and provides the building blocks specified in [NUT-00](https://github.com/cashubtc/nuts/blob/main/00.md) for by mints and wallets applications.
+Cashu-Lib implements the core functionalities of the [Cashu](https://cashu.space/) protocol, and provides the building blocks for developing mints and wallets applications.
 
 ## Requirements
 
@@ -35,6 +35,7 @@ $ mvn clean install
 - ```cashu-lib-gateway-mock:``` Contains a mock gateway implementation for testing purpose only.
 - ```cashu-lib-util:``` Contains utility classes and functions used by other modules.
 - ```cashu-lib-test:``` Contains unit test classes.
+- ```cashu-lib-token:``` Cashu Token V3 and V4 implementations.
 
 ## Usage
 Include the following dependencies in your project's pom.xml file:
