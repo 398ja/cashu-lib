@@ -16,7 +16,6 @@
         <module>cashu-lib-crypto</module>
         <module>cashu-lib-gateway</module>
         <module>cashu-lib-gateway-mock</module>
-        <module>cashu-lib-token</module>
     </modules>
 
     <properties>
@@ -30,7 +29,7 @@
 
         <bcprov-jdk18on.version>1.72</bcprov-jdk18on.version>
 
-        <jackson-databind.version>2.14.1</jackson-databind.version>
+        <jackson-databind.version>2.13.1</jackson-databind.version>
 
         <!-- Test Dependency Versions -->
         <junit.version>5.9.1</junit.version>

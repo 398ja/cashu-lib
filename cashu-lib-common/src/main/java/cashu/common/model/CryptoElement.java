@@ -37,6 +37,7 @@ public class CryptoElement {
     protected CryptoElement(byte[] bytes, int length) {
         this.bytes = bytes;
         this.length = length;
+        validate();
     }
 
     public BigInteger toBigInteger() {
@@ -55,5 +56,11 @@ public class CryptoElement {
 
     public byte[] toBytes() {
         return bytes;
+    }
+
+    private void validate() {
+        if (2 * bytes.length != length) {
+            throw new IllegalArgumentException("Invalid length: " + this + "(" + bytes.length + ")");
+        }
     }
 }

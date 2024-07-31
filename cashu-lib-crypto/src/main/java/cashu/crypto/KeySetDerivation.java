@@ -3,6 +3,7 @@ package cashu.crypto;
 import cashu.common.model.KeySet;
 import cashu.common.model.Keys;
 import cashu.common.model.PublicKey;
+import cashu.util.Utils;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
@@ -35,8 +36,8 @@ public class KeySetDerivation {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] hash = md.digest(pubkeysConcat.toByteArray());
 
-            PublicKey pkHash = PublicKey.fromBytes(hash);
-            return "00" + pkHash.toString().substring(0, 14);
+            String pkHash = Utils.bytesToHexString(hash);
+            return "00" + pkHash.substring(0, 14);
         } catch (IOException | NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }

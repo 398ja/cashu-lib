@@ -2,17 +2,24 @@ package cashu.test.protocol;
 
 import cashu.common.model.CryptoElement;
 import cashu.common.model.PrivateKey;
+import cashu.common.model.Proof;
 import cashu.common.model.PublicKey;
 import cashu.common.model.Secret;
 import cashu.common.model.Signature;
 import cashu.crypto.BDHKEUtils;
-import cashu.token.Token;
-import cashu.token.TokenV3;
+import cashu.common.model.TokenV3;
+import cashu.common.model.TokenV4;
+import cashu.util.Utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
 import org.junit.Test;
 
-import static cashu.token.AbstractBaseToken.serialize;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
+
 import static org.junit.Assert.assertEquals;
 
 public class NUT00Tests {
@@ -65,59 +72,76 @@ public class NUT00Tests {
 
 
     @Test
-    public void serializationOfTokenV3() throws JsonProcessingException {
+    public void serializeV3() throws JsonProcessingException {
+        TokenV3 tokenV3 = new TokenV3();
 
-        String strToken = """
-                {
-                  "tokenV3": [
-                    {
-                      "mint": "https://8333.space:3338",
-                      "proofs": [
-                        {
-                          "amount": 2,
-                          "id": "009a1f293253e41e",
-                          "secret": "407915bc212be61a77e3e6d2aeb4c727980bda51cd06a6afc29e2861768a7837",
-                          "C": "02bc9097997d81afb2cc7346b5e4345a9346bd2a506eb7958598a72f0cf85163ea"
-                        },
-                        {
-                          "amount": 8,
-                          "id": "009a1f293253e41e",
-                          "secret": "fe15109314e61d7756b0f8ee0f23a624acaa3f4e042f61433c728c7057b931be",
-                          "C": "029e8e5050b890a7d6c0968db16bc1d5d5fa040ea1de284f6ec69d61299f671059"
-                        }
-                      ]
-                    }
-                  ],
-                  "unit": "sat",
-                  "memo": "Thank you."
-                }""";
+        tokenV3.setMemo("Thank you.");
+        tokenV3.setUnit("sat");
 
-        String expected = "cashuAeyJ0b2tlbiI6W3sibWludCI6Imh0dHBzOi8vODMzMy5zcGFjZTozMzM4IiwicHJvb2ZzIjpbeyJhbW91bnQiOjIsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6IjQwNzkxNWJjMjEyYmU2MWE3N2UzZTZkMmFlYjRjNzI3OTgwYmRhNTFjZDA2YTZhZmMyOWUyODYxNzY4YTc4MzciLCJDIjoiMDJiYzkwOTc5OTdkODFhZmIyY2M3MzQ2YjVlNDM0NWE5MzQ2YmQyYTUwNmViNzk1ODU5OGE3MmYwY2Y4NTE2M2VhIn0seyJhbW91bnQiOjgsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6ImZlMTUxMDkzMTRlNjFkNzc1NmIwZjhlZTBmMjNhNjI0YWNhYTNmNGUwNDJmNjE0MzNjNzI4YzcwNTdiOTMxYmUiLCJDIjoiMDI5ZThlNTA1MGI4OTBhN2Q2YzA5NjhkYjE2YmMxZDVkNWZhMDQwZWExZGUyODRmNmVjNjlkNjEyOTlmNjcxMDU5In1dfV0sInVuaXQiOiJzYXQiLCJtZW1vIjoiVGhhbmsgeW91LiJ9";
-        //TokenV3 tokenV3 = new TokenV3();
-        assertEquals(expected, serialize(strToken, "cashu", Token.Version.V3, false));
+        Set<TokenV3.MintProof> mintProofs = new HashSet<>();
+        TokenV3.MintProof mintProof = new TokenV3.MintProof();
+        mintProof.setMint("https://8333.space:3338");
 
-        ObjectMapper mapper = new ObjectMapper();
-        TokenV3 tokenV3 = mapper.readValue(strToken, TokenV3.class);
-        assertEquals(tokenV3, tokenV3.deserialize(expected));
+        Set<Proof> proofs = new HashSet<>();
+        Proof proof = new Proof();
+        proof.setUnblindedSignature(Signature.fromString("02bc9097997d81afb2cc7346b5e4345a9346bd2a506eb7958598a72f0cf85163ea"));
+        proof.setAmount(2);
+        proof.setSecret(Secret.fromString("407915bc212be61a77e3e6d2aeb4c727980bda51cd06a6afc29e2861768a7837"));
+        proof.setKeySetId("009a1f293253e41e");
+        proofs.add(proof);
+
+        proof = new Proof();
+        proof.setUnblindedSignature(Signature.fromString("029e8e5050b890a7d6c0968db16bc1d5d5fa040ea1de284f6ec69d61299f671059"));
+        proof.setAmount(8);
+        proof.setSecret(Secret.fromString("fe15109314e61d7756b0f8ee0f23a624acaa3f4e042f61433c728c7057b931be"));
+        proof.setKeySetId("009a1f293253e41e");
+        proofs.add(proof);
+
+        mintProof.setProofs(proofs);
+        mintProofs.add(mintProof);
+        tokenV3.setMintProofs(mintProofs);
+
+        System.out.println(new ObjectMapper().writeValueAsString(tokenV3));
+
+        assertEquals("cashuAeyJ0b2tlbiI6W3sibWludCI6Imh0dHBzOi8vODMzMy5zcGFjZTozMzM4IiwicHJvb2ZzIjpbeyJhbW91bnQiOjIsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6IjQwNzkxNWJjMjEyYmU2MWE3N2UzZTZkMmFlYjRjNzI3OTgwYmRhNTFjZDA2YTZhZmMyOWUyODYxNzY4YTc4MzciLCJDIjoiMDJiYzkwOTc5OTdkODFhZmIyY2M3MzQ2YjVlNDM0NWE5MzQ2YmQyYTUwNmViNzk1ODU5OGE3MmYwY2Y4NTE2M2VhIn0seyJhbW91bnQiOjgsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6ImZlMTUxMDkzMTRlNjFkNzc1NmIwZjhlZTBmMjNhNjI0YWNhYTNmNGUwNDJmNjE0MzNjNzI4YzcwNTdiOTMxYmUiLCJDIjoiMDI5ZThlNTA1MGI4OTBhN2Q2YzA5NjhkYjE2YmMxZDVkNWZhMDQwZWExZGUyODRmNmVjNjlkNjEyOTlmNjcxMDU5In1dfV0sInVuaXQiOiJzYXQiLCJtZW1vIjoiVGhhbmsgeW91LiJ9", tokenV3.serialize(false));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void deserializationOfIncorrectPrefixTokenV3 () throws JsonProcessingException {
-        String incorrectPrefixToken = "casshuAeyJ0b2tlbiI6W3sibWludCI6Imh0dHBzOi8vODMzMy5zcGFjZTozMzM4IiwicHJvb2ZzIjpbeyJhbW91bnQiOjIsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6IjQwNzkxNWJjMjEyYmU2MWE3N2UzZTZkMmFlYjRjNzI3OTgwYmRhNTFjZDA2YTZhZmMyOWUyODYxNzY4YTc4MzciLCJDIjoiMDJiYzkwOTc5OTdkODFhZmIyY2M3MzQ2YjVlNDM0NWE5MzQ2YmQyYTUwNmViNzk1ODU5OGE3MmYwY2Y4NTE2M2VhIn0seyJhbW91bnQiOjgsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6ImZlMTUxMDkzMTRlNjFkNzc1NmIwZjhlZTBmMjNhNjI0YWNhYTNmNGUwNDJmNjE0MzNjNzI4YzcwNTdiOTMxYmUiLCJDIjoiMDI5ZThlNTA1MGI4OTBhN2Q2YzA5NjhkYjE2YmMxZDVkNWZhMDQwZWExZGUyODRmNmVjNjlkNjEyOTlmNjcxMDU5In1dfV0sInVuaXQiOiJzYXQiLCJtZW1vIjoiVGhhbmsgeW91LiJ9";
-
-        ObjectMapper mapper = new ObjectMapper();
-        TokenV3 tokenV3 = mapper.readValue(incorrectPrefixToken, TokenV3.class);
-        assertEquals(tokenV3, tokenV3.deserialize(incorrectPrefixToken));
-        tokenV3.deserialize(incorrectPrefixToken);
+    public void deserializationOfIncorrectPrefixTokenV3() {
+        String incorrectPrefixToken = "ca$huAeyJ0b2tlbiI6W3sibWludCI6Imh0dHBzOi8vODMzMy5zcGFjZTozMzM4IiwicHJvb2ZzIjpbeyJhbW91bnQiOjIsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6IjQwNzkxNWJjMjEyYmU2MWE3N2UzZTZkMmFlYjRjNzI3OTgwYmRhNTFjZDA2YTZhZmMyOWUyODYxNzY4YTc4MzciLCJDIjoiMDJiYzkwOTc5OTdkODFhZmIyY2M3MzQ2YjVlNDM0NWE5MzQ2YmQyYTUwNmViNzk1ODU5OGE3MmYwY2Y4NTE2M2VhIn0seyJhbW91bnQiOjgsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6ImZlMTUxMDkzMTRlNjFkNzc1NmIwZjhlZTBmMjNhNjI0YWNhYTNmNGUwNDJmNjE0MzNjNzI4YzcwNTdiOTMxYmUiLCJDIjoiMDI5ZThlNTA1MGI4OTBhN2Q2YzA5NjhkYjE2YmMxZDVkNWZhMDQwZWExZGUyODRmNmVjNjlkNjEyOTlmNjcxMDU5In1dfV0sInVuaXQiOiJzYXQiLCJtZW1vIjoiVGhhbmsgeW91LiJ9";
+        assertEquals(new TokenV3(), TokenV3.deserialize(incorrectPrefixToken));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void deserializationOfNoPrefixTokenV3 () throws JsonProcessingException {
-        String noPrefixToken  = "eyJ0b2tlbiI6W3sibWludCI6Imh0dHBzOi8vODMzMy5zcGFjZTozMzM4IiwicHJvb2ZzIjpbeyJhbW91bnQiOjIsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6IjQwNzkxNWJjMjEyYmU2MWE3N2UzZTZkMmFlYjRjNzI3OTgwYmRhNTFjZDA2YTZhZmMyOWUyODYxNzY4YTc4MzciLCJDIjoiMDJiYzkwOTc5OTdkODFhZmIyY2M3MzQ2YjVlNDM0NWE5MzQ2YmQyYTUwNmViNzk1ODU5OGE3MmYwY2Y4NTE2M2VhIn0seyJhbW91bnQiOjgsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6ImZlMTUxMDkzMTRlNjFkNzc1NmIwZjhlZTBmMjNhNjI0YWNhYTNmNGUwNDJmNjE0MzNjNzI4YzcwNTdiOTMxYmUiLCJDIjoiMDI5ZThlNTA1MGI4OTBhN2Q2YzA5NjhkYjE2YmMxZDVkNWZhMDQwZWExZGUyODRmNmVjNjlkNjEyOTlmNjcxMDU5In1dfV0sInVuaXQiOiJzYXQiLCJtZW1vIjoiVGhhbmsgeW91LiJ9";
-
-        ObjectMapper mapper = new ObjectMapper();
-        TokenV3 tokenV3 = mapper.readValue(noPrefixToken, TokenV3.class);
-        assertEquals(tokenV3, tokenV3.deserialize(noPrefixToken));
-        tokenV3.deserialize(noPrefixToken);
+    public void deserializationOfNoPrefixTokenV3() {
+        String noPrefixToken = "eyJ0b2tlbiI6W3sibWludCI6Imh0dHBzOi8vODMzMy5zcGFjZTozMzM4IiwicHJvb2ZzIjpbeyJhbW91bnQiOjIsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6IjQwNzkxNWJjMjEyYmU2MWE3N2UzZTZkMmFlYjRjNzI3OTgwYmRhNTFjZDA2YTZhZmMyOWUyODYxNzY4YTc4MzciLCJDIjoiMDJiYzkwOTc5OTdkODFhZmIyY2M3MzQ2YjVlNDM0NWE5MzQ2YmQyYTUwNmViNzk1ODU5OGE3MmYwY2Y4NTE2M2VhIn0seyJhbW91bnQiOjgsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6ImZlMTUxMDkzMTRlNjFkNzc1NmIwZjhlZTBmMjNhNjI0YWNhYTNmNGUwNDJmNjE0MzNjNzI4YzcwNTdiOTMxYmUiLCJDIjoiMDI5ZThlNTA1MGI4OTBhN2Q2YzA5NjhkYjE2YmMxZDVkNWZhMDQwZWExZGUyODRmNmVjNjlkNjEyOTlmNjcxMDU5In1dfV0sInVuaXQiOiJzYXQiLCJtZW1vIjoiVGhhbmsgeW91LiJ9";
+        assertEquals(new TokenV3(), TokenV3.deserialize(noPrefixToken));
     }
+
+    // FIXME
+/*
+    @Test
+    public void serializationOfTokenV4SingleKeyset() {
+        TokenV4 tokenV4 = new TokenV4();
+
+        tokenV4.setMemo("Thank you");
+        tokenV4.setUnit("sat");
+        tokenV4.setMintUrl("http://localhost:3338");
+
+        TokenV4.TokenData.TokenProof tokenProof = new TokenV4.TokenData.TokenProof();
+        tokenProof.setAmount(1);
+        tokenProof.setSecret("9a6dbb847bd232ba76db0df197216b29d3b8cc14553cd27827fc1cc942fedb4e");
+        tokenProof.setSignature(Utils.hexStringToBytes("038618543ffb6b8695df4ad4babcde92a34a96bdcd97dcee0d7ccf98d472126792"));
+        tokenV4.setTokenDataList(Set.of(
+                new TokenV4.TokenData(
+                        Utils.hexStringToBytes("00ad268c4d1f5826"),
+                        Set.of(tokenProof)
+                )
+        ));
+
+        String strToken = "cashuBpGF0gaJhaUgArSaMTR9YJmFwgaNhYQFhc3hAOWE2ZGJiODQ3YmQyMzJiYTc2ZGIwZGYxOTcyMTZiMjlkM2I4Y2MxNDU1M2NkMjc4MjdmYzFjYzk0MmZlZGI0ZWFjWCEDhhhUP_trhpXfStS6vN6So0qWvc2X3O4NfM-Y1HISZ5JhZGlUaGFuayB5b3VhbXVodHRwOi8vbG9jYWxob3N0OjMzMzhhdWNzYXQ=";
+
+        assertEquals(strToken, tokenV4.serialize(false));
+    }
+*/
 }

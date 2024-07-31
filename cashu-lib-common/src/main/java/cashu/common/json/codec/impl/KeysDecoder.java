@@ -19,11 +19,11 @@ public class KeysDecoder implements Decoder<Keys> {
     @Override
     public Keys decode() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, PublicKey> map = objectMapper.readValue(jsonString, new TypeReference<>() {});
+        Map<String, String> map = objectMapper.readValue(jsonString, new TypeReference<>() {});
         Keys keys = new Keys();
-        for (Map.Entry<String, PublicKey> entry : map.entrySet()) {
-            var privateKey = entry.getValue();
-            keys.put(new BigInteger(entry.getKey()), entry.getValue());
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            var publicKey = entry.getValue();
+            keys.put(new BigInteger(entry.getKey()), PublicKey.fromString(publicKey));
         }
         return keys;
     }

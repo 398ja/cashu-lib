@@ -1,6 +1,6 @@
-package cashu.token.json.serializer;
+package cashu.common.json.serializer;
 
-import cashu.token.TokenV3;
+import cashu.common.model.TokenV3;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
