@@ -1,5 +1,5 @@
 # cashu-lib
-Cashu-Lib implements the core functionalities of the [Cashu](https://cashu.space/) protocol, and provides the building blocks for developing mints and wallets applications.
+```cashu-Lib``` implements the core functionalities of the [Cashu](https://cashu.space/) protocol, and provides the building blocks for [cashu-mint](https://github.com/tcheeric/cashu-mint) and [cashu-wallet](https://github.com/tcheeric/cashu-wallet).
 
 ## Requirements
 
