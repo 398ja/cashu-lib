@@ -1,22 +1,31 @@
 package cashu.gateway;
 
+import lombok.NonNull;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.Instant;
+
 public interface Gateway {
 
-    String createRequest(int amount);
+    String createQuote(@NonNull Integer amount, String description);
 
-    String getRequest(String quoteId);
+    String createQuote(@NonNull Integer amount, @NonNull String lnIvoice, String description);
 
-    boolean checkPaymentStatus(String quoteId);
+    String getRequest(@NonNull String paymentId);
 
-    String getPaymentPreimage(String quoteId);
+    boolean checkPaymentStatus(@NonNull String lnInvoice);
 
-    void pay(String quoteId);
+    String getPaymentPreimage(@NonNull String lnInvoice);
 
-    int getAmount(String quoteId);
+    String pay(@NonNull String lnInvoice);
 
-    int getPaymentExpiry(String quoteId);
+    Integer getAmount(@NonNull String quoteId);
 
-    int getFeeReserve(String requestId);
+    Integer getPaymentExpiry(@NonNull String quoteId);
 
+    Integer getFeeReserve(@NonNull String lnInvoice);
+
+    @Deprecated(forRemoval = true)
     String getMethod();
 }

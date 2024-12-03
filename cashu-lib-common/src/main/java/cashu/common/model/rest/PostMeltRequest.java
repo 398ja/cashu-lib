@@ -6,14 +6,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 import java.util.List;
 
-@AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Builder
-public class PostMeltRequest {
+public class PostMeltRequest extends PostInputRequest {
+
+    public PostMeltRequest(@NonNull String quoteId, @NonNull List<Proof> proofs) {
+        super(proofs);
+        this.quoteId = quoteId;
+    }
 
     @JsonProperty("quote")
     private String quoteId;

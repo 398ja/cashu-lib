@@ -7,11 +7,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonPropertyOrder({"id", "unit", "keys"})
+@JsonPropertyOrder({"id", "unit", "keys", "input_fee_ppk"})
 public class KeySet {
 
     @JsonProperty
@@ -22,4 +24,7 @@ public class KeySet {
 
     @JsonProperty
     private Keys keys;
+
+    @JsonProperty("input_fee_ppk")
+    private int partPerThousand;
 }
