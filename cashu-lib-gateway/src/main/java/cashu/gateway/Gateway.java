@@ -2,10 +2,6 @@ package cashu.gateway;
 
 import lombok.NonNull;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.time.Instant;
-
 public interface Gateway {
 
     String createQuote(@NonNull Integer amount, String description);

@@ -21,7 +21,7 @@ public abstract class PostInputRequest {
         for (Proof proof : inputs) {
             String keysetId = proof.getKeySetId();
 
-            assert keysetId == keySet.getId() : "Keyset and proof keyset id do not match";
+            assert keysetId.equals(keySet.getId()) : "Keyset and proof keyset id do not match";
 
             sum_fees += keySet.getPartPerThousand();
         }

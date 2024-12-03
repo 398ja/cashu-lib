@@ -6,10 +6,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
@@ -61,8 +59,6 @@ public class TokenV3 implements Token {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             return objectMapper.readValue(byteArrToken, TokenV3.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

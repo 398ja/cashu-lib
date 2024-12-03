@@ -8,15 +8,10 @@ import cashu.common.model.Secret;
 import cashu.common.model.Signature;
 import cashu.crypto.BDHKEUtils;
 import cashu.common.model.TokenV3;
-import cashu.common.model.TokenV4;
-import cashu.util.Utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 

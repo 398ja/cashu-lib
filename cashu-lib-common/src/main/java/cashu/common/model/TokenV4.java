@@ -105,8 +105,6 @@ public class TokenV4 implements Token {
         ObjectMapper objectMapper = new ObjectMapper(new CBORFactory());
         try {
             return objectMapper.readValue(cborToken, TokenV4.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
