@@ -8,7 +8,9 @@ import java.lang.reflect.Field;
 public interface Operation {
     Operation execute();
 
-    String getBody();
+    String getResponseBody();
+
+    String getRequestData();
 
     Operation addHeader(@NonNull String key, @NonNull String value);
 
