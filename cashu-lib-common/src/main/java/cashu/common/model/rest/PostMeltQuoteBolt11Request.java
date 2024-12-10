@@ -16,8 +16,8 @@ public class PostMeltQuoteBolt11Request extends PostMeltQuoteRequest {
     @JsonProperty
     private String unit;
 
-    public PostMeltQuoteBolt11Request(@NonNull String requestId, @NonNull String unit) {
-        super(requestId);
+    public PostMeltQuoteBolt11Request(@NonNull String request, @NonNull String unit) {
+        super(request);
         this.unit = unit;
     }
 }

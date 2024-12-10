@@ -1,27 +1,106 @@
 package cashu.gateway;
 
+import cashu.common.annotation.Supports;
+import cashu.common.model.PaymentMethod;
 import lombok.NonNull;
+
+import java.util.Arrays;
 
 public interface Gateway {
 
-    String createQuote(@NonNull Integer amount, String description);
+    /**
+     * Create a quote for minting a certain amount
+     * @param amount
+     * @param description
+     * @return
+     */
+    String createMintQuote(@NonNull Integer amount, String description);
 
-    String createQuote(@NonNull Integer amount, @NonNull String lnIvoice, String description);
+    /**
+     * Create a quote for melting a certain amount
+     * @param amount
+     * @param request
+     * @param description
+     * @return
+     */
+    String createMeltQuote(@NonNull Integer amount, @NonNull String request, String description);
 
-    String getRequest(@NonNull String paymentId);
+    /**
+     * Create a quote for melting, based on the request
+     * @param request
+     * @return
+     */
+    String createMeltQuote(@NonNull String request);
 
-    boolean checkPaymentStatus(@NonNull String lnInvoice);
+    /**
+     * Get the request for a payment
+     * @param quoteId
+     * @return
+     */
+    String getRequest(@NonNull String quoteId);
 
-    String getPaymentPreimage(@NonNull String lnInvoice);
+    /**
+     *
+     * @param quoteId
+     * @return
+     *
+    String getRequestWithQuoteId(@NonNull String quoteId);
+    */
 
-    String pay(@NonNull String lnInvoice);
+    /**
+     * Check the payment status
+     * @param request
+     * @return
+     */
+    boolean checkPaymentStatus(@NonNull String request);
 
+    /**
+     * Get the payment preimage
+     * @param request
+     * @return
+     */
+    String getPaymentPreimage(@NonNull String request);
+
+    /**
+     * Make the payment (melt)
+     * @param request
+     * @return
+     */
+    String pay(@NonNull String request);
+
+    /**
+     * Get the amount of a quote
+     * @param quoteId
+     * @return
+     */
     Integer getAmount(@NonNull String quoteId);
 
+    /**
+     * Get the expiry of a payment
+     * @param quoteId
+     * @return
+     */
     Integer getPaymentExpiry(@NonNull String quoteId);
 
-    Integer getFeeReserve(@NonNull String lnInvoice);
+    /**
+     * Get the fee reserve of a payment
+     * @param request
+     * @return
+     */
+    Integer getFeeReserve(@NonNull String request);
 
-    @Deprecated(forRemoval = true)
-    String getMethod();
+    String getName();
+
+    /**
+     * Test if the gateway supports a payment method
+     * @param method
+     * @return
+     */
+    default boolean supports(@NonNull PaymentMethod method) {
+        Supports supports = this.getClass().getAnnotation(Supports.class);
+        if (supports != null) {
+            return Arrays.asList(supports.value()).contains(method);
+        }
+        return false;
+    }
 }

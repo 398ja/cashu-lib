@@ -10,6 +10,5 @@ import lombok.NoArgsConstructor;
 @Data
 public class PostMeltQuoteRequest {
 
-    @JsonProperty("request")
-    private String requestId;
+    private String request;
 }
