@@ -33,11 +33,11 @@ public interface Token {
             return serialize(cborToken.replaceAll("\\s+", "").getBytes(StandardCharsets.UTF_8), version, clickable);
         }
 
-        static String serialize(@NonNull byte[] cborToken, Version version, boolean clickable) {
+        static String serialize(byte @NonNull [] cborToken, Version version, boolean clickable) {
             return serialize(cborToken, TOKEN_PREFIX, version, clickable);
         }
 
-        static String serialize(@NonNull byte[] cborToken, @NonNull String prefix, Version version, boolean clickable) {
+        static String serialize(byte @NonNull [] cborToken, @NonNull String prefix, Version version, boolean clickable) {
             String strSerializedToken = prefix + version.getCode() + Base64.getUrlEncoder().encodeToString(cborToken);
             if (clickable) {
                 return URI_SCHEME + strSerializedToken;

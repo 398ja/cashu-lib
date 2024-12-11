@@ -22,8 +22,4 @@ public class PostMeltRequest extends PostInputRequest {
     @JsonProperty("quote")
     private String quoteId;
 
-/*
-    @JsonProperty("inputs")
-    private List<Proof> proofs;
-*/
 }
