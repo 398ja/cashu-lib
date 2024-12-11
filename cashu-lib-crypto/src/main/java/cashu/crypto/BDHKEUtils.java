@@ -1,7 +1,7 @@
 package cashu.crypto;
 
 import cashu.common.model.PrivateKey;
-import cashu.util.Utils;
+import cashu.crypto.util.Utils;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import org.bouncycastle.jce.ECNamedCurveTable;

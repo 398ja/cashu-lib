@@ -3,7 +3,7 @@ package cashu.crypto;
 import cashu.common.model.KeySet;
 import cashu.common.model.Keys;
 import cashu.common.model.PublicKey;
-import cashu.util.Utils;
+import cashu.crypto.util.Utils;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 

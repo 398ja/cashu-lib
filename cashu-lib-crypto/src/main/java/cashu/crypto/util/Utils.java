@@ -1,4 +1,4 @@
-package cashu.util;
+package cashu.crypto.util;
 
 import lombok.NonNull;
 
