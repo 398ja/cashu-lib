@@ -30,12 +30,9 @@ $ mvn clean install
 
 ## Modules
 - ```cashu-lib-common:``` Contains common entity classes and utilities used by other modules.
-- ```cashu-lib-crypto:``` Contains cryptographic functions and utilities used by other modules.
-- ```cashu-lib-gateway:``` Contains interfaces for gateways to interact with the Cashu protocol.
-- ```cashu-lib-gateway-mock:``` Contains a mock gateway implementation for testing purpose only.
-- ```cashu-lib-util:``` Contains utility classes and functions used by other modules.
+- ```cashu-lib-crypto:``` Contains the foundational cryptographic functions and utilities used by other modules.
+- ```cashu-lib-gateway:``` Contains interfaces for payment gateways that interact with the cashu mints and wallets.
 - ```cashu-lib-test:``` Contains unit test classes.
-- ```cashu-lib-token:``` Cashu Token V3 and V4 implementations.
 
 ## Usage
 Include the following dependencies in your project's pom.xml file:
@@ -50,12 +47,6 @@ Include the following dependencies in your project's pom.xml file:
 <dependency>
     <groupId>cashu-lib</groupId>
     <artifactId>cashu-lib-crypto</artifactId>
-    <version>0.1-SNAPSHOT</version>
-</dependency>
-
-<dependency>
-    <groupId>cashu-lib</groupId>
-    <artifactId>cashu-lib-gateway-mock</artifactId>
     <version>0.1-SNAPSHOT</version>
 </dependency>
 
