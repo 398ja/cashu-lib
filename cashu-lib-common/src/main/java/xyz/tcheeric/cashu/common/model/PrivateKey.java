@@ -1,6 +1,7 @@
 package xyz.tcheeric.cashu.common.model;
 
-import xyz.tcheeric.cashu.common.json.deserializer.SecretDeserializer;
+import xyz.tcheeric.cashu.common.json.deserializer.PrivateKeyDeserializer;
+import xyz.tcheeric.cashu.common.json.deserializer.RandomStringSecretDeserializer;
 import cashu.util.Utils;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.NonNull;
@@ -22,7 +23,7 @@ import java.security.Security;
 import java.security.interfaces.ECPrivateKey;
 import java.security.spec.ECGenParameterSpec;
 
-@JsonDeserialize(using = SecretDeserializer.class)
+@JsonDeserialize(using = PrivateKeyDeserializer.class)
 public class PrivateKey extends CryptoElement {
 
     protected PrivateKey(@NonNull String value) {

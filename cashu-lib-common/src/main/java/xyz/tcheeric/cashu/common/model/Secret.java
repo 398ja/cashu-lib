@@ -1,39 +1,21 @@
 package xyz.tcheeric.cashu.common.model;
 
-import xyz.tcheeric.cashu.common.json.deserializer.SecretDeserializer;
-import cashu.util.Utils;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.NonNull;
 
-import java.math.BigInteger;
-import java.security.SecureRandom;
+public interface Secret {
 
-@JsonDeserialize(using = SecretDeserializer.class)
-public class Secret extends PrivateKey {
+    String getData();
 
-    private Secret(@NonNull String value) {
-        super(value);
-    }
+    void setData(@NonNull String data);
 
-    private Secret(byte[] value) {
-        super(value);
-    }
+    byte[] toBytes();
 
-    public static Secret create() {
-        byte[] bytes = new byte[32];
-        new SecureRandom().nextBytes(bytes);
-        return new Secret(bytes);
-    }
-
-    public static Secret fromString(@NonNull String s) {
-        return new Secret(s);
-    }
-
-    public static Secret fromBytes(byte[] bytes) {
-        return new Secret(bytes);
-    }
-
-    public static Secret fromBigInteger(@NonNull BigInteger b) {
-        return fromString(Utils.bytesToHexString(b.toByteArray()));
+    @Deprecated(forRemoval = true)
+    static Secret fromString(@NonNull String secret, @NonNull Class<?> type) {
+        return switch (type.getSimpleName()) {
+            case "P2PKSecret" -> P2PKSecret.fromString(secret);
+            case "RandomStringSecret" -> RandomStringSecret.fromString(secret);
+            default -> throw new IllegalArgumentException("Unknown secret type: " + type.getSimpleName());
+        };
     }
 }

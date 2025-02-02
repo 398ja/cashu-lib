@@ -4,6 +4,8 @@ import xyz.tcheeric.cashu.common.model.CryptoElement;
 import xyz.tcheeric.cashu.common.model.PrivateKey;
 import xyz.tcheeric.cashu.common.model.Proof;
 import xyz.tcheeric.cashu.common.model.PublicKey;
+import xyz.tcheeric.cashu.common.model.RSSProof;
+import xyz.tcheeric.cashu.common.model.RandomStringSecret;
 import xyz.tcheeric.cashu.common.model.Secret;
 import xyz.tcheeric.cashu.common.model.Signature;
 import xyz.tcheeric.cashu.crypto.BDHKEUtils;
@@ -21,19 +23,19 @@ public class NUT00Tests {
 
     @Test
     public void hashToCurveFunction() {
-        Secret message = Secret.fromString("0000000000000000000000000000000000000000000000000000000000000000");
+        Secret message = RandomStringSecret.fromString("0000000000000000000000000000000000000000000000000000000000000000");
         String expected = "024cce997d3b518f739663b757deaec95bcd9473c30a14ac2fd04023a739d1a725";
-        var result = BDHKEUtils.hashToCurve(message.toBytes());
+        var result = BDHKEUtils.hashToCurve(((RandomStringSecret) message).toBytes());
         assertEquals(expected, BDHKEUtils.pointToHex(result));
 
-        message = Secret.fromString("0000000000000000000000000000000000000000000000000000000000000001");
+        message = RandomStringSecret.fromString("0000000000000000000000000000000000000000000000000000000000000001");
         expected = "022e7158e11c9506f1aa4248bf531298daa7febd6194f003edcd9b93ade6253acf";
-        result = BDHKEUtils.hashToCurve(message.toBytes());
+        result = BDHKEUtils.hashToCurve(((RandomStringSecret) message).toBytes());
         assertEquals(expected, BDHKEUtils.pointToHex(result));
 
-        message = Secret.fromString("0000000000000000000000000000000000000000000000000000000000000002");
+        message = RandomStringSecret.fromString("0000000000000000000000000000000000000000000000000000000000000002");
         expected = "026cdbe15362df59cd1dd3c9c11de8aedac2106eca69236ecd9fbe117af897be4f";
-        result = BDHKEUtils.hashToCurve(message.toBytes());
+        result = BDHKEUtils.hashToCurve(((RandomStringSecret) message).toBytes());
         assertEquals(expected, BDHKEUtils.pointToHex(result));
     }
 
@@ -68,27 +70,27 @@ public class NUT00Tests {
 
     @Test
     public void serializeV3() throws JsonProcessingException {
-        TokenV3 tokenV3 = new TokenV3();
+        TokenV3<RandomStringSecret> tokenV3 = new TokenV3();
 
         tokenV3.setMemo("Thank you.");
         tokenV3.setUnit("sat");
 
-        Set<TokenV3.MintProof> mintProofs = new HashSet<>();
+        Set<TokenV3.MintProof<RandomStringSecret>> mintProofs = new HashSet<>();
         TokenV3.MintProof mintProof = new TokenV3.MintProof();
         mintProof.setMint("https://8333.space:3338");
 
-        Set<Proof> proofs = new HashSet<>();
-        Proof proof = new Proof();
+        Set<RSSProof> proofs = new HashSet<>();
+        RSSProof proof = new RSSProof();
         proof.setUnblindedSignature(Signature.fromString("02bc9097997d81afb2cc7346b5e4345a9346bd2a506eb7958598a72f0cf85163ea"));
         proof.setAmount(2);
-        proof.setSecret(Secret.fromString("407915bc212be61a77e3e6d2aeb4c727980bda51cd06a6afc29e2861768a7837"));
+        proof.setSecret(RandomStringSecret.fromString("407915bc212be61a77e3e6d2aeb4c727980bda51cd06a6afc29e2861768a7837"));
         proof.setKeySetId("009a1f293253e41e");
         proofs.add(proof);
 
-        proof = new Proof();
+        proof = new RSSProof();
         proof.setUnblindedSignature(Signature.fromString("029e8e5050b890a7d6c0968db16bc1d5d5fa040ea1de284f6ec69d61299f671059"));
         proof.setAmount(8);
-        proof.setSecret(Secret.fromString("fe15109314e61d7756b0f8ee0f23a624acaa3f4e042f61433c728c7057b931be"));
+        proof.setSecret(RandomStringSecret.fromString("fe15109314e61d7756b0f8ee0f23a624acaa3f4e042f61433c728c7057b931be"));
         proof.setKeySetId("009a1f293253e41e");
         proofs.add(proof);
 

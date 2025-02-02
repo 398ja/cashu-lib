@@ -1,20 +1,20 @@
 package xyz.tcheeric.cashu.common.model.rest;
 
 import xyz.tcheeric.cashu.common.model.BlindedMessage;
-import xyz.tcheeric.cashu.common.model.Secret;
 import cashu.util.Utils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
+import xyz.tcheeric.cashu.common.model.Secret;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
 @Data
-public class PostMintRequest {
+public class PostMintRequest<T extends Secret> {
 
     @JsonProperty("quote")
     private String quoteId;
@@ -23,7 +23,7 @@ public class PostMintRequest {
     private List<BlindedMessage> blindedMessages;
 
     @JsonIgnore
-    private List<Secret> secrets;
+    private List<T> secrets;
 
     @JsonIgnore
     private List<byte[]> blindingFactors;
@@ -46,7 +46,7 @@ public class PostMintRequest {
                 '}';
     }
 
-    public void addSecret(@NonNull Secret secret, int index) {
+    public void addSecret(@NonNull T secret, int index) {
         this.secrets.add(index, secret);
     }
 
@@ -58,7 +58,7 @@ public class PostMintRequest {
         this.blindedMessages.add(index, blindedMessage);
     }
 
-    public Secret getSecret(int index) {
+    public T getSecret(int index) {
         return this.secrets.get(index);
     }
 

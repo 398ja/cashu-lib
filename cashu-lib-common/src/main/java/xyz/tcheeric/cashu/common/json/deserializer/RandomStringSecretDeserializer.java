@@ -1,6 +1,6 @@
 package xyz.tcheeric.cashu.common.json.deserializer;
 
-import xyz.tcheeric.cashu.common.model.Secret;
+import xyz.tcheeric.cashu.common.model.RandomStringSecret;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -8,12 +8,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
 
-public class SecretDeserializer extends JsonDeserializer<Secret> {
+public class RandomStringSecretDeserializer extends JsonDeserializer<RandomStringSecret> {
     @Override
-    public Secret deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public RandomStringSecret deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         JsonNode node = p.readValueAsTree();
         if (node.isTextual()) {
-            return Secret.fromString(node.textValue());
+            return RandomStringSecret.fromString(node.textValue());
         }
         throw new RuntimeException("Invalid CryptoElement format");
     }

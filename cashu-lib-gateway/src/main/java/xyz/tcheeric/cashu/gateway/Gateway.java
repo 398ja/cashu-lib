@@ -92,7 +92,7 @@ public interface Gateway {
     String getName();
 
     /**
-     * Test if the gateway supports a payment method
+     * Test if the gateway supports the given payment method
      * @param method
      * @return
      */
