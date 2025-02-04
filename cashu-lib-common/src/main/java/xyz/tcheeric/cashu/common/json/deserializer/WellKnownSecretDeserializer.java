@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.bouncycastle.util.encoders.Hex;
 import xyz.tcheeric.cashu.common.model.P2PKSecret;
 import xyz.tcheeric.cashu.common.model.PublicKey;
 import xyz.tcheeric.cashu.common.model.WellKnownSecret;
@@ -23,7 +24,7 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
             // [kind, data]
             WellKnownSecret.Kind kind = WellKnownSecret.Kind.valueOf(node.get(0).textValue());
             JsonNode dataNode = node.get(1);
-            PublicKey data = PublicKey.fromString(dataNode.get("data").textValue());
+            byte[] data = Hex.decode(dataNode.get("data").textValue());
 
             // P2PK
             WellKnownSecret secret = kind.equals(WellKnownSecret.Kind.P2PK) ? new P2PKSecret(data) : null;

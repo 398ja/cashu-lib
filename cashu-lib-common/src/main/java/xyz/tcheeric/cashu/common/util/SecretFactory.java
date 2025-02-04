@@ -13,7 +13,7 @@ import xyz.tcheeric.cashu.common.model.Secret;
 @AllArgsConstructor
 public class SecretFactory<T extends Secret> {
 
-    private PublicKey p2pkPublicKey;
+    private byte[] p2pkPublicKey;
 
     public T create() {
         if (p2pkPublicKey == null) {
@@ -23,7 +23,7 @@ public class SecretFactory<T extends Secret> {
         return (T) new P2PKSecret(p2pkPublicKey);
     }
 
-    public static <T extends Secret> T create(PublicKey p2pkPublicKey) {
+    public static <T extends Secret> T create(byte[] p2pkPublicKey) {
         return (T) new SecretFactory<T>(p2pkPublicKey).create();
     }
 }

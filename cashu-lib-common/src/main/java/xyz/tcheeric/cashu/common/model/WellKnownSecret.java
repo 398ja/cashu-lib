@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.java.Log;
+import org.bouncycastle.util.encoders.Hex;
 import xyz.tcheeric.cashu.common.json.deserializer.TagDeserializer;
 import xyz.tcheeric.cashu.common.json.deserializer.WellKnownSecretDeserializer;
 
@@ -26,10 +27,10 @@ public abstract class WellKnownSecret implements Secret {
 
     private Kind kind;
     private String nonce;
-    private PublicKey data;
+    private byte[] data;
     private List<Tag> tags;
 
-    public WellKnownSecret(@NonNull Kind kind, @NonNull PublicKey data) {
+    public WellKnownSecret(@NonNull Kind kind, @NonNull byte[] data) {
         this.kind = kind;
         this.data = data;
         this.nonce = PrivateKey.generateRandom().toString();
@@ -37,18 +38,18 @@ public abstract class WellKnownSecret implements Secret {
     }
 
     @Override
-    public String getData() {
-        return this.data.toString();
+    public byte[] getData() {
+        return this.data;
     }
 
     @Override
-    public void setData(@NonNull String data) {
-        this.data = PublicKey.fromString(data);
+    public void setData(@NonNull byte[] data) {
+        this.data = data;
     }
 
     @Override
     public byte[] toBytes() {
-        return this.data.toBytes();
+        return this.data;
     }
 
     public void addTag(@NonNull String key, @NonNull List<Object> values) {
@@ -63,6 +64,10 @@ public abstract class WellKnownSecret implements Secret {
 
     public void removeTag(@NonNull Tag tag) {
         this.tags.remove(tag);
+    }
+
+    public Tag getTag(@NonNull String key) {
+        return this.tags.stream().filter(tag -> tag.getKey().equals(key)).findFirst().orElse(null);
     }
 
     @SneakyThrows

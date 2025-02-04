@@ -4,9 +4,9 @@ import lombok.NonNull;
 
 public interface Secret {
 
-    String getData();
+    byte[] getData();
 
-    void setData(@NonNull String data);
+    void setData(@NonNull byte[] data);
 
     byte[] toBytes();
 

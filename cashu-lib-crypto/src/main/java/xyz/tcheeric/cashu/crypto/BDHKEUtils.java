@@ -1,6 +1,6 @@
 package xyz.tcheeric.cashu.crypto;
 
-import xyz.tcheeric.cashu.common.model.PrivateKey;
+import xyz.tcheeric.cashu.crypto.util.KeysUtils;
 import xyz.tcheeric.cashu.crypto.util.Utils;
 import lombok.NonNull;
 import lombok.extern.java.Log;
@@ -65,7 +65,7 @@ public class BDHKEUtils {
         byte[][] result = new byte[2][];
 
         ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("secp256k1");
-        BigInteger r = PrivateKey.generateRandom().toBigInteger();
+        BigInteger r = Utils.bigIntFromBytes(KeysUtils.generatePrivateKey());
         ECPoint G = spec.getG();
         ECPoint Y = hashToCurve(secret);
         ECPoint rG = G.multiply(r);

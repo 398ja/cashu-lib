@@ -3,6 +3,8 @@ package xyz.tcheeric.cashu.crypto.util;
 import lombok.NonNull;
 
 import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 public class Utils {
@@ -55,4 +57,24 @@ public class Utils {
         return new BigInteger(1, b);
     }
 
+    public static byte[] sha256(byte[] b) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        return digest.digest(b);
+    }
+
+    public static byte[] xor(byte[] b0, byte[] b1) {
+
+        if (b0.length != b1.length) {
+            return null;
+        }
+
+        byte[] ret = new byte[b0.length];
+        int i = 0;
+        for (byte b : b0) {
+            ret[i] = (byte) (b ^ b1[i]);
+            i++;
+        }
+
+        return ret;
+    }
 }

@@ -26,13 +26,14 @@ public class RandomStringSecret extends PrivateKey implements Secret {
         return new RandomStringSecret(bytes);
     }
 
+
     @Override
-    public String getData() {
-        return this.toString();
+    public byte[] getData() {
+        return this.getBytes();
     }
 
     @Override
-    public void setData(@NonNull String data) {
+    public void setData(@NonNull byte[] data) {
         // Do nothing
     }
 

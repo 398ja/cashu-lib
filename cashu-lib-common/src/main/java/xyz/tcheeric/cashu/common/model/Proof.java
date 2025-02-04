@@ -31,7 +31,7 @@ public class Proof<T extends Secret> {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Witness witness;
 
-    public void setData(String data) {
+    public void setSecretData(byte[] data) {
         this.secret.setData(data);
     }
 }

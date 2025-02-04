@@ -27,4 +27,12 @@ public class Keys {
     public PublicKey get(int key) {
         return values.get(BigInteger.valueOf(key));
     }
+
+    public Map<BigInteger, byte[]> values() {
+        Map<BigInteger, byte[]> keys = new HashMap<>();
+        for (Map.Entry<BigInteger, PublicKey> entry : values.entrySet()) {
+            keys.put(entry.getKey(), entry.getValue().toBytes());
+        }
+        return keys;
+    }
 }
