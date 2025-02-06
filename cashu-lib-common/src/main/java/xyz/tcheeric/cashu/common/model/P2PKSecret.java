@@ -22,7 +22,7 @@ public class P2PKSecret extends WellKnownSecret {
         refund
     }
 
-    public enum SignatureFlag {
+    public enum SignatureFlag { // IMPORTANT: Do not change the order!!!
         SIG_INPUTS,
         SIG_ALL
     }
@@ -61,9 +61,9 @@ public class P2PKSecret extends WellKnownSecret {
         super.addTag(P2PKTag.refund.name(), new ArrayList<>(refund.stream().toList()));
     }
 
-    public void addRefund(@NonNull PublicKey refund) {
+    public void addRefund(@NonNull String refund) {
         List<String> refunds = getRefund();
-        refunds.add(refund.toString());
+        refunds.add(refund);
         this.setRefund(refunds);
     }
 
@@ -82,7 +82,7 @@ public class P2PKSecret extends WellKnownSecret {
             return null;
         }
         List<?> values = super.getTag(P2PKTag.sigflag.name()).getValues();
-        return values != null ? (String) values.get(0) : null;
+        return values != null ? ((SignatureFlag) values.get(0)).name() : null;
     }
 
     public List<String> getPubKeys() {
@@ -97,10 +97,10 @@ public class P2PKSecret extends WellKnownSecret {
     public int getLockTime() {
         Tag tag = super.getTag(P2PKTag.locktime.name());
         if (tag == null) {
-            return Integer.MAX_VALUE;
+            return 0;
         }
         List<?> values = super.getTag(P2PKTag.locktime.name()).getValues();
-        return values != null ? (int) values.get(0) : Integer.MAX_VALUE;
+        return values != null ? (int) values.get(0) : 0;
     }
 
     public List<String> getRefund() {
