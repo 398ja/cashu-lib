@@ -19,10 +19,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13</version>
-            <scope>test</scope>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -30,28 +28,12 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-<!--
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>cashu-lib-util</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
--->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>cashu-lib-crypto</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>cashu-lib-token</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-                -->
     </dependencies>
 
     <build>

@@ -1,16 +1,17 @@
 package xyz.tcheeric.cashu.test.protocol;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
 import xyz.tcheeric.cashu.common.model.Keys;
 import xyz.tcheeric.cashu.common.model.PublicKey;
 import xyz.tcheeric.cashu.crypto.util.KeySetDerivation;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Assert;
-import org.junit.Test;
 
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NUT03Tests {
 
@@ -25,7 +26,7 @@ public class NUT03Tests {
 
         Map<BigInteger, byte[]> values = getValues(keys);
         var keysetId = KeySetDerivation.getId(values);
-        Assert.assertEquals("00456a94ab4e1c46", keysetId);
+        assertEquals("00456a94ab4e1c46", keysetId);
 
         jsonString = """
                 {
@@ -34,7 +35,7 @@ public class NUT03Tests {
         keys = objectMapper.readValue(jsonString, Keys.class);
         values = getValues(keys);
         keysetId = KeySetDerivation.getId(values);
-        Assert.assertEquals("000f01df73ea149a", keysetId);
+        assertEquals("000f01df73ea149a", keysetId);
     }
 
     private static Map<BigInteger, byte[]> getValues(Keys keys) {

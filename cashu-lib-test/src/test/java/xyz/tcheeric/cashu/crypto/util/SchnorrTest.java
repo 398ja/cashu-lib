@@ -1,10 +1,10 @@
 package xyz.tcheeric.cashu.crypto.util;
 
 import org.bouncycastle.util.encoders.Hex;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import xyz.tcheeric.cashu.crypto.Schnorr;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SchnorrTest {
 

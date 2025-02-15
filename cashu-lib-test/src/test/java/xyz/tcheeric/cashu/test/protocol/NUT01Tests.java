@@ -1,14 +1,16 @@
 package xyz.tcheeric.cashu.test.protocol;
 
-import xyz.tcheeric.cashu.common.model.Keys;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import xyz.tcheeric.cashu.common.model.Keys;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NUT01Tests {
 
-    @Test(expected = Exception.class)
+    @Test
     public void testVectorsInvalidLength() throws JsonProcessingException {
 
         String jsonKey = """
@@ -16,10 +18,12 @@ public class NUT01Tests {
                   "1":"03a40f20667ed53513075dc51e715ff2046cad64eb68960632269ba7f0210e38","2":"03fd4ce5a16b65576145949e6f99f445f8249fee17c606b688b504a849cdc452de","4":"02648eccfa4c026960966276fa5a4cae46ce0fd432211a4f449bf84f13aa5f8303","8":"02fdfd6796bfeac490cbee12f778f867f0a2c68f6508d17c649759ea0dc3547528"
                 }""";
         ObjectMapper mapper = new ObjectMapper();
-        mapper.readValue(jsonKey, Keys.class);
+        assertThrows(Exception.class, () -> {
+            mapper.readValue(jsonKey, Keys.class);
+        });
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void testVectorsInvalidFormat() throws JsonProcessingException {
 
         String jsonKey = """
@@ -27,7 +31,9 @@ public class NUT01Tests {
                   "1":"03a40f20667ed53513075dc51e715ff2046cad64eb68960632269ba7f0210e38bc","2":"04fd4ce5a16b65576145949e6f99f445f8249fee17c606b688b504a849cdc452de3625246cb2c27dac965cb7200a5986467eee92eb7d496bbf1453b074e223e481","4":"02648eccfa4c026960966276fa5a4cae46ce0fd432211a4f449bf84f13aa5f8303","8":"02fdfd6796bfeac490cbee12f778f867f0a2c68f6508d17c649759ea0dc3547528"
                 }""";
         ObjectMapper mapper = new ObjectMapper();
-        mapper.readValue(jsonKey, Keys.class);
+        assertThrows(Exception.class, () -> {
+            mapper.readValue(jsonKey, Keys.class);
+        });
     }
 
     @Test
@@ -47,6 +53,6 @@ public class NUT01Tests {
                 }""";
         mapper.readValue(jsonKey, Keys.class);
 
-        Assert.assertTrue(true);
+        assertTrue(true);
     }
 }
