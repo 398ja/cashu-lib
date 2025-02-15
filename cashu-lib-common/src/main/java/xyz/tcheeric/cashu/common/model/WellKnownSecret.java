@@ -2,6 +2,7 @@ package xyz.tcheeric.cashu.common.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -10,6 +11,7 @@ import lombok.extern.java.Log;
 import org.bouncycastle.util.encoders.Hex;
 import xyz.tcheeric.cashu.common.json.deserializer.TagDeserializer;
 import xyz.tcheeric.cashu.common.json.deserializer.WellKnownSecretDeserializer;
+import xyz.tcheeric.cashu.common.json.serializer.WellKnownSecretSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.List;
 @Log
 @NoArgsConstructor
 @JsonDeserialize(using = WellKnownSecretDeserializer.class)
+@JsonSerialize(using = WellKnownSecretSerializer.class)
 public abstract class WellKnownSecret implements Secret {
 
     public enum Kind {
@@ -30,7 +33,12 @@ public abstract class WellKnownSecret implements Secret {
     private byte[] data;
     private List<Tag> tags;
 
-    public WellKnownSecret(@NonNull Kind kind, @NonNull byte[] data) {
+    public WellKnownSecret(@NonNull Kind kind) {
+        this.kind = kind;
+        this.tags = new ArrayList<>();
+    }
+
+    public WellKnownSecret(@NonNull Kind kind, byte[] data) {
         this.kind = kind;
         this.data = data;
         this.nonce = PrivateKey.generateRandom().toString();
@@ -70,21 +78,31 @@ public abstract class WellKnownSecret implements Secret {
         return this.tags.stream().filter(tag -> tag.getKey().equals(key)).findFirst().orElse(null);
     }
 
+    public void setTag(@NonNull String key, @NonNull List<Object> values) {
+        Tag tag = getTag(key);
+        if (tag == null) {
+            addTag(key, values);
+        } else {
+            tag.getValues().clear();
+            tag.getValues().addAll(values);
+        }
+    }
+
     @SneakyThrows
     @Override
     public String toString() {
-        return new ObjectMapper().writeValueAsString(this).replace("\"", "\\\"");
+        return new ObjectMapper().writeValueAsString(this);
     }
 
 
     @Data
-    @JsonDeserialize(using = TagDeserializer.class)
+    //@JsonDeserialize(using = TagDeserializer.class)
     public static class Tag {
         private String key;
         private List<Object> values;
 
         public Tag() {
-            this(null);
+            this.values = new ArrayList<>();
         }
 
         public Tag(@NonNull String key) {

@@ -9,6 +9,7 @@ import org.bouncycastle.util.encoders.Hex;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 
 
 @Log
@@ -27,8 +28,20 @@ public class P2PKSecret extends WellKnownSecret {
         SIG_ALL
     }
 
+    public P2PKSecret() {
+        super(Kind.P2PK);
+    }
+
     public P2PKSecret(@NonNull byte[] data) {
         super(Kind.P2PK, data);
+        this.setNSigs(1);
+        this.setSigFlag(SignatureFlag.SIG_INPUTS);
+    }
+
+    public P2PKSecret(@NonNull byte[] data, int nSigs, @NonNull SignatureFlag sigFlag) {
+        super(Kind.P2PK, data);
+        this.setNSigs(nSigs);
+        this.setSigFlag(sigFlag);
     }
 
     public void addTag(@NonNull P2PKTag tag, @NonNull List<Object> values) {
@@ -36,15 +49,15 @@ public class P2PKSecret extends WellKnownSecret {
     }
 
     public void setSigFlag(@NonNull SignatureFlag sigFlag) {
-        super.addTag(P2PKTag.sigflag.name(), List.of(sigFlag));
+        super.setTag(P2PKTag.sigflag.name(), List.of(sigFlag));
     }
 
     public void setNSigs(@NonNull Integer nSigs) {
-        super.addTag(P2PKTag.n_sigs.name(), List.of(nSigs));
+        super.setTag(P2PKTag.n_sigs.name(), List.of(nSigs));
     }
 
     public void setPubKeys(@NonNull List<String> pubKeys) {
-        super.addTag(P2PKTag.pubkeys.name(), new ArrayList<>(pubKeys.stream().toList()));
+        super.setTag(P2PKTag.pubkeys.name(), new ArrayList<>(pubKeys.stream().toList()));
     }
 
     public void addPubKey(@NonNull String pubKey) {
@@ -54,11 +67,11 @@ public class P2PKSecret extends WellKnownSecret {
     }
 
     public void setLockTime(@NonNull Integer lockTime) {
-        super.addTag(P2PKTag.locktime.name(), List.of(lockTime));
+        super.setTag(P2PKTag.locktime.name(), List.of(lockTime));
     }
 
     public void setRefund(@NonNull List<String> refund) {
-        super.addTag(P2PKTag.refund.name(), new ArrayList<>(refund.stream().toList()));
+        super.setTag(P2PKTag.refund.name(), new ArrayList<>(refund.stream().toList()));
     }
 
     public void addRefund(@NonNull String refund) {
@@ -110,11 +123,6 @@ public class P2PKSecret extends WellKnownSecret {
         }
         List<?> values = super.getTag(P2PKTag.refund.name()).getValues();
         return values != null ? (List<String>) values : new ArrayList<>();
-    }
-
-    @Override
-    public String toString() {
-        return Hex.decode(getData()).toString();
     }
 
     @SneakyThrows

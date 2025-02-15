@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonPropertyOrder({"amount", "id", "secret", "C"})
+@JsonPropertyOrder({"amount", "id", "secret", "C", "witness"})
 public class Proof<T extends Secret> {
 
     @JsonProperty
