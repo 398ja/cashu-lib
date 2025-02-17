@@ -1,7 +1,5 @@
 package xyz.tcheeric.cashu.crypto;
 
-import xyz.tcheeric.cashu.crypto.util.KeysUtils;
-import xyz.tcheeric.cashu.crypto.util.Utils;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import org.bouncycastle.jce.ECNamedCurveTable;
@@ -9,6 +7,8 @@ import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.math.ec.custom.sec.SecP256K1Curve;
 import org.bouncycastle.util.encoders.Hex;
+import xyz.tcheeric.cashu.crypto.util.KeysUtils;
+import xyz.tcheeric.cashu.crypto.util.Utils;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;

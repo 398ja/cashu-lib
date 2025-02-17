@@ -1,6 +1,6 @@
 package xyz.tcheeric.cashu.common.annotation;
 
-import xyz.tcheeric.cashu.common.model.PaymentMethod;
+import xyz.tcheeric.cashu.entities.PaymentMethod;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

@@ -1,8 +1,8 @@
 package xyz.tcheeric.cashu.gateway;
 
-import xyz.tcheeric.cashu.common.annotation.Supports;
-import xyz.tcheeric.cashu.common.model.PaymentMethod;
 import lombok.NonNull;
+import xyz.tcheeric.cashu.common.annotation.Supports;
+import xyz.tcheeric.cashu.entities.PaymentMethod;
 
 import java.util.Arrays;
 

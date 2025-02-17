@@ -3,9 +3,9 @@ package xyz.tcheeric.cashu.test.protocol;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import xyz.tcheeric.cashu.common.model.Keys;
-import xyz.tcheeric.cashu.common.model.PublicKey;
 import xyz.tcheeric.cashu.crypto.util.KeySetDerivation;
+import xyz.tcheeric.cashu.entities.Keys;
+import xyz.tcheeric.cashu.entities.PublicKey;
 
 import java.math.BigInteger;
 import java.util.HashMap;
