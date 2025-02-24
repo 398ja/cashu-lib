@@ -10,11 +10,11 @@
     <name>cashu-lib</name>
     <url>http://maven.apache.org</url>
     <modules>
-        <module>cashu-lib-common</module>
+        <module>cashu-lib-entities</module>
         <module>cashu-lib-test</module>
         <module>cashu-lib-crypto</module>
         <module>cashu-lib-gateway</module>
-        <module>cashu-lib-entities</module>
+        <module>cashu-lib-common</module>
     </modules>
 
     <properties>

@@ -24,7 +24,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>cashu-lib-common</artifactId>
+            <artifactId>cashu-lib-entities</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>

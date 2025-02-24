@@ -1,6 +1,9 @@
 package xyz.tcheeric.cashu.entities;
 
 import org.junit.jupiter.api.Test;
+import xyz.tcheeric.cashu.common.RSSProof;
+import xyz.tcheeric.cashu.common.RandomStringSecret;
+import xyz.tcheeric.cashu.common.TokenV3;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
