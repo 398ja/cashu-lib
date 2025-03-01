@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>cashu-java</groupId>
+    <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -10,11 +10,11 @@
     <name>cashu-lib</name>
     <url>http://maven.apache.org</url>
     <modules>
-        <module>cashu-lib-common</module>
-        <module>cashu-lib-util</module>
+        <module>cashu-lib-entities</module>
         <module>cashu-lib-test</module>
         <module>cashu-lib-crypto</module>
-        <module>cashu-lib-vault</module>
+        <module>cashu-lib-gateway</module>
+        <module>cashu-lib-common</module>
     </modules>
 
     <properties>
@@ -24,7 +24,7 @@
         <maven.compiler.target>21</maven.compiler.target>
 
         <!-- Annotation Dependency Versions -->
-        <lombok.version>1.18.30</lombok.version>
+        <lombok.version>1.18.36</lombok.version>
 
         <bcprov-jdk18on.version>1.72</bcprov-jdk18on.version>
 
@@ -124,6 +124,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven-surefire-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.12</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
