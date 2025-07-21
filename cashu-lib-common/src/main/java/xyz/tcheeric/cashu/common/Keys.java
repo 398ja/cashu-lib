@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import xyz.tcheeric.cashu.common.json.deserializer.KeysDeserializer;
 import xyz.tcheeric.cashu.common.json.serializer.KeysSerializer;
 
@@ -15,7 +16,8 @@ import java.util.Map;
 @JsonDeserialize(using = KeysDeserializer.class)
 @JsonSerialize(using = KeysSerializer.class)
 @AllArgsConstructor
-public class                                                                                                                                                                                                                    Keys {
+@NoArgsConstructor
+public class Keys {
 
     private final Map<BigInteger, PublicKey> values = new HashMap<>();
 
