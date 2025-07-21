@@ -56,6 +56,13 @@ Include the following dependencies in your project's pom.xml file:
 - Add more unit tests.
 - Configure JaCoCo for code coverage.
 
+## Logging improvements
+- Switch to the SLF4J API with Logback or Log4j2 for flexible configuration.
+- Provide a default configuration file so users can control log output easily.
+- Use parameterized log messages to avoid extra string concatenation.
+- Apply consistent log levels (INFO, WARNING, ERROR) throughout the code.
+- Document how to enable verbose logging when debugging.
+
 ## License
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
