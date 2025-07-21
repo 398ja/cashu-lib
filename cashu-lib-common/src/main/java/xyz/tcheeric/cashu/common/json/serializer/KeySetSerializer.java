@@ -16,5 +16,6 @@ public class KeySetSerializer extends JsonSerializer<KeySet> {
         gen.writeObjectFieldStart("keys");
         gen.writeObject(value.getKeys());
         gen.writeEndObject();
+        gen.writeEndObject();
     }
 }
