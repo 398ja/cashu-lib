@@ -13,19 +13,19 @@ import java.util.List;
 public class PostCheckStateResponse {
 
     @JsonProperty
-    private List<ResponseSatate> states;
+    private List<ResponseState> states;
 
     public PostCheckStateResponse() {
         this.states = new ArrayList<>();
     }
 
-    public void addResponseState(@NonNull ResponseSatate responseSatate) {
-        this.states.add(responseSatate);
+    public void addResponseState(@NonNull ResponseState responseState) {
+        this.states.add(responseState);
     }
 
     @Data
     @NoArgsConstructor
-    public static class ResponseSatate {
+    public static class ResponseState {
 
         @JsonProperty("Y")
         private CryptoElement hashToCurveSecret;
