@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.SneakyThrows;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import xyz.tcheeric.cashu.common.json.deserializer.WellKnownSecretDeserializer;
 import xyz.tcheeric.cashu.common.json.serializer.WellKnownSecretSerializer;
 
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@Log
+@Slf4j
 @NoArgsConstructor
 @JsonDeserialize(using = WellKnownSecretDeserializer.class)
 @JsonSerialize(using = WellKnownSecretSerializer.class)

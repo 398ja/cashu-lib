@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Hex;
 import xyz.tcheeric.cashu.common.P2PKSecret;
 import xyz.tcheeric.cashu.common.WellKnownSecret;
@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Log
+@Slf4j
 public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecret> {
     @Override
     public WellKnownSecret deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
