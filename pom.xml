@@ -13,7 +13,6 @@
         <module>cashu-lib-entities</module>
         <module>cashu-lib-test</module>
         <module>cashu-lib-crypto</module>
-        <module>cashu-lib-gateway</module>
         <module>cashu-lib-common</module>
     </modules>
 
