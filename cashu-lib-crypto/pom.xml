@@ -26,7 +26,7 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
-            <version>1.78</version>
+            <version>${bcprov-jdk18on.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
