@@ -11,6 +11,8 @@ import xyz.tcheeric.cashu.common.WellKnownSecret;
 import xyz.tcheeric.cashu.common.dto.WellKnownSecretDTO;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Log
 public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecret> {
@@ -30,9 +32,46 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
         }
         if (dto.getTags() != null) {
             for (WellKnownSecret.Tag tag : dto.getTags()) {
+                if (secret instanceof P2PKSecret) {
+                    convertP2PKTagValues(tag);
+                }
                 secret.addTag(tag);
             }
         }
         return secret;
+    }
+
+    private void convertP2PKTagValues(WellKnownSecret.Tag tag) {
+        switch (tag.getKey()) {
+            case "sigflag" -> {
+                List<Object> values = new ArrayList<>();
+                for (Object v : tag.getValues()) {
+                    if (v instanceof String s) {
+                        values.add(P2PKSecret.SignatureFlag.valueOf(s));
+                    } else {
+                        values.add(v);
+                    }
+                }
+                tag.setValues(values);
+            }
+            case "n_sigs", "locktime" -> {
+                List<Object> values = new ArrayList<>();
+                for (Object v : tag.getValues()) {
+                    if (v instanceof Number n) {
+                        values.add(n.intValue());
+                    } else {
+                        values.add(v);
+                    }
+                }
+                tag.setValues(values);
+            }
+            case "pubkeys", "refund" -> {
+                List<Object> values = new ArrayList<>();
+                for (Object v : tag.getValues()) {
+                    values.add(String.valueOf(v));
+                }
+                tag.setValues(values);
+            }
+        }
     }
 }
