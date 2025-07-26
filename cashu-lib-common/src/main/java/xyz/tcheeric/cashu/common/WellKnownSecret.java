@@ -1,6 +1,7 @@
 package xyz.tcheeric.cashu.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import xyz.tcheeric.cashu.common.util.JsonUtils;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
@@ -89,7 +90,7 @@ public abstract class WellKnownSecret implements Secret {
     @SneakyThrows
     @Override
     public String toString() {
-        return new ObjectMapper().writeValueAsString(this);
+        return JsonUtils.JSON_MAPPER.writeValueAsString(this);
     }
 
 

@@ -2,6 +2,7 @@ package xyz.tcheeric.cashu.common.codec.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import xyz.tcheeric.cashu.common.util.JsonUtils;
 import lombok.AllArgsConstructor;
 import xyz.tcheeric.cashu.common.Proof;
 import xyz.tcheeric.cashu.common.Secret;
@@ -14,7 +15,7 @@ public class ProofDecoder<T extends Secret> implements Decoder<Proof<T>> {
 
     @Override
     public Proof<T> decode() throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = JsonUtils.JSON_MAPPER;
         return objectMapper.readValue(jsonString, Proof.class);
     }
 }

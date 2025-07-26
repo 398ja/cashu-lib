@@ -3,6 +3,7 @@ package xyz.tcheeric.cashu.common.codec.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import xyz.tcheeric.cashu.common.util.JsonUtils;
 import lombok.AllArgsConstructor;
 import xyz.tcheeric.cashu.common.Keys;
 import xyz.tcheeric.cashu.common.PublicKey;
@@ -18,7 +19,7 @@ public class KeysDecoder implements Decoder<Keys> {
 
     @Override
     public Keys decode() throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = JsonUtils.JSON_MAPPER;
         Map<String, String> map = objectMapper.readValue(jsonString, new TypeReference<>() {});
         Keys keys = new Keys();
         for (Map.Entry<String, String> entry : map.entrySet()) {
