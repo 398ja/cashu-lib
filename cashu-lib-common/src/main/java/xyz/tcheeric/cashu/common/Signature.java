@@ -1,13 +1,11 @@
 package xyz.tcheeric.cashu.common;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.NonNull;
-import xyz.tcheeric.cashu.common.json.deserializer.SignatureDeserializer;
 import xyz.tcheeric.cashu.crypto.util.Utils;
 
 import java.math.BigInteger;
 
-@JsonDeserialize(using = SignatureDeserializer.class)
 public class Signature extends CryptoElement {
 
     private Signature(@NonNull String value) {
@@ -18,6 +16,7 @@ public class Signature extends CryptoElement {
         super(value, SIGNATURE_LENGTH);
     }
 
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static Signature fromString(@NonNull String s) {
         return new Signature(s);
     }
