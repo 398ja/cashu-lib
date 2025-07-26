@@ -1,13 +1,11 @@
 package xyz.tcheeric.cashu.common;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.NonNull;
-import xyz.tcheeric.cashu.common.json.deserializer.PublicKeyDeserializer;
 import xyz.tcheeric.cashu.crypto.util.Utils;
 
 import java.math.BigInteger;
 
-@JsonDeserialize(using = PublicKeyDeserializer.class)
 public class PublicKey extends CryptoElement {
 
     private PublicKey(@NonNull String value) {
@@ -18,6 +16,7 @@ public class PublicKey extends CryptoElement {
         super(value, PUBLIC_KEY_LENGTH);
     }
 
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static PublicKey fromString(@NonNull String s) {
         return new PublicKey(s);
     }
