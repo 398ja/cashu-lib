@@ -8,6 +8,7 @@ import xyz.tcheeric.cashu.common.util.JsonUtils;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.Base64;
@@ -16,6 +17,7 @@ import java.util.Set;
 
 @Data
 @NoArgsConstructor
+@Slf4j
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TokenV3<T extends Secret> implements Token {
 
@@ -51,6 +53,7 @@ public class TokenV3<T extends Secret> implements Token {
     public String serialize(boolean clickable) {
         ObjectMapper objectMapper = JsonUtils.JSON_MAPPER;
         try {
+            log.debug("Serializing TokenV3 containing {} mint proofs", mintProofs.size());
             byte[] json = objectMapper.writeValueAsBytes(this);
             return TokenUtil.serialize(json, Version.V3, clickable);
         } catch (JsonProcessingException e) {
@@ -81,7 +84,9 @@ public class TokenV3<T extends Secret> implements Token {
         byte[] byteArrToken = Base64.getUrlDecoder().decode(serializedToken);
         ObjectMapper objectMapper = JsonUtils.JSON_MAPPER;
         try {
-            return objectMapper.readValue(byteArrToken, TokenV3.class);
+            TokenV3 token = objectMapper.readValue(byteArrToken, TokenV3.class);
+            log.debug("Deserialized TokenV3 with {} mint proofs", token.getMintProofs().size());
+            return token;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

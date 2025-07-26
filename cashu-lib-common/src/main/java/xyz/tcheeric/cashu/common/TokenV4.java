@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.Base64;
@@ -18,6 +19,7 @@ import java.util.Set;
 
 @Data
 @NoArgsConstructor
+@Slf4j
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TokenV4 implements Token {
 
@@ -95,6 +97,7 @@ public class TokenV4 implements Token {
     public String serialize(boolean clickable) {
         ObjectMapper objectMapper = JsonUtils.CBOR_MAPPER;
         try {
+            log.debug("Serializing TokenV4 with {} token data entries", tokenDataList.size());
             byte[] cborToken = objectMapper.writeValueAsBytes(this);
             return TokenUtil.serialize(cborToken, Version.V4, clickable);
         } catch (JsonProcessingException e) {
@@ -112,7 +115,9 @@ public class TokenV4 implements Token {
         byte[] cborToken = Base64.getUrlDecoder().decode(serializedToken);
         ObjectMapper objectMapper = JsonUtils.CBOR_MAPPER;
         try {
-            return objectMapper.readValue(cborToken, TokenV4.class);
+            TokenV4 token = objectMapper.readValue(cborToken, TokenV4.class);
+            log.debug("Deserialized TokenV4 with {} token data entries", token.getTokenDataList().size());
+            return token;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
