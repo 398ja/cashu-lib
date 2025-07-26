@@ -2,9 +2,11 @@ package xyz.tcheeric.cashu.common.json.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import org.bouncycastle.util.encoders.Hex;
 import xyz.tcheeric.cashu.common.WellKnownSecret;
+import xyz.tcheeric.cashu.common.dto.WellKnownSecretDTO;
 
 import java.io.IOException;
 
@@ -12,26 +14,12 @@ public class WellKnownSecretSerializer extends JsonSerializer<WellKnownSecret> {
 
     @Override
     public void serialize(WellKnownSecret value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeStartArray();
-        gen.writeString(value.getKind().name());
-
-        gen.writeStartObject();
-        gen.writeStringField("nonce", value.getNonce());
-        gen.writeStringField("data", Hex.toHexString(value.getData()));
-
-        gen.writeFieldName("tags");
-        gen.writeStartArray();
-        for (WellKnownSecret.Tag tag : value.getTags()) {
-            gen.writeStartArray();
-            gen.writeString(tag.getKey());
-            for (Object tagValue : tag.getValues()) {
-                gen.writeObject(tagValue.toString());
-            }
-            gen.writeEndArray();
-        }
-        gen.writeEndArray();
-
-        gen.writeEndObject();
-        gen.writeEndArray();
+        ObjectMapper mapper = (ObjectMapper) gen.getCodec();
+        WellKnownSecretDTO dto = new WellKnownSecretDTO();
+        dto.setKind(value.getKind());
+        dto.setNonce(value.getNonce());
+        dto.setData(Hex.toHexString(value.getData()));
+        dto.setTags(value.getTags());
+        mapper.writeValue(gen, dto);
     }
 }
