@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import xyz.tcheeric.cashu.common.BlindedMessage;
-import xyz.tcheeric.cashu.common.codec.impl.BlindedMessageDecoder;
 
 import java.io.IOException;
 
@@ -14,8 +14,8 @@ public class BlindedMessageDeserializer extends JsonDeserializer<BlindedMessage>
     public BlindedMessage deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         JsonNode node = p.readValueAsTree();
         if (node.isObject()) {
-            BlindedMessageDecoder decoder = new BlindedMessageDecoder(node.toString());
-            return decoder.decode();
+            ObjectMapper mapper = (ObjectMapper) p.getCodec();
+            return mapper.readValue(node.toString(), BlindedMessage.class);
         }
         throw new RuntimeException("Invalid BlindedMessage format");
     }

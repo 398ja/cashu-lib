@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import xyz.tcheeric.cashu.common.Proof;
 import xyz.tcheeric.cashu.common.Secret;
-import xyz.tcheeric.cashu.common.codec.impl.ProofDecoder;
 
 import java.io.IOException;
 
@@ -15,8 +15,8 @@ public class ProofDeserializer<T extends Secret> extends JsonDeserializer<Proof<
     public Proof<T> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         JsonNode node = p.readValueAsTree();
         if (node.isObject()) {
-            ProofDecoder decoder = new ProofDecoder(node.toString());
-            return decoder.decode();
+            ObjectMapper mapper = (ObjectMapper) p.getCodec();
+            return mapper.readValue(node.toString(), Proof.class);
         }
         throw new RuntimeException("Invalid Proof format");
     }
