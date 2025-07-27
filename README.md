@@ -39,13 +39,13 @@ Include the following dependencies in your project's pom.xml file:
 
 ```xml
 <dependency>
-    <groupId>cashu-lib</groupId>
+    <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-common</artifactId>
     <version>0.1.0</version>
 </dependency>
 
 <dependency>
-    <groupId>cashu-lib</groupId>
+    <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-crypto</artifactId>
     <version>0.1.0</version>
 </dependency>
