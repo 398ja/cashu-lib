@@ -52,9 +52,17 @@ Include the following dependencies in your project's pom.xml file:
 
 ```
 
+## Generating a test coverage report
+Run the project's tests and produce an aggregated JaCoCo report with:
+
+```bash
+mvn verify
+```
+
+The HTML report will be generated at `cashu-lib-test/target/site/jacoco-aggregate/index.html`.
+
 ## Todo
 - Add more unit tests.
-- Configure JaCoCo for code coverage.
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
