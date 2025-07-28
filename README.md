@@ -39,15 +39,15 @@ Include the following dependencies in your project's pom.xml file:
 
 ```xml
 <dependency>
-    <groupId>cashu-lib</groupId>
+    <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-common</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1.0</version>
 </dependency>
 
 <dependency>
-    <groupId>cashu-lib</groupId>
+    <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-crypto</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1.0</version>
 </dependency>
 
 ```
@@ -60,6 +60,17 @@ mvn verify
 ```
 
 The HTML report will be generated at `cashu-lib-test/target/site/jacoco-aggregate/index.html`.
+
+## Publishing to Maven Central
+This project's POM is configured with distribution management and signing plugins for deployment to Sonatype OSSRH.
+Ensure your `~/.m2/settings.xml` contains credentials for the `ossrh` server and run:
+
+```bash
+mvn clean deploy
+```
+
+After closing and releasing the staging repository in the Sonatype UI, the artifacts will appear on Maven Central.
+
 
 ## Todo
 - Add more unit tests.
