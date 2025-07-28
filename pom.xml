@@ -29,33 +29,38 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <java.version>${java.version}</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
 
         <!-- Annotation Dependency Versions -->
         <lombok.version>${lombok.version}</lombok.version>
 
         <bcprov-jdk18on.version>${bcprov-jdk18on.version}</bcprov-jdk18on.version>
 
-        <jackson-databind.version>${jackson-databind.version}</jackson-databind.version>
+        <jackson-dataformat-cbor.version>2.17.1</jackson-dataformat-cbor.version>
+
+        <jackson-databind.version>2.18.3</jackson-databind.version>
 
         <!-- Logging Dependency Versions -->
         <slf4j.version>${slf4j.version}</slf4j.version>
 
         <!-- Test Dependency Versions -->
-        <junit.version>${junit.version}</junit.version>
-        <assertj.version>${assertj.version}</assertj.version>
+        <junit.version>5.9.1</junit.version>
+        <assertj.version>3.23.1</assertj.version>
+        <assertj-test.version>3.27.3</assertj-test.version>
+        <junit4.version>4.13.1</junit4.version>
+        <junit-jupiter.version>5.12.2</junit-jupiter.version>
 
         <!-- Maven Plugin Versions -->
-        <maven-compiler-plugin.version>${maven-compiler-plugin.version}</maven-compiler-plugin.version>
-        <maven-surefire-plugin.version>${maven-surefire-plugin.version}</maven-surefire-plugin.version>
-        <maven-failsafe-plugin.version>${maven-failsafe-plugin.version}</maven-failsafe-plugin.version>
-        <flatten-maven-plugin.version>${flatten-maven-plugin.version}</flatten-maven-plugin.version>
-        <jacoco-maven-plugin.version>${jacoco-maven-plugin.version}</jacoco-maven-plugin.version>
-        <maven-gpg-plugin.version>${maven-gpg-plugin.version}</maven-gpg-plugin.version>
-        <nexus-staging-maven-plugin.version>${nexus-staging-maven-plugin.version}</nexus-staging-maven-plugin.version>
-        <properties-maven-plugin.version>${properties-maven-plugin.version}</properties-maven-plugin.version>
+        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
+        <flatten-maven-plugin.version>1.5.0</flatten-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+        <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
+        <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
+        <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
         <!-- GPG key used for signing; set via -Dgpg.keyname=KEYID -->
         <gpg.keyname></gpg.keyname>
     </properties>
@@ -142,6 +147,7 @@
                                 <version>${lombok.version}</version>
                             </annotationProcessorPath>
                         </annotationProcessorPaths>
+                        <release>21</release>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -184,7 +190,9 @@
                         <configuration>
                             <files>
                                 <file>${project.basedir}/versions.properties</file>
+                                <file>${project.basedir}/../versions.properties</file>
                             </files>
+                            <quiet>true</quiet>
                         </configuration>
                     </execution>
                 </executions>
