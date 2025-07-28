@@ -51,6 +51,8 @@
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
         <flatten-maven-plugin.version>1.5.0</flatten-maven-plugin.version>
+        <!-- GPG key used for signing; set via -Dgpg.keyname=KEYID -->
+        <gpg.keyname></gpg.keyname>
     </properties>
 
     <dependencyManagement>
@@ -200,6 +202,9 @@
                         <goals><goal>sign</goal></goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <keyname>${gpg.keyname}</keyname>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>

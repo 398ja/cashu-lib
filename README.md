@@ -66,7 +66,7 @@ This project's POM is configured with distribution management and signing plugin
 Ensure your `~/.m2/settings.xml` contains credentials for the `ossrh` server and run:
 
 ```bash
-mvn clean deploy
+mvn -Dgpg.keyname=YOUR_KEY_ID clean deploy
 ```
 
 After closing and releasing the staging repository in the Sonatype UI, the artifacts will appear on Maven Central.
