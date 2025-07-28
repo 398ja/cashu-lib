@@ -13,6 +13,7 @@
 - Ensure modifications to existing code do not break functionality and pass all tests.
 - Add integration tests for new features to verify end-to-end functionality.
 - Ensure new dependencies or configurations do not introduce security vulnerabilities.
+- Always configure the versions in the pom.xml files. Versions are maintained in the configuration file `versions.properties` in the root directory.
 
 ## Pull Requests
 

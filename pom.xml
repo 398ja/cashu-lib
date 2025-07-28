@@ -34,16 +34,16 @@
         <maven.compiler.target>21</maven.compiler.target>
 
         <!-- Annotation Dependency Versions -->
-        <lombok.version>1.18.36</lombok.version>
+        <lombok.version>${lombok.version}</lombok.version>
 
-        <bcprov-jdk18on.version>1.78</bcprov-jdk18on.version>
+        <bcprov-jdk18on.version>${bcprov-jdk18on.version}</bcprov-jdk18on.version>
 
         <jackson-dataformat-cbor.version>2.17.1</jackson-dataformat-cbor.version>
 
         <jackson-databind.version>2.18.3</jackson-databind.version>
 
         <!-- Logging Dependency Versions -->
-        <slf4j.version>2.0.13</slf4j.version>
+        <slf4j.version>${slf4j.version}</slf4j.version>
 
         <!-- Test Dependency Versions -->
         <junit.version>5.9.1</junit.version>
