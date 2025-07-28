@@ -35,7 +35,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-cbor</artifactId>
-            <version>2.17.1</version>
+            <version>${jackson-dataformat-cbor.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -45,7 +45,7 @@
         <dependency>
             <groupId>xyz.tcheeric</groupId>
             <artifactId>cashu-lib-crypto</artifactId>
-            <version>0.1.0</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>
