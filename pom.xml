@@ -60,7 +60,6 @@
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
-        <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
         <!-- GPG key used for signing; set via -Dgpg.keyname=KEYID -->
         <gpg.keyname></gpg.keyname>
     </properties>
@@ -176,27 +175,6 @@
             </plugins>
         </pluginManagement>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>properties-maven-plugin</artifactId>
-                <version>${properties-maven-plugin.version}</version>
-                <extensions>true</extensions>
-                <executions>
-                    <execution>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>read-project-properties</goal>
-                        </goals>
-                        <configuration>
-                            <files>
-                                <file>${project.basedir}/versions.properties</file>
-                                <file>${project.basedir}/../versions.properties</file>
-                            </files>
-                            <quiet>true</quiet>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
