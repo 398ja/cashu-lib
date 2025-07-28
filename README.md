@@ -34,6 +34,9 @@ $ mvn clean install
 - ```cashu-lib-gateway:``` Contains interfaces for payment gateways that interact with the cashu mints and wallets.
 - ```cashu-lib-test:``` Contains unit test classes.
 
+## Version Management
+All dependency and plugin versions are defined in `versions.properties` at the project root. The parent POM loads this file automatically during the Maven `initialize` phase using the `properties-maven-plugin`, ensuring a single source of truth for version numbers.
+
 ## Usage
 Include the following dependencies in your project's pom.xml file:
 
