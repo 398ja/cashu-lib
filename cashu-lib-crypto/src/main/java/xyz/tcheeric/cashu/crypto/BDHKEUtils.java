@@ -40,10 +40,12 @@ public class BDHKEUtils {
             throw new RuntimeException(e);
         }
         byte[] secretToHash = sha256.digest(concat(DOMAIN_SEPARATOR, secret));
-        int counter = 0;
-        while (counter < Math.pow(2, 16)) {
-
-            byte[] counterBytes = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(counter).array();
+        long counter = 0;
+        while (counter <= 0xFFFF_FFFFL) {
+            byte[] counterBytes = ByteBuffer.allocate(4)
+                    .order(ByteOrder.LITTLE_ENDIAN)
+                    .putInt((int) counter)
+                    .array();
             byte[] hash = sha256.digest(concat(secretToHash, counterBytes));
             byte[] pkHash = concat(new byte[]{0x02}, hash);
 
