@@ -107,7 +107,14 @@ public class BDHKEUtils {
         return C;
     }
 
-    public synchronized static boolean verify(@NonNull String secret, byte[] k, byte[] C) {
+    /**
+     * Verify that the provided commitment {@code C} corresponds to the secret and key.
+     * <p>
+     * Thread-safe: this method operates solely on local variables and does not mutate
+     * shared state.
+     * </p>
+     */
+    public static boolean verify(@NonNull String secret, byte[] k, byte[] C) {
         boolean valid = verify(
                 secret,
                 Utils.bigIntFromBytes(k),
