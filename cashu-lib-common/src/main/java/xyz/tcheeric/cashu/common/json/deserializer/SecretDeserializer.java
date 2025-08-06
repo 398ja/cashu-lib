@@ -5,19 +5,23 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import xyz.tcheeric.cashu.common.Proof;
+import xyz.tcheeric.cashu.common.RandomStringSecret;
 import xyz.tcheeric.cashu.common.Secret;
+import xyz.tcheeric.cashu.common.WellKnownSecret;
 
 import java.io.IOException;
 
-public class ProofDeserializer<T extends Secret> extends JsonDeserializer<Proof<T>> {
+public class SecretDeserializer extends JsonDeserializer<Secret> {
     @Override
-    public Proof<T> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public Secret deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         JsonNode node = p.readValueAsTree();
+        if (node.isTextual()) {
+            return RandomStringSecret.fromString(node.textValue());
+        }
         if (node.isObject()) {
             ObjectMapper mapper = (ObjectMapper) p.getCodec();
-            return mapper.readValue(node.toString(), Proof.class);
+            return mapper.treeToValue(node, WellKnownSecret.class);
         }
-        throw new RuntimeException("Invalid Proof format");
+        throw new RuntimeException("Invalid Secret format");
     }
 }
