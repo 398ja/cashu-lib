@@ -1,13 +1,14 @@
 package xyz.tcheeric.cashu.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import xyz.tcheeric.cashu.common.util.JsonUtils;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.SneakyThrows;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import xyz.tcheeric.cashu.common.json.deserializer.WellKnownSecretDeserializer;
 import xyz.tcheeric.cashu.common.json.serializer.WellKnownSecretSerializer;
 
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@Log
+@Slf4j
 @NoArgsConstructor
 @JsonDeserialize(using = WellKnownSecretDeserializer.class)
 @JsonSerialize(using = WellKnownSecretSerializer.class)
@@ -89,7 +90,7 @@ public abstract class WellKnownSecret implements Secret {
     @SneakyThrows
     @Override
     public String toString() {
-        return new ObjectMapper().writeValueAsString(this);
+        return JsonUtils.JSON_MAPPER.writeValueAsString(this);
     }
 
 

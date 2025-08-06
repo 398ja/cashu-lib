@@ -1,15 +1,16 @@
 package xyz.tcheeric.cashu.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import xyz.tcheeric.cashu.common.util.JsonUtils;
 import lombok.NonNull;
 import lombok.SneakyThrows;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-@Log
+@Slf4j
 public class P2PKSecret extends WellKnownSecret {
 
     public enum P2PKTag {
@@ -125,6 +126,6 @@ public class P2PKSecret extends WellKnownSecret {
     @SneakyThrows
     @Deprecated(forRemoval = true)
     public static P2PKSecret fromString(@NonNull String secret) {
-        return new ObjectMapper().readValue(secret, P2PKSecret.class);
+        return JsonUtils.JSON_MAPPER.readValue(secret, P2PKSecret.class);
     }
 }

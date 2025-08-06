@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import xyz.tcheeric.cashu.common.util.JsonUtils;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.Base64;
@@ -15,6 +17,7 @@ import java.util.Set;
 
 @Data
 @NoArgsConstructor
+@Slf4j
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TokenV3<T extends Secret> implements Token {
 
@@ -48,8 +51,9 @@ public class TokenV3<T extends Secret> implements Token {
 
     @Override
     public String serialize(boolean clickable) {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = JsonUtils.JSON_MAPPER;
         try {
+            log.debug("Serializing TokenV3 containing {} mint proofs", mintProofs.size());
             byte[] json = objectMapper.writeValueAsBytes(this);
             return TokenUtil.serialize(json, Version.V3, clickable);
         } catch (JsonProcessingException e) {
@@ -78,9 +82,11 @@ public class TokenV3<T extends Secret> implements Token {
         serializedToken = serializedToken.substring(TOKEN_PREFIX.length() + Version.V3.getCode().toString().length());
 
         byte[] byteArrToken = Base64.getUrlDecoder().decode(serializedToken);
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = JsonUtils.JSON_MAPPER;
         try {
-            return objectMapper.readValue(byteArrToken, TokenV3.class);
+            TokenV3 token = objectMapper.readValue(byteArrToken, TokenV3.class);
+            log.debug("Deserialized TokenV3 with {} mint proofs", token.getMintProofs().size());
+            return token;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

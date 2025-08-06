@@ -4,11 +4,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
+import xyz.tcheeric.cashu.common.util.JsonUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.Base64;
@@ -18,6 +19,7 @@ import java.util.Set;
 
 @Data
 @NoArgsConstructor
+@Slf4j
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TokenV4 implements Token {
 
@@ -32,6 +34,14 @@ public class TokenV4 implements Token {
 
     @JsonProperty("t")
     private Set<TokenData> tokenDataList = new HashSet<>();
+
+    public void setMintUrl(String mintUrl) {
+        if (mintUrl != null) {
+            this.mintUrl = mintUrl.replaceAll("/+$", "");
+        } else {
+            this.mintUrl = null;
+        }
+    }
 
     @Data
     @NoArgsConstructor
@@ -61,7 +71,7 @@ public class TokenV4 implements Token {
             @JsonProperty("c")
             private byte[] signature;
 
-            @JsonProperty("v")
+            @JsonProperty("d")
             private DLEQProof dleqProof;
 
             @JsonProperty("w")
@@ -70,23 +80,24 @@ public class TokenV4 implements Token {
             @Data
             @NoArgsConstructor
             @JsonInclude(JsonInclude.Include.NON_NULL)
-            private static class DLEQProof {
-                @JsonProperty
-                private String e;
+            public static class DLEQProof {
+                @JsonProperty("e")
+                private byte[] e;
 
-                @JsonProperty
-                private String s;
+                @JsonProperty("s")
+                private byte[] s;
 
-                @JsonProperty
-                private String r;
+                @JsonProperty("r")
+                private byte[] r;
             }
         }
     }
 
     @Override
     public String serialize(boolean clickable) {
-        ObjectMapper objectMapper = new ObjectMapper(new CBORFactory());
+        ObjectMapper objectMapper = JsonUtils.CBOR_MAPPER;
         try {
+            log.debug("Serializing TokenV4 with {} token data entries", tokenDataList.size());
             byte[] cborToken = objectMapper.writeValueAsBytes(this);
             return TokenUtil.serialize(cborToken, Version.V4, clickable);
         } catch (JsonProcessingException e) {
@@ -102,9 +113,11 @@ public class TokenV4 implements Token {
         serializedToken = serializedToken.substring(TOKEN_PREFIX.length() + Version.V4.getCode().toString().length());
 
         byte[] cborToken = Base64.getUrlDecoder().decode(serializedToken);
-        ObjectMapper objectMapper = new ObjectMapper(new CBORFactory());
+        ObjectMapper objectMapper = JsonUtils.CBOR_MAPPER;
         try {
-            return objectMapper.readValue(cborToken, TokenV4.class);
+            TokenV4 token = objectMapper.readValue(cborToken, TokenV4.class);
+            log.debug("Deserialized TokenV4 with {} token data entries", token.getTokenDataList().size());
+            return token;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

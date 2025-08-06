@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import xyz.tcheeric.cashu.common.json.deserializer.KeysDeserializer;
 import xyz.tcheeric.cashu.common.json.serializer.KeysSerializer;
 

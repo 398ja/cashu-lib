@@ -34,27 +34,49 @@ $ mvn clean install
 - ```cashu-lib-gateway:``` Contains interfaces for payment gateways that interact with the cashu mints and wallets.
 - ```cashu-lib-test:``` Contains unit test classes.
 
+## Version Management
+All dependency and plugin versions are declared in the parent POM's `<properties>` section, providing a single source of truth for version numbers. Update the values there when upgrading dependencies.
+
 ## Usage
 Include the following dependencies in your project's pom.xml file:
 
 ```xml
 <dependency>
-    <groupId>cashu-lib</groupId>
+    <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-common</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1.0</version>
 </dependency>
 
 <dependency>
-    <groupId>cashu-lib</groupId>
+    <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-crypto</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1.0</version>
 </dependency>
 
 ```
 
+## Generating a test coverage report
+Run the project's tests and produce an aggregated JaCoCo report with:
+
+```bash
+mvn verify
+```
+
+The HTML report will be generated at `cashu-lib-test/target/site/jacoco-aggregate/index.html`.
+
+## Publishing to Maven Central
+This project's POM is configured with distribution management and signing plugins for deployment to Sonatype OSSRH.
+Ensure your `~/.m2/settings.xml` contains credentials for the `ossrh` server and run:
+
+```bash
+mvn -Dgpg.keyname=YOUR_KEY_ID clean deploy
+```
+
+After closing and releasing the staging repository in the Sonatype UI, the artifacts will appear on Maven Central.
+
+
 ## Todo
 - Add more unit tests.
-- Configure JaCoCo for code coverage.
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details

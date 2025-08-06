@@ -1,7 +1,7 @@
 package xyz.tcheeric.cashu.crypto;
 
 import lombok.NonNull;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
@@ -16,10 +16,10 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.logging.Level;
 
 
-@Log
+
+@Slf4j
 public class BDHKEUtils {
 
     private static final byte[] DOMAIN_SEPARATOR = "Secp256k1_HashToCurve_Cashu_".getBytes(StandardCharsets.UTF_8);
@@ -32,7 +32,7 @@ public class BDHKEUtils {
     }
 
     public static ECPoint hashToCurve(byte[] secret) {
-        log.log(Level.FINE, "hashToCurve({0})", Utils.bytesToHexString(secret));
+        log.debug("hashToCurve({})", Utils.bytesToHexString(secret));
         MessageDigest sha256;
         try {
             sha256 = MessageDigest.getInstance("SHA-256");
@@ -54,7 +54,7 @@ public class BDHKEUtils {
                 }
             } catch (IllegalArgumentException e) {
                 // Ignore and continue with the next counter value
-                log.log(Level.FINE, "Invalid point: {0}. Ignoring...", Utils.bytesToHexString(pkHash));
+                log.debug("Invalid point: {}. Ignoring...", Utils.bytesToHexString(pkHash));
             }
             counter++;
         }
@@ -113,7 +113,7 @@ public class BDHKEUtils {
                 Utils.bigIntFromBytes(k),
                 CURVE.decodePoint(C)
         );
-        log.log(Level.FINE, "Verification successful? {0}", valid);
+        log.debug("Verification successful? {}", valid);
         return valid;
     }
 
@@ -125,12 +125,12 @@ public class BDHKEUtils {
 
 
     private static boolean verify(byte[] Y, byte[] k, byte[] C) {
-        log.log(Level.FINE, "verify({0}, {1}, {2})", new Object[]{Utils.bytesToHexString(Y), Utils.bytesToHexString(k), Utils.bytesToHexString(C)});
+        log.debug("verify({}, {}, {})", Utils.bytesToHexString(Y), Utils.bytesToHexString(k), Utils.bytesToHexString(C));
         return verify(CURVE.decodePoint(Y), Utils.bigIntFromBytes(k), CURVE.decodePoint(C));
     }
 
     private static boolean verify(ECPoint Y, BigInteger k, ECPoint C) {
-        log.log(Level.FINE, "verify({0}, {1}, {2})", new Object[]{pointToHex(Y), Utils.bytesToHexString(Utils.bytesFromBigInteger(k)), pointToHex(C)});
+        log.debug("verify({}, {}, {})", pointToHex(Y), Utils.bytesToHexString(Utils.bytesFromBigInteger(k)), pointToHex(C));
         ECPoint result = Y.multiply(k);
         return C.equals(result);
     }

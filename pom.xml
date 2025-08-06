@@ -4,7 +4,7 @@
 
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1.0</version>
     <packaging>pom</packaging>
 
     <name>cashu-lib</name>
@@ -13,32 +13,55 @@
         <module>cashu-lib-entities</module>
         <module>cashu-lib-test</module>
         <module>cashu-lib-crypto</module>
-        <module>cashu-lib-gateway</module>
         <module>cashu-lib-common</module>
     </modules>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <java.version>21</java.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
 
         <!-- Annotation Dependency Versions -->
         <lombok.version>1.18.36</lombok.version>
 
-        <bcprov-jdk18on.version>1.72</bcprov-jdk18on.version>
+        <bcprov-jdk18on.version>1.78</bcprov-jdk18on.version>
 
-        <jackson-databind.version>2.14.1</jackson-databind.version>
+        <jackson-dataformat-cbor.version>2.17.1</jackson-dataformat-cbor.version>
+
+        <jackson-databind.version>2.18.3</jackson-databind.version>
+
+        <!-- Logging Dependency Versions -->
+        <slf4j.version>2.0.13</slf4j.version>
 
         <!-- Test Dependency Versions -->
         <junit.version>5.9.1</junit.version>
         <assertj.version>3.23.1</assertj.version>
+        <assertj-test.version>3.27.3</assertj-test.version>
+        <junit4.version>4.13.1</junit4.version>
+        <junit-jupiter.version>5.12.2</junit-jupiter.version>
 
         <!-- Maven Plugin Versions -->
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
         <flatten-maven-plugin.version>1.5.0</flatten-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+        <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
+        <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
+        <!-- GPG key used for signing; set via -Dgpg.keyname=KEYID -->
+        <gpg.keyname></gpg.keyname>
     </properties>
 
     <dependencyManagement>
@@ -58,6 +81,11 @@
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk18on</artifactId>
                 <version>${bcprov-jdk18on.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
             </dependency>
 
             <!-- Test Dependencies -->
@@ -118,6 +146,7 @@
                                 <version>${lombok.version}</version>
                             </annotationProcessorPath>
                         </annotationProcessorPaths>
+                        <release>21</release>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -128,7 +157,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.12</version>
+                    <version>${jacoco-maven-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -145,6 +174,59 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report-aggregate</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                        <configuration>
+                            <dataFileIncludes>
+                                <dataFileInclude>**/jacoco.exec</dataFileInclude>
+                            </dataFileIncludes>
+                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-aggregate</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>${maven-gpg-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>deploy</phase>
+                        <goals><goal>sign</goal></goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <keyname>${gpg.keyname}</keyname>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>${nexus-staging-maven-plugin.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
 </project>
