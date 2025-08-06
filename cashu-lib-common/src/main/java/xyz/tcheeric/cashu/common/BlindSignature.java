@@ -18,7 +18,7 @@ public class BlindSignature {
     private int amount;
 
     @JsonProperty("id")
-    private String keySetId;
+    private KeysetId keySetId;
 
     @JsonProperty("C_")
     private Signature blindedSignature;
