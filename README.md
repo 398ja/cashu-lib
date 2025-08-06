@@ -31,7 +31,7 @@ $ mvn clean install
 ## Modules
 - ```cashu-lib-common:``` Contains common entity classes and utilities used by other modules.
 - ```cashu-lib-crypto:``` Contains the foundational cryptographic functions and utilities used by other modules.
-- ```cashu-lib-gateway:``` Contains interfaces for payment gateways that interact with the cashu mints and wallets.
+- ```cashu-lib-entities:``` Contains entity classes representing the core data structures of the Cashu protocol.
 - ```cashu-lib-test:``` Contains unit test classes.
 
 ## Version Management
@@ -63,17 +63,6 @@ mvn verify
 ```
 
 The HTML report will be generated at `cashu-lib-test/target/site/jacoco-aggregate/index.html`.
-
-## Publishing to Maven Central
-This project's POM is configured with distribution management and signing plugins for deployment to Sonatype OSSRH.
-Ensure your `~/.m2/settings.xml` contains credentials for the `ossrh` server and run:
-
-```bash
-mvn -Dgpg.keyname=YOUR_KEY_ID clean deploy
-```
-
-After closing and releasing the staging repository in the Sonatype UI, the artifacts will appear on Maven Central.
-
 
 ## Todo
 - Add more unit tests.
