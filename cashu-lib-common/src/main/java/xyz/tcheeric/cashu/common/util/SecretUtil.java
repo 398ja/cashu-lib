@@ -14,11 +14,11 @@ import java.util.Map;
  * Utility methods for converting between generic secret representations and
  * {@link Secret} implementations.
  */
-public final class SecretUtil {
+public final class SecretUtil<T extends Secret> {
 
     private static final ObjectMapper MAPPER = JsonUtils.JSON_MAPPER;
 
-    private SecretUtil() {
+    public SecretUtil() {
     }
 
     /**
@@ -36,12 +36,13 @@ public final class SecretUtil {
      * @param value the serialized secret
      * @return the deserialised secret implementation
      */
-    public static Secret toSecret(@NonNull Object value) {
+    @SuppressWarnings("unchecked")
+    public T toSecret(@NonNull Object value) {
         if (value instanceof Secret secret) {
-            return secret;
+            return (T) secret;
         }
         if (value instanceof String str) {
-            return RandomStringSecret.fromString(str);
+            return (T) RandomStringSecret.fromString(str);
         }
         if (value instanceof Map<?, ?> map) {
             return mapToSecret(map);
@@ -52,7 +53,8 @@ public final class SecretUtil {
         throw new IllegalArgumentException("Unknown secret type");
     }
 
-    private static Secret listToSecret(List<?> list) {
+    @SuppressWarnings("unchecked")
+    private T listToSecret(List<?> list) {
         if (list.isEmpty()) {
             throw new IllegalArgumentException("Unknown secret type");
         }
@@ -64,16 +66,17 @@ public final class SecretUtil {
         Map<String, Object> map = new HashMap<>();
         data.forEach((k, v) -> map.put(String.valueOf(k), v));
         map.put("kind", kind);
-        return MAPPER.convertValue(map, WellKnownSecret.class);
+        return (T) MAPPER.convertValue(map, WellKnownSecret.class);
     }
 
-    private static Secret mapToSecret(Map<?, ?> src) {
+    @SuppressWarnings("unchecked")
+    private T mapToSecret(Map<?, ?> src) {
         Map<String, Object> map = new HashMap<>();
         src.forEach((k, v) -> map.put(String.valueOf(k), v));
         if (!map.containsKey("kind")) {
             throw new IllegalArgumentException("Unknown secret type");
         }
-        return MAPPER.convertValue(map, WellKnownSecret.class);
+        return (T) MAPPER.convertValue(map, WellKnownSecret.class);
     }
 }
 
