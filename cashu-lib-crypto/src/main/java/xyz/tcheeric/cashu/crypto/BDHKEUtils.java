@@ -32,7 +32,7 @@ public class BDHKEUtils {
     }
 
     public static ECPoint hashToCurve(byte[] secret) {
-        log.debug("hashToCurve({})", Utils.bytesToHexString(secret));
+        log.debug("hashToCurve invoked with secret length {}", secret.length);
         MessageDigest sha256;
         try {
             sha256 = MessageDigest.getInstance("SHA-256");
@@ -53,8 +53,8 @@ public class BDHKEUtils {
                     return publicKey;
                 }
             } catch (IllegalArgumentException e) {
-                // Ignore and continue with the next counter value
-                log.debug("Invalid point: {}. Ignoring...", Utils.bytesToHexString(pkHash));
+                // Ignore and continue with the next counter value without revealing point data
+                log.debug("Invalid point derived at counter {}. Retrying...", counter);
             }
             counter++;
         }
