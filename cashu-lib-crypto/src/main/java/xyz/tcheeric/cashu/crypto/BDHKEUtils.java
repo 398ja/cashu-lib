@@ -32,7 +32,7 @@ public class BDHKEUtils {
     }
 
     public static ECPoint hashToCurve(byte[] secret) {
-        log.debug("hashToCurve({})", Utils.bytesToHexString(secret));
+        log.debug("hashToCurve invoked with secret length {}", secret.length);
         MessageDigest sha256;
         try {
             sha256 = MessageDigest.getInstance("SHA-256");
@@ -40,10 +40,12 @@ public class BDHKEUtils {
             throw new RuntimeException(e);
         }
         byte[] secretToHash = sha256.digest(concat(DOMAIN_SEPARATOR, secret));
-        int counter = 0;
-        while (counter < Math.pow(2, 16)) {
-
-            byte[] counterBytes = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(counter).array();
+        long counter = 0;
+        while (counter <= 0xFFFF_FFFFL) {
+            byte[] counterBytes = ByteBuffer.allocate(4)
+                    .order(ByteOrder.LITTLE_ENDIAN)
+                    .putInt((int) counter)
+                    .array();
             byte[] hash = sha256.digest(concat(secretToHash, counterBytes));
             byte[] pkHash = concat(new byte[]{0x02}, hash);
 
@@ -53,8 +55,8 @@ public class BDHKEUtils {
                     return publicKey;
                 }
             } catch (IllegalArgumentException e) {
-                // Ignore and continue with the next counter value
-                log.debug("Invalid point: {}. Ignoring...", Utils.bytesToHexString(pkHash));
+                // Ignore and continue with the next counter value without revealing point data
+                log.debug("Invalid point derived at counter {}. Retrying...", counter);
             }
             counter++;
         }
@@ -107,7 +109,14 @@ public class BDHKEUtils {
         return C;
     }
 
-    public synchronized static boolean verify(@NonNull String secret, byte[] k, byte[] C) {
+    /**
+     * Verify that the provided commitment {@code C} corresponds to the secret and key.
+     * <p>
+     * Thread-safe: this method operates solely on local variables and does not mutate
+     * shared state.
+     * </p>
+     */
+    public static boolean verify(@NonNull String secret, byte[] k, byte[] C) {
         boolean valid = verify(
                 secret,
                 Utils.bigIntFromBytes(k),

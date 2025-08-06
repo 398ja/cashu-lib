@@ -20,7 +20,7 @@ public class BlindedMessage {
 
     @JsonProperty("id")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String keySetId;
+    private KeysetId keySetId;
 
     @JsonProperty("B_")
     private PublicKey blindedMessage;
