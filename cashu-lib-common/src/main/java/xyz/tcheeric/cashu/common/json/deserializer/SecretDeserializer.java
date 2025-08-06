@@ -22,6 +22,6 @@ public class SecretDeserializer extends JsonDeserializer<Secret> {
             ObjectMapper mapper = (ObjectMapper) p.getCodec();
             return mapper.treeToValue(node, WellKnownSecret.class);
         }
-        throw new RuntimeException("Invalid Secret format");
+        throw new RuntimeException("Invalid Secret format: expected string or object with 'kind' field");
     }
 }
