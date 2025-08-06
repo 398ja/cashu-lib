@@ -27,6 +27,15 @@ public class BDHKEUtils {
     private static final SecP256K1Curve CURVE = new SecP256K1Curve();
 
     public static byte[] hashToCurve(@NonNull String secret) {
+        ECPoint result = hashToCurve(secret.getBytes(StandardCharsets.UTF_8));
+        return result.getEncoded(true);
+    }
+
+    /**
+     * @deprecated Use {@link #hashToCurve(String)} with UTF-8 input instead.
+     */
+    @Deprecated
+    public static byte[] hashToCurveHex(@NonNull String secret) {
         ECPoint result = hashToCurve(Utils.hexStringToBytes(secret));
         return result.getEncoded(true);
     }
