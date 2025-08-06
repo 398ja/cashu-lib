@@ -41,7 +41,7 @@ public class BDHKEUtils {
         }
         byte[] secretToHash = sha256.digest(concat(DOMAIN_SEPARATOR, secret));
         int counter = 0;
-        while (counter < Math.pow(2, 16)) {
+        do {
 
             byte[] counterBytes = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(counter).array();
             byte[] hash = sha256.digest(concat(secretToHash, counterBytes));
@@ -57,7 +57,7 @@ public class BDHKEUtils {
                 log.debug("Invalid point: {}. Ignoring...", Utils.bytesToHexString(pkHash));
             }
             counter++;
-        }
+        } while (counter != 0);
         throw new RuntimeException("No valid point found");
     }
 
