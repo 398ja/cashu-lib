@@ -37,7 +37,7 @@ public final class SecretUtil<T extends Secret> {
      * @return the deserialised secret implementation
      */
     @SuppressWarnings("unchecked")
-    public T toSecret(@NonNull Object value) {
+    public static <T extends Secret> T toSecret(@NonNull Object value) {
         if (value instanceof Secret secret) {
             return (T) secret;
         }
@@ -54,7 +54,7 @@ public final class SecretUtil<T extends Secret> {
     }
 
     @SuppressWarnings("unchecked")
-    private T listToSecret(List<?> list) {
+    private static <T extends Secret> T listToSecret(List<?> list) {
         if (list.isEmpty()) {
             throw new IllegalArgumentException("Unknown secret type");
         }
@@ -70,7 +70,7 @@ public final class SecretUtil<T extends Secret> {
     }
 
     @SuppressWarnings("unchecked")
-    private T mapToSecret(Map<?, ?> src) {
+    private static <T extends Secret> T mapToSecret(Map<?, ?> src) {
         Map<String, Object> map = new HashMap<>();
         src.forEach((k, v) -> map.put(String.valueOf(k), v));
         if (!map.containsKey("kind")) {
