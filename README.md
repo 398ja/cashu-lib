@@ -57,7 +57,7 @@ Include the following dependencies in your project's pom.xml file:
 
 ## CI, Coverage, and Releases
 The project uses a GitHub Actions workflow defined in
-[`ci.yml`](.github/workflow/ci.yml) that runs on pushes and pull requests to
+[`ci.yml`](.github/workflows/ci.yml) that runs on pushes and pull requests to
 `main`. The workflow sets up JDK&nbsp;21, caches Maven dependencies, and executes
 `mvn -B verify` to build all modules, run the tests, and aggregate code coverage
 via JaCoCo. The resulting HTML report is stored as a workflow artifact and is
