@@ -44,7 +44,7 @@ jobs:
       if: always()
       run: |
         if [ -f target/site/jacoco-aggregate/jacoco.csv ]; then
-          awk -F, 'NR>1{missed+=$8;covered+=$9} END{total=missed+covered; printf "Line coverage: %.2f%%\n", (covered/total*100)}' target/site/jacoco-aggregate/jacoco.csv
+          awk -F, 'NR>1{missed+=$8;covered+=$9} END{total=missed+covered; if(total>0) printf "Line coverage: %.2f%%\n", (covered/total*100); else print "No coverage data available"}' target/site/jacoco-aggregate/jacoco.csv
         elif [ -f target/site/jacoco/jacoco.csv ]; then
           awk -F, 'NR>1{missed+=$8;covered+=$9} END{total=missed+covered; printf "Line coverage: %.2f%%\n", (covered/total*100)}' target/site/jacoco/jacoco.csv
         else
