@@ -20,6 +20,12 @@ import static xyz.tcheeric.cashu.crypto.util.Utils.bigIntFromBytes;
 
 public class Schnorr {
 
+    static {
+        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
+            Security.addProvider(new BouncyCastleProvider());
+        }
+    }
+
     /**
      * @param msg
      * @param secKey
@@ -126,8 +132,7 @@ public class Schnorr {
      */
     public static byte[] generatePrivateKey() {
         try {
-            Security.addProvider(new BouncyCastleProvider());
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance("ECDSA", "BC");
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance("ECDSA", BouncyCastleProvider.PROVIDER_NAME);
             kpg.initialize(new ECGenParameterSpec("secp256k1"), SecureRandom.getInstanceStrong());
             KeyPair processorKeyPair = kpg.genKeyPair();
 
