@@ -26,12 +26,18 @@ public class BDHKEUtils {
 
     private static final SecP256K1Curve CURVE = new SecP256K1Curve();
 
-    public static byte[] hashToCurve(@NonNull String secret) {
+    public static byte[] hashToCurve(String secret) {
+        if (secret == null || secret.isEmpty()) {
+            throw new IllegalArgumentException("secret must not be null or empty");
+        }
         ECPoint result = hashToCurve(Utils.hexStringToBytes(secret));
         return result.getEncoded(true);
     }
 
     public static ECPoint hashToCurve(byte[] secret) {
+        if (secret == null || secret.length == 0) {
+            throw new IllegalArgumentException("secret must not be null or empty");
+        }
         log.debug("hashToCurve invoked with secret length {}", secret.length);
         MessageDigest sha256;
         try {
