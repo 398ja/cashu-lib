@@ -217,18 +217,15 @@
                     <passphrase>${gpg.passphrase}</passphrase>
                 </configuration>
             </plugin>
-<!--
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
                 <version>${nexus-staging-maven-plugin.version}</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+                    <serverId>nexus</serverId>
                 </configuration>
             </plugin>
--->
         </plugins>
     </build>
 
