@@ -61,7 +61,7 @@
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <!-- GPG key used for signing; set via -Dgpg.keyname=KEYID -->
-        <gpg.keyname></gpg.keyname>
+        <!-- <gpg.keyname></gpg.keyname> -->
     </properties>
 
     <dependencyManagement>
@@ -214,6 +214,7 @@
                 </executions>
                 <configuration>
                     <keyname>${gpg.keyname}</keyname>
+                    <passphrase>${gpg.passphrase}</passphrase>
                 </configuration>
             </plugin>
             <plugin>
