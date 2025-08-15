@@ -2,23 +2,22 @@ package xyz.tcheeric.cashu.common;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import xyz.tcheeric.cashu.common.json.deserializer.KeysDeserializer;
 import xyz.tcheeric.cashu.common.json.serializer.KeysSerializer;
 
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-@Getter
 @JsonDeserialize(using = KeysDeserializer.class)
 @JsonSerialize(using = KeysSerializer.class)
-@AllArgsConstructor
 public class Keys {
 
     private final Map<BigInteger, PublicKey> values = new HashMap<>();
+
+    public Keys() {
+    }
 
     public Keys put(BigInteger key, PublicKey value) {
         values.put(key, value);
@@ -27,6 +26,10 @@ public class Keys {
 
     public PublicKey get(int key) {
         return values.get(BigInteger.valueOf(key));
+    }
+
+    public Map<BigInteger, PublicKey> getValues() {
+        return Collections.unmodifiableMap(values);
     }
 
     public Map<BigInteger, byte[]> values() {

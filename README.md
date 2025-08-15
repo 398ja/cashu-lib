@@ -1,3 +1,5 @@
+[![CI](https://github.com/tcheeric/cashu-lib/actions/workflows/ci.yml/badge.svg)](https://github.com/tcheeric/cashu-lib/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/398ja/cashu-lib/graph/badge.svg?token=BV77LKDNGE)](https://codecov.io/gh/398ja/cashu-lib)
 # cashu-lib
 ```cashu-Lib``` implements the core functionalities of the [Cashu](https://cashu.space/) protocol, and provides the building blocks for [cashu-mint](https://github.com/tcheeric/cashu-mint) and [cashu-wallet](https://github.com/tcheeric/cashu-wallet).
 
@@ -55,14 +57,35 @@ Include the following dependencies in your project's pom.xml file:
 
 ```
 
-## Generating a test coverage report
-Run the project's tests and produce an aggregated JaCoCo report with:
+## CI, Coverage, and Releases
+The project uses a GitHub Actions workflow defined in
+[`ci.yml`](.github/workflows/ci.yml) that runs on pushes and pull requests to
+`main`. The workflow sets up JDK&nbsp;21, caches Maven dependencies, and executes
+`mvn -B verify` to build all modules, run the tests, and aggregate code coverage
+via JaCoCo. The resulting HTML report is stored as a workflow artifact and is
+also generated at `cashu-lib-test/target/site/jacoco-aggregate/index.html`.
+
+To reproduce the CI build locally and generate the same coverage report, run:
 
 ```bash
-mvn verify
+mvn -q verify
 ```
 
-The HTML report will be generated at `cashu-lib-test/target/site/jacoco-aggregate/index.html`.
+### Release process
+Artifacts are deployed to Sonatype OSSRH and synchronized to Maven Central.
+Releasing requires credentials and signing keys to be configured in the
+environment:
+
+- `OSSRH_USERNAME` and `OSSRH_PASSWORD`
+- `GPG_PRIVATE_KEY` and `GPG_PASSPHRASE`
+
+Contact the project maintainers to obtain these secrets. Once configured (for
+example via GitHub secrets or your local `~/.m2/settings.xml`), publish a
+release with:
+
+```bash
+mvn -q deploy -Dgpg.keyname=<YOUR_GPG_KEY_ID>
+```
 
 ## Todo
 - Add more unit tests.

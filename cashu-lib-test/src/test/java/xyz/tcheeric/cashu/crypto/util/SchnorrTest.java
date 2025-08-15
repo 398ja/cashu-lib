@@ -1,11 +1,16 @@
 package xyz.tcheeric.cashu.crypto.util;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Test;
 import xyz.tcheeric.cashu.crypto.Schnorr;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.security.Provider;
+import java.security.Security;
+
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SchnorrTest {
 
@@ -42,6 +47,27 @@ public class SchnorrTest {
         tamperedMessage[0] ^= 0x01;
 
         assertFalse(Schnorr.verify(tamperedMessage, publicKey, signature));
+    }
+
+    @Test
+    public void generatePrivateKeyRegistersProviderOnlyOnce() {
+        Schnorr.generatePrivateKey();
+        int countAfterFirst = countBcProviders();
+        Schnorr.generatePrivateKey();
+        int countAfterSecond = countBcProviders();
+
+        assertEquals(countAfterFirst, countAfterSecond);
+        assertEquals(1, countAfterSecond);
+    }
+
+    private int countBcProviders() {
+        int count = 0;
+        for (Provider provider : Security.getProviders()) {
+            if (provider.getName().equals(BouncyCastleProvider.PROVIDER_NAME)) {
+                count++;
+            }
+        }
+        return count;
     }
 
     private byte[] generateMessage() throws Exception {
