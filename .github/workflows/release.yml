@@ -29,7 +29,12 @@ jobs:
           <settings>
             <servers>
               <server>
-                <id>github</id>
+                <id>github-releases</id>
+                <username>${{ github.actor }}</username>
+                <password>${{ secrets.GITHUB_TOKEN }}</password>
+              </server>
+              <server>
+                <id>github-snapshots</id>
                 <username>${{ github.actor }}</username>
                 <password>${{ secrets.GITHUB_TOKEN }}</password>
               </server>
