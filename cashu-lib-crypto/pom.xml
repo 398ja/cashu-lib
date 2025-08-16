@@ -23,7 +23,11 @@
             <url>https://maven.pkg.github.com/398ja/cashu-lib</url>
         </repository>
         <snapshotRepository>
-            <id>github</id>
+            <id>github-releases</id>
+            <url>https://maven.pkg.github.com/398ja/cashu-lib</url>
+        </repository>
+        <snapshotRepository>
+            <id>github-snapshots</id>
             <url>https://maven.pkg.github.com/398ja/cashu-lib</url>
         </snapshotRepository>
     </distributionManagement>
