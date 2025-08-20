@@ -52,11 +52,14 @@ Include the following dependencies in your project's `pom.xml`:
     <artifactId>cashu-lib-crypto</artifactId>
     <version>0.1.0</version>
 </dependency>
+
 ```
 
-## Documentation
-- [Installation and build guide](docs/tutorials/installation.md)
-- [CI and release process](docs/how-to/ci-release.md)
+## Contributing
+Outstanding work and planned enhancements are tracked in
+[GitHub Issues](https://github.com/tcheeric/cashu-lib/issues). See
+[docs/how-to/releasing.md](docs/how-to/releasing.md) for steps to publish a
+release.
 
 ## License
 This project is licensed under the MIT License – see [LICENSE.md](LICENSE.md).
