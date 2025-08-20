@@ -17,6 +17,7 @@
 
 ## Pull Requests
 
+- Always follow the repository's PR submission guidelines and use the PR template.
 - Summarize the changes made and describe how they were tested.
 - Include any limitations or known issues in the description.
 - Add a "Network Access" section summarizing blocked domains if network requests were denied.
