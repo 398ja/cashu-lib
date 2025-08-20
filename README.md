@@ -3,6 +3,8 @@
 # cashu-lib
 ```cashu-Lib``` implements the core functionalities of the [Cashu](https://cashu.space/) protocol, and provides the building blocks for [cashu-mint](https://github.com/tcheeric/cashu-mint) and [cashu-wallet](https://github.com/tcheeric/cashu-wallet).
 
+For a quick start, see [docs/how-to/quickstart.md](docs/how-to/quickstart.md).
+
 ## Requirements
 
     $ java -version
