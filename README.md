@@ -1,7 +1,8 @@
 [![CI](https://github.com/tcheeric/cashu-lib/actions/workflows/ci.yml/badge.svg)](https://github.com/tcheeric/cashu-lib/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/398ja/cashu-lib/graph/badge.svg?token=BV77LKDNGE)](https://codecov.io/gh/398ja/cashu-lib)
 # cashu-lib
-```cashu-Lib``` implements the core functionalities of the [Cashu](https://cashu.space/) protocol, and provides the building blocks for [cashu-mint](https://github.com/tcheeric/cashu-mint) and [cashu-wallet](https://github.com/tcheeric/cashu-wallet).
+
+For a quick start, see [docs/how-to/quickstart.md](docs/how-to/quickstart.md).
 
 ## Requirements
 
@@ -31,16 +32,13 @@ $ mvn clean install
 ```
 
 ## Modules
-- ```cashu-lib-common:``` Contains common entity classes and utilities used by other modules.
-- ```cashu-lib-crypto:``` Contains the foundational cryptographic functions and utilities used by other modules.
-- ```cashu-lib-entities:``` Contains entity classes representing the core data structures of the Cashu protocol.
-- ```cashu-lib-test:``` Contains unit test classes.
-
-## Version Management
-All dependency and plugin versions are declared in the parent POM's `<properties>` section, providing a single source of truth for version numbers. Update the values there when upgrading dependencies.
+- `cashu-lib-common`: Common entity classes and utilities.
+- `cashu-lib-crypto`: Foundational cryptographic functions and utilities.
+- `cashu-lib-entities`: Core data structures of the Cashu protocol.
+- `cashu-lib-test`: Unit test classes.
 
 ## Usage
-Include the following dependencies in your project's pom.xml file:
+Include the following dependencies in your project's `pom.xml`:
 
 ```xml
 <dependency>
@@ -57,44 +55,12 @@ Include the following dependencies in your project's pom.xml file:
 
 ```
 
-## CI, Coverage, and Releases
-The project uses a GitHub Actions workflow defined in
-[`ci.yml`](.github/workflows/ci.yml) that runs on pushes and pull requests to
-`main`. The workflow sets up JDK&nbsp;21, caches Maven dependencies, and executes
-`mvn -B verify` to build all modules, run the tests, and aggregate code coverage
-via JaCoCo. The resulting HTML report is stored as a workflow artifact and is
-also generated at `cashu-lib-test/target/site/jacoco-aggregate/index.html`.
-
-To reproduce the CI build locally and generate the same coverage report, run:
-
-```bash
-mvn -q verify
-```
-
-### Release process
-Artifacts are deployed to Sonatype OSSRH and synchronized to Maven Central.
-Releasing requires credentials and signing keys to be configured in the
-environment:
-
-- `OSSRH_USERNAME` and `OSSRH_PASSWORD`
-- `GPG_PRIVATE_KEY` and `GPG_PASSPHRASE`
-
-Contact the project maintainers to obtain these secrets. Once configured (for
-example via GitHub secrets or your local `~/.m2/settings.xml`), publish a
-release with:
-
-```bash
-mvn -q deploy -Dgpg.keyname=<YOUR_GPG_KEY_ID>
-```
-
-## Todo
-- Add more unit tests.
+## Contributing
+Outstanding work and planned enhancements are tracked in
+[GitHub Issues](https://github.com/tcheeric/cashu-lib/issues). See
+[docs/how-to/releasing.md](docs/how-to/releasing.md) for steps to publish a
+release.
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-## Disclaimer
-This project is a work in progress and is not yet ready for production use. Use at your own risk.
+This project is licensed under the MIT License – see [LICENSE.md](LICENSE.md).
 

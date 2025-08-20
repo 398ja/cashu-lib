@@ -18,12 +18,12 @@
 
     <distributionManagement>
         <repository>
-            <id>github-releases</id>
-            <url>https://maven.pkg.github.com/398ja/cashu-lib</url>
+            <id>reposilite-releases</id>
+            <url>https://maven.398ja.xyz/releases</url>
         </repository>
         <snapshotRepository>
-            <id>github-snapshots</id>
-            <url>https://maven.pkg.github.com/398ja/cashu-lib</url>
+            <id>reposilite-snapshots</id>
+            <url>https://maven.398ja.xyz/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -218,17 +218,6 @@
                     <passphrase>${gpg.passphrase}</passphrase>
                 </configuration>
             </plugin>
-<!--
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>${nexus-staging-maven-plugin.version}</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>nexus</serverId>
-                </configuration>
-            </plugin>
--->
         </plugins>
     </build>
 
