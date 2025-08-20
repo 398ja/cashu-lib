@@ -1,7 +1,8 @@
 [![CI](https://github.com/tcheeric/cashu-lib/actions/workflows/ci.yml/badge.svg)](https://github.com/tcheeric/cashu-lib/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/398ja/cashu-lib/graph/badge.svg?token=BV77LKDNGE)](https://codecov.io/gh/398ja/cashu-lib)
 # cashu-lib
-```cashu-Lib``` implements the core functionalities of the [Cashu](https://cashu.space/) protocol, and provides the building blocks for [cashu-mint](https://github.com/tcheeric/cashu-mint) and [cashu-wallet](https://github.com/tcheeric/cashu-wallet).
+
+For a quick start, see [docs/how-to/quickstart.md](docs/how-to/quickstart.md).
 
 ## Requirements
 
@@ -31,16 +32,13 @@ $ mvn clean install
 ```
 
 ## Modules
-- ```cashu-lib-common:``` Contains common entity classes and utilities used by other modules.
-- ```cashu-lib-crypto:``` Contains the foundational cryptographic functions and utilities used by other modules.
-- ```cashu-lib-entities:``` Contains entity classes representing the core data structures of the Cashu protocol.
-- ```cashu-lib-test:``` Contains unit test classes.
-
-## Version Management
-All dependency and plugin versions are declared in the parent POM's `<properties>` section, providing a single source of truth for version numbers. Update the values there when upgrading dependencies.
+- `cashu-lib-common`: Common entity classes and utilities.
+- `cashu-lib-crypto`: Foundational cryptographic functions and utilities.
+- `cashu-lib-entities`: Core data structures of the Cashu protocol.
+- `cashu-lib-test`: Unit test classes.
 
 ## Usage
-Include the following dependencies in your project's pom.xml file:
+Include the following dependencies in your project's `pom.xml`:
 
 ```xml
 <dependency>
@@ -64,10 +62,5 @@ Outstanding work and planned enhancements are tracked in
 release.
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-## Disclaimer
-This project is a work in progress and is not yet ready for production use. Use at your own risk.
+This project is licensed under the MIT License – see [LICENSE.md](LICENSE.md).
 
