@@ -1,0 +1,37 @@
+name: PR Quality Gate
+
+on:
+  pull_request:
+    branches: [develop]
+
+jobs:
+  quality:
+    if: github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ensure Copilot instructions exist
+        run: |
+          if [ ! -f .github/copilot-instructions.md ]; then
+            echo "::error::Missing .github/copilot-instructions.md"
+            exit 1
+          fi
+
+      - name: Commit and file heuristics
+        run: |
+          commit_count=${{ github.event.pull_request.commits }}
+          file_count=${{ github.event.pull_request.changed_files }}
+          max_commits=5
+          max_files=25
+          if [ "$commit_count" -gt "$max_commits" ]; then
+            echo "::warning::PR has $commit_count commits (limit $max_commits)"
+          fi
+          if [ "$file_count" -gt "$max_files" ]; then
+            echo "::warning::PR changes $file_count files (limit $max_files)"
+          fi
+
+      - name: Run tests and report coverage
+        run: |
+          mvn -q test
+          find . -path "*target/site/jacoco/jacoco.xml" -exec echo "Coverage report: {}" \;
