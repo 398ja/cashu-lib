@@ -50,3 +50,4 @@
 - Include any limitations or known issues in the description.
 - Add a "Network Access" section summarizing blocked domains if network requests were denied.
 - Ensure all new features, modules, or dependencies are properly documented in the `README.md` file.
+- Ensure all new features are compliant with the API specification provided above.
