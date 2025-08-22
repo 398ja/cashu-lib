@@ -2,9 +2,11 @@ package xyz.tcheeric.cashu.common;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.NonNull;
+import xyz.tcheeric.cashu.crypto.Schnorr;
 import xyz.tcheeric.cashu.crypto.util.Utils;
 
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 
 public class Signature extends CryptoElement {
 
@@ -27,5 +29,18 @@ public class Signature extends CryptoElement {
 
     public static Signature fromBigInteger(@NonNull BigInteger b) {
         return fromString(Utils.bytesToHexString(b.toByteArray()));
+    }
+
+    public static Signature sign(@NonNull String message, @NonNull PrivateKey privateKey) throws Exception {
+        byte[] signature = Schnorr.sign(message.getBytes(StandardCharsets.UTF_8), privateKey.getBytes());
+        return Signature.fromBytes(signature);
+    }
+
+    public static boolean verify(@NonNull String message, @NonNull PublicKey publicKey, @NonNull Signature signature) throws Exception {
+        return Schnorr.verify(message.getBytes(StandardCharsets.UTF_8), publicKey.getBytes(), signature.getBytes());
+    }
+
+    public boolean verify(@NonNull String message, @NonNull PublicKey publicKey) throws Exception {
+        return verify(message, publicKey, this);
     }
 }
