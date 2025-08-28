@@ -1,4 +1,4 @@
-## Why now?
+## Summary
 <!-- Explain the problem, context, and why this change is needed. Link to the issue. -->
 Related issue: #____
 
