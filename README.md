@@ -44,13 +44,13 @@ Include the following dependencies in your project's `pom.xml`:
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-common</artifactId>
-    <version>0.1.0</version>
+    <version>[VERSION]</version>
 </dependency>
 
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-crypto</artifactId>
-    <version>0.1.0</version>
+    <version>[VERSION]</version>
 </dependency>
 
 ```
