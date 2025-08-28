@@ -4,6 +4,7 @@ on:
   workflow_run:
     workflows: ["Format"]
     types: [completed]
+    branches: [develop]
 
 jobs:
   build:
