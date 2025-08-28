@@ -52,3 +52,14 @@
 - Ensure all new features are compliant with the API specification provided above.
 - Ensure new dependencies or configurations do not introduce security vulnerabilities.
 - Maintain the versions in the configuration section of the pom.xml files.
+- PR titles messages must adopt the same format as commit messages (`type: description` naming format). See the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification for more details.
+
+## PR Quality Gate
+
+- PR summaries must reference modified files with file path citations (e.g. `F:path/to/file.java†L1-L2`).
+- Include a Testing section listing the commands run. Prefix each command with ✅, ⚠️, or ❌ and cite relevant terminal output.
+- If network requests fail, add a Network Access section noting blocked domains.
+- When TODOs or placeholders remain, include a Notes section.
+- Review AI-generated changes with developer expertise, ensuring you understand why the code works and that it remains resilient, scalable, and secure.
+- Use `rg` for search instead of `ls -R` or `grep -R`.
+- Ensure all new features are compliant with the protocol specification provided above.

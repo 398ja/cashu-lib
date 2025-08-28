@@ -1,0 +1,33 @@
+{
+  "packages": {
+    ".": {
+      "release-type": "maven",
+      "package-name": "cashu-lib",
+      "changelog-path": "CHANGELOG.md"
+    },
+    "cashu-lib-common": {
+      "release-type": "maven",
+      "package-name": "cashu-lib-common",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
+    },
+    "cashu-lib-crypto": {
+      "release-type": "maven",
+      "package-name": "cashu-lib-crypto",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
+    },
+    "cashu-lib-entities": {
+      "release-type": "maven",
+      "package-name": "cashu-lib-entities",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
+    },
+    "cashu-lib-test": {
+      "release-type": "maven",
+      "package-name": "cashu-lib-test",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
+    }
+  }
+}
