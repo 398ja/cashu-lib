@@ -28,4 +28,12 @@ public class PublicKey extends CryptoElement {
     public static PublicKey fromBigInteger(@NonNull BigInteger b) {
         return fromString(Utils.bytesToHexString(b.toByteArray()));
     }
+
+    public static PublicKey derivePublicKey(@NonNull PrivateKey privateKey) {
+        return PrivateKey.derivePublicKey(privateKey);
+    }
+
+    public static PublicKey derivePublicKey(@NonNull String privateKey) {
+        return derivePublicKey(PrivateKey.fromString(privateKey));
+    }
 }

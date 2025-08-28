@@ -32,7 +32,7 @@ $ mvn clean install
 ```
 
 ## Modules
-- `cashu-lib-common`: Common entity classes and utilities.
+- `cashu-lib-common`: Common entity classes and utilities, including BIP-340 Schnorr signature helpers.
 - `cashu-lib-crypto`: Foundational cryptographic functions and utilities.
 - `cashu-lib-entities`: Core data structures of the Cashu protocol.
 - `cashu-lib-test`: Unit test classes.
@@ -44,13 +44,13 @@ Include the following dependencies in your project's `pom.xml`:
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-common</artifactId>
-    <version>0.1.0</version>
+    <version>[VERSION]</version>
 </dependency>
 
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-crypto</artifactId>
-    <version>0.1.0</version>
+    <version>[VERSION]</version>
 </dependency>
 
 ```

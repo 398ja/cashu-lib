@@ -19,7 +19,8 @@ public class CryptoElement {
 
     protected static final int PRIVATE_KEY_LENGTH = 64;
     protected static final int PUBLIC_KEY_LENGTH = 66;
-    protected static final int SIGNATURE_LENGTH = 66;
+    // Schnorr signatures are 64 bytes (128 hex chars)
+    protected static final int SIGNATURE_LENGTH = 128;
     protected static final int SECRET_LENGTH = 64;
 
 
