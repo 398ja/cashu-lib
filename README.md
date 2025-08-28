@@ -32,7 +32,7 @@ $ mvn clean install
 ```
 
 ## Modules
-- `cashu-lib-common`: Common entity classes and utilities.
+- `cashu-lib-common`: Common entity classes and utilities, including BIP-340 Schnorr signature helpers.
 - `cashu-lib-crypto`: Foundational cryptographic functions and utilities.
 - `cashu-lib-entities`: Core data structures of the Cashu protocol.
 - `cashu-lib-test`: Unit test classes.

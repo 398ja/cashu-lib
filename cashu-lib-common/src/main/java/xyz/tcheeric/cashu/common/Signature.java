@@ -7,6 +7,7 @@ import xyz.tcheeric.cashu.crypto.util.Utils;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class Signature extends CryptoElement {
 
@@ -37,7 +38,10 @@ public class Signature extends CryptoElement {
     }
 
     public static boolean verify(@NonNull String message, @NonNull PublicKey publicKey, @NonNull Signature signature) throws Exception {
-        return Schnorr.verify(message.getBytes(StandardCharsets.UTF_8), publicKey.getBytes(), signature.getBytes());
+        byte[] pubKeyBytes = publicKey.getBytes();
+        byte[] xOnlyPublicKey =
+                pubKeyBytes.length == 33 ? Arrays.copyOfRange(pubKeyBytes, 1, 33) : pubKeyBytes;
+        return Schnorr.verify(message.getBytes(StandardCharsets.UTF_8), xOnlyPublicKey, signature.getBytes());
     }
 
     public boolean verify(@NonNull String message, @NonNull PublicKey publicKey) throws Exception {
