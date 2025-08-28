@@ -17,24 +17,23 @@ import xyz.tcheeric.cashu.common.json.deserializer.SecretDeserializer;
 @JsonPropertyOrder({"amount", "id", "secret", "C", "witness"})
 public class Proof<T extends Secret> {
 
-    @JsonProperty
-    private int amount;
+  @JsonProperty private int amount;
 
-    @JsonProperty
-    @JsonDeserialize(using = SecretDeserializer.class)
-    private T secret;
+  @JsonProperty
+  @JsonDeserialize(using = SecretDeserializer.class)
+  private T secret;
 
-    @JsonProperty("id")
-    private String keySetId;
+  @JsonProperty("id")
+  private String keySetId;
 
-    @JsonProperty("C")
-    private Signature unblindedSignature;
+  @JsonProperty("C")
+  private Signature unblindedSignature;
 
-    @JsonProperty("witness")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Witness witness;
+  @JsonProperty("witness")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private Witness witness;
 
-    public void setSecretData(byte[] data) {
-        this.secret.setData(data);
-    }
+  public void setSecretData(byte[] data) {
+    this.secret.setData(data);
+  }
 }

@@ -10,10 +10,10 @@ import lombok.NonNull;
 @Data
 public class PostMintQuoteFiatRequest extends PostMintQuoteRequest {
 
-    private String unit;
+  private String unit;
 
-    public PostMintQuoteFiatRequest(int amount, @NonNull String unit) {
-        super(amount);
-        this.unit = unit;
-    }
+  public PostMintQuoteFiatRequest(int amount, @NonNull String unit) {
+    super(amount);
+    this.unit = unit;
+  }
 }

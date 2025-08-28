@@ -1,5 +1,11 @@
 package xyz.tcheeric.cashu.crypto;
 
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.ECNamedCurveTable;
@@ -10,162 +16,156 @@ import org.bouncycastle.util.encoders.Hex;
 import xyz.tcheeric.cashu.crypto.util.KeysUtils;
 import xyz.tcheeric.cashu.crypto.util.Utils;
 
-import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
-
-
 @Slf4j
 public class BDHKEUtils {
 
-    private static final byte[] DOMAIN_SEPARATOR = "Secp256k1_HashToCurve_Cashu_".getBytes(StandardCharsets.UTF_8);
+  private static final byte[] DOMAIN_SEPARATOR =
+      "Secp256k1_HashToCurve_Cashu_".getBytes(StandardCharsets.UTF_8);
 
-    private static final SecP256K1Curve CURVE = new SecP256K1Curve();
+  private static final SecP256K1Curve CURVE = new SecP256K1Curve();
 
-    public static byte[] hashToCurve(String secret) {
-        if (secret == null || secret.isEmpty()) {
-            throw new IllegalArgumentException("secret must not be null or empty");
+  public static byte[] hashToCurve(String secret) {
+    if (secret == null || secret.isEmpty()) {
+      throw new IllegalArgumentException("secret must not be null or empty");
+    }
+    ECPoint result = hashToCurve(Utils.hexStringToBytes(secret));
+    return result.getEncoded(true);
+  }
+
+  public static ECPoint hashToCurve(byte[] secret) {
+    if (secret == null || secret.length == 0) {
+      throw new IllegalArgumentException("secret must not be null or empty");
+    }
+    log.debug("hashToCurve invoked with secret length {}", secret.length);
+    MessageDigest sha256;
+    try {
+      sha256 = MessageDigest.getInstance("SHA-256");
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
+    byte[] secretToHash = sha256.digest(concat(DOMAIN_SEPARATOR, secret));
+    long counter = 0;
+    while (counter <= 0xFFFF_FFFFL) {
+      byte[] counterBytes =
+          ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt((int) counter).array();
+      byte[] hash = sha256.digest(concat(secretToHash, counterBytes));
+      byte[] pkHash = concat(new byte[] {0x02}, hash);
+
+      try {
+        ECPoint publicKey = CURVE.decodePoint(pkHash);
+        if (publicKey.isValid()) {
+          return publicKey;
         }
-        ECPoint result = hashToCurve(Utils.hexStringToBytes(secret));
-        return result.getEncoded(true);
+      } catch (IllegalArgumentException e) {
+        // Ignore and continue with the next counter value without revealing point data
+        log.debug("Invalid point derived at counter {}. Retrying...", counter);
+      }
+      counter++;
     }
+    throw new RuntimeException("No valid point found");
+  }
 
-    public static ECPoint hashToCurve(byte[] secret) {
-        if (secret == null || secret.length == 0) {
-            throw new IllegalArgumentException("secret must not be null or empty");
-        }
-        log.debug("hashToCurve invoked with secret length {}", secret.length);
-        MessageDigest sha256;
-        try {
-            sha256 = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-        byte[] secretToHash = sha256.digest(concat(DOMAIN_SEPARATOR, secret));
-        long counter = 0;
-        while (counter <= 0xFFFF_FFFFL) {
-            byte[] counterBytes = ByteBuffer.allocate(4)
-                    .order(ByteOrder.LITTLE_ENDIAN)
-                    .putInt((int) counter)
-                    .array();
-            byte[] hash = sha256.digest(concat(secretToHash, counterBytes));
-            byte[] pkHash = concat(new byte[]{0x02}, hash);
+  public static byte[][] blindMessage(byte[] secret) {
+    byte[][] result = new byte[2][];
 
-            try {
-                ECPoint publicKey = CURVE.decodePoint(pkHash);
-                if (publicKey.isValid()) {
-                    return publicKey;
-                }
-            } catch (IllegalArgumentException e) {
-                // Ignore and continue with the next counter value without revealing point data
-                log.debug("Invalid point derived at counter {}. Retrying...", counter);
-            }
-            counter++;
-        }
-        throw new RuntimeException("No valid point found");
+    ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("secp256k1");
+    BigInteger r = Utils.bigIntFromBytes(KeysUtils.generatePrivateKey());
+    ECPoint G = spec.getG();
+    ECPoint Y = hashToCurve(secret);
+    ECPoint rG = G.multiply(r);
+    ECPoint B_ = Y.add(rG);
+
+    result[0] = B_.getEncoded(true);
+    result[1] = Utils.bytesFromBigInteger(r);
+
+    return result;
+  }
+
+  public static byte[] blindMessage(byte[] secret, byte[] r) {
+
+    ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("secp256k1");
+    ECPoint G = spec.getG();
+    ECPoint Y = hashToCurve(secret);
+    ECPoint rG = G.multiply(Utils.bigIntFromBytes(r));
+    ECPoint B_ = Y.add(rG);
+
+    return B_.getEncoded(true);
+  }
+
+  public static byte[] signBlindedMessage(byte[] B_, byte[] k) {
+    return signBlindedMessage(CURVE.decodePoint(B_), Utils.bigIntFromBytes(k)).getEncoded(true);
+  }
+
+  public static ECPoint signBlindedMessage(@NonNull ECPoint B_, @NonNull BigInteger k) {
+    ECPoint C_ = B_.multiply(k);
+    return C_;
+  }
+
+  public static byte[] unblindSignature(byte[] C_, byte[] r, byte[] K) {
+    return unblindSignature(CURVE.decodePoint(C_), Utils.bigIntFromBytes(r), CURVE.decodePoint(K))
+        .getEncoded(true);
+  }
+
+  public static ECPoint unblindSignature(
+      @NonNull ECPoint C_, @NonNull BigInteger r, @NonNull ECPoint K) {
+    ECPoint rK = K.multiply(r.negate());
+    ECPoint C = C_.add(rK);
+    return C;
+  }
+
+  /**
+   * Verify that the provided commitment {@code C} corresponds to the secret and key.
+   *
+   * <p>Thread-safe: this method operates solely on local variables and does not mutate shared
+   * state.
+   */
+  public static boolean verify(@NonNull String secret, byte[] k, byte[] C) {
+    boolean valid = verify(secret, Utils.bigIntFromBytes(k), CURVE.decodePoint(C));
+    log.debug("Verification successful? {}", valid);
+    return valid;
+  }
+
+  public static boolean verify(@NonNull String secret, @NonNull BigInteger k, @NonNull ECPoint C) {
+    ECPoint Y = hashToCurve(Utils.hexStringToBytes(secret));
+    boolean valid = verify(Y, k, C);
+    return valid;
+  }
+
+  private static boolean verify(byte[] Y, byte[] k, byte[] C) {
+    log.debug(
+        "verify({}, {}, {})",
+        Utils.bytesToHexString(Y),
+        Utils.bytesToHexString(k),
+        Utils.bytesToHexString(C));
+    return verify(CURVE.decodePoint(Y), Utils.bigIntFromBytes(k), CURVE.decodePoint(C));
+  }
+
+  private static boolean verify(ECPoint Y, BigInteger k, ECPoint C) {
+    log.debug(
+        "verify({}, {}, {})",
+        pointToHex(Y),
+        Utils.bytesToHexString(Utils.bytesFromBigInteger(k)),
+        pointToHex(C));
+    ECPoint result = Y.multiply(k);
+    return C.equals(result);
+  }
+
+  public static String pointToHex(@NonNull ECPoint point) {
+    byte[] pointBytes = point.getEncoded(true); // true for compressed point
+    return Hex.toHexString(pointBytes);
+  }
+
+  private static byte[] concat(byte[]... arrays) {
+    int totalLength = 0;
+    for (byte[] array : arrays) {
+      totalLength += array.length;
     }
-
-    public static byte[][] blindMessage(byte[] secret) {
-        byte[][] result = new byte[2][];
-
-        ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("secp256k1");
-        BigInteger r = Utils.bigIntFromBytes(KeysUtils.generatePrivateKey());
-        ECPoint G = spec.getG();
-        ECPoint Y = hashToCurve(secret);
-        ECPoint rG = G.multiply(r);
-        ECPoint B_ = Y.add(rG);
-
-        result[0] = B_.getEncoded(true);
-        result[1] = Utils.bytesFromBigInteger(r);
-
-        return result;
+    byte[] result = new byte[totalLength];
+    int currentIndex = 0;
+    for (byte[] array : arrays) {
+      System.arraycopy(array, 0, result, currentIndex, array.length);
+      currentIndex += array.length;
     }
-
-    public static byte[] blindMessage(byte[] secret, byte[] r) {
-
-        ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("secp256k1");
-        ECPoint G = spec.getG();
-        ECPoint Y = hashToCurve(secret);
-        ECPoint rG = G.multiply(Utils.bigIntFromBytes(r));
-        ECPoint B_ = Y.add(rG);
-
-        return B_.getEncoded(true);
-    }
-
-    public static byte[] signBlindedMessage(byte[] B_, byte[] k) {
-        return signBlindedMessage(CURVE.decodePoint(B_), Utils.bigIntFromBytes(k)).getEncoded(true);
-    }
-
-    public static ECPoint signBlindedMessage(@NonNull ECPoint B_, @NonNull BigInteger k) {
-        ECPoint C_ = B_.multiply(k);
-        return C_;
-    }
-
-    public static byte[] unblindSignature(byte[] C_, byte[] r, byte[] K) {
-        return unblindSignature(CURVE.decodePoint(C_), Utils.bigIntFromBytes(r), CURVE.decodePoint(K)).getEncoded(true);
-    }
-
-    public static ECPoint unblindSignature(@NonNull ECPoint C_, @NonNull BigInteger r, @NonNull ECPoint K) {
-        ECPoint rK = K.multiply(r.negate());
-        ECPoint C = C_.add(rK);
-        return C;
-    }
-
-    /**
-     * Verify that the provided commitment {@code C} corresponds to the secret and key.
-     * <p>
-     * Thread-safe: this method operates solely on local variables and does not mutate
-     * shared state.
-     * </p>
-     */
-    public static boolean verify(@NonNull String secret, byte[] k, byte[] C) {
-        boolean valid = verify(
-                secret,
-                Utils.bigIntFromBytes(k),
-                CURVE.decodePoint(C)
-        );
-        log.debug("Verification successful? {}", valid);
-        return valid;
-    }
-
-    public static boolean verify(@NonNull String secret, @NonNull BigInteger k, @NonNull ECPoint C) {
-        ECPoint Y = hashToCurve(Utils.hexStringToBytes(secret));
-        boolean valid = verify(Y, k, C);
-        return valid;
-    }
-
-
-    private static boolean verify(byte[] Y, byte[] k, byte[] C) {
-        log.debug("verify({}, {}, {})", Utils.bytesToHexString(Y), Utils.bytesToHexString(k), Utils.bytesToHexString(C));
-        return verify(CURVE.decodePoint(Y), Utils.bigIntFromBytes(k), CURVE.decodePoint(C));
-    }
-
-    private static boolean verify(ECPoint Y, BigInteger k, ECPoint C) {
-        log.debug("verify({}, {}, {})", pointToHex(Y), Utils.bytesToHexString(Utils.bytesFromBigInteger(k)), pointToHex(C));
-        ECPoint result = Y.multiply(k);
-        return C.equals(result);
-    }
-
-    public static String pointToHex(@NonNull ECPoint point) {
-        byte[] pointBytes = point.getEncoded(true); // true for compressed point
-        return Hex.toHexString(pointBytes);
-    }
-
-    private static byte[] concat(byte[]... arrays) {
-        int totalLength = 0;
-        for (byte[] array : arrays) {
-            totalLength += array.length;
-        }
-        byte[] result = new byte[totalLength];
-        int currentIndex = 0;
-        for (byte[] array : arrays) {
-            System.arraycopy(array, 0, result, currentIndex, array.length);
-            currentIndex += array.length;
-        }
-        return result;
-    }
+    return result;
+  }
 }

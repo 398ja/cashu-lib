@@ -14,12 +14,11 @@ import lombok.NoArgsConstructor;
 @JsonPropertyOrder({"amount", "id", "C_"})
 public class BlindSignature {
 
-    @JsonProperty
-    private int amount;
+  @JsonProperty private int amount;
 
-    @JsonProperty("id")
-    private KeysetId keySetId;
+  @JsonProperty("id")
+  private KeysetId keySetId;
 
-    @JsonProperty("C_")
-    private Signature blindedSignature;
+  @JsonProperty("C_")
+  private Signature blindedSignature;
 }

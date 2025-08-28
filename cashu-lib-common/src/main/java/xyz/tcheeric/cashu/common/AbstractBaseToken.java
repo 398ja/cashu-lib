@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 public abstract class AbstractBaseToken implements Token {
 
-    private Version version;
-    private String prefix;
-    private boolean clickable;
+  private Version version;
+  private String prefix;
+  private boolean clickable;
 }

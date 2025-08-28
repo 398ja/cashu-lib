@@ -15,17 +15,16 @@ import lombok.NoArgsConstructor;
 @JsonPropertyOrder({"amount", "id", "B_", "witness"})
 public class BlindedMessage {
 
-    @JsonProperty
-    private int amount;
+  @JsonProperty private int amount;
 
-    @JsonProperty("id")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private KeysetId keySetId;
+  @JsonProperty("id")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private KeysetId keySetId;
 
-    @JsonProperty("B_")
-    private PublicKey blindedMessage;
+  @JsonProperty("B_")
+  private PublicKey blindedMessage;
 
-    @JsonProperty("witness")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Witness witness;
+  @JsonProperty("witness")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private Witness witness;
 }

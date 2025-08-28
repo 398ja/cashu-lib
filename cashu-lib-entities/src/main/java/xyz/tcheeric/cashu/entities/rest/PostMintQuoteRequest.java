@@ -10,16 +10,14 @@ import lombok.NoArgsConstructor;
 @Data
 public class PostMintQuoteRequest {
 
-    @JsonProperty
-    private int amount;
+  @JsonProperty private int amount;
 
-    @JsonProperty
-    private String unit;
+  @JsonProperty private String unit;
 
-    protected PostMintQuoteRequest(int amount) {
-        if (amount <= 0) {
-            throw new IllegalArgumentException("Amount must be greater than 0. Got: " + amount);
-        }
-        this.amount = amount;
+  protected PostMintQuoteRequest(int amount) {
+    if (amount <= 0) {
+      throw new IllegalArgumentException("Amount must be greater than 0. Got: " + amount);
     }
+    this.amount = amount;
+  }
 }

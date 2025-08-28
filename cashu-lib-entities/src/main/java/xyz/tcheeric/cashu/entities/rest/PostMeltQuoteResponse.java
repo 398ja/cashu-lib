@@ -12,18 +12,15 @@ import lombok.NoArgsConstructor;
 @Data
 public class PostMeltQuoteResponse {
 
-    @JsonProperty("quote")
-    private String quoteId;
+  @JsonProperty("quote")
+  private String quoteId;
 
-    @JsonProperty
-    private int amount;
+  @JsonProperty private int amount;
 
-    @JsonProperty("fee_reserve")
-    private int feeReserve;
+  @JsonProperty("fee_reserve")
+  private int feeReserve;
 
-    @JsonProperty
-    private boolean paid;
+  @JsonProperty private boolean paid;
 
-    @JsonProperty
-    private int expiry;
+  @JsonProperty private int expiry;
 }

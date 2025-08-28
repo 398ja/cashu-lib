@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @Data
 public class PostMeltQuoteRequest {
 
-    private String request;
+  private String request;
 }

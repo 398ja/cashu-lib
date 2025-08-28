@@ -12,10 +12,10 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PostMeltQuoteMockRequest extends PostMeltQuoteRequest {
 
-    private String unit;
+  private String unit;
 
-    public PostMeltQuoteMockRequest(@NonNull String requestId, @NonNull String unit) {
-        super(requestId);
-        this.unit = unit;
-    }
+  public PostMeltQuoteMockRequest(@NonNull String requestId, @NonNull String unit) {
+    super(requestId);
+    this.unit = unit;
+  }
 }

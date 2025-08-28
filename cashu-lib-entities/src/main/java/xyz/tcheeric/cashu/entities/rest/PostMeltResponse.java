@@ -10,9 +10,8 @@ import lombok.NoArgsConstructor;
 @Data
 public class PostMeltResponse {
 
-    @JsonProperty
-    private boolean paid;
+  @JsonProperty private boolean paid;
 
-    @JsonProperty("payment_preimage")
-    private String paymentPreimage;
+  @JsonProperty("payment_preimage")
+  private String paymentPreimage;
 }

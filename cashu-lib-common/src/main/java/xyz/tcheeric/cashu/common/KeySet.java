@@ -14,15 +14,12 @@ import lombok.NoArgsConstructor;
 @JsonPropertyOrder({"id", "unit", "keys", "input_fee_ppk"})
 public class KeySet {
 
-    @JsonProperty
-    private String id;
+  @JsonProperty private String id;
 
-    @JsonProperty
-    private String unit;
+  @JsonProperty private String unit;
 
-    @JsonProperty
-    private Keys keys;
+  @JsonProperty private Keys keys;
 
-    @JsonProperty("input_fee_ppk")
-    private int partPerThousand;
+  @JsonProperty("input_fee_ppk")
+  private int partPerThousand;
 }

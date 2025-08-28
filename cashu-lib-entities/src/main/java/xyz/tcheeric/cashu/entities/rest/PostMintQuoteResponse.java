@@ -12,16 +12,12 @@ import lombok.NoArgsConstructor;
 @Data
 public class PostMintQuoteResponse {
 
-    @JsonProperty("quote")
-    private String quoteId;
+  @JsonProperty("quote")
+  private String quoteId;
 
-    @JsonProperty
-    private String request;
+  @JsonProperty private String request;
 
-    @JsonProperty
-    @Builder.Default
-    private boolean paid = false;
+  @JsonProperty @Builder.Default private boolean paid = false;
 
-    @JsonProperty
-    private int expiry;
+  @JsonProperty private int expiry;
 }
