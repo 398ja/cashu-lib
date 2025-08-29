@@ -35,11 +35,11 @@
         <maven.compiler.target>21</maven.compiler.target>
 
         <!-- Annotation Dependency Versions -->
-        <lombok.version>1.18.36</lombok.version>
+        <lombok.version>1.18.38</lombok.version>
 
-        <bcprov-jdk18on.version>1.78</bcprov-jdk18on.version>
+        <bcprov-jdk18on.version>1.81</bcprov-jdk18on.version>
 
-        <jackson-dataformat-cbor.version>2.17.1</jackson-dataformat-cbor.version>
+        <jackson-dataformat-cbor.version>2.19.2</jackson-dataformat-cbor.version>
 
         <jackson-databind.version>2.18.3</jackson-databind.version>
 
@@ -48,18 +48,18 @@
 
         <!-- Test Dependency Versions -->
         <junit.version>5.9.1</junit.version>
-        <assertj.version>3.23.1</assertj.version>
-        <assertj-test.version>3.27.3</assertj-test.version>
-        <junit4.version>4.13.1</junit4.version>
-        <junit-jupiter.version>5.12.2</junit-jupiter.version>
+        <assertj.version>3.27.4</assertj.version>
+        <assertj-test.version>3.27.4</assertj-test.version>
+        <junit4.version>4.13.2</junit4.version>
+        <junit-jupiter.version>5.13.4</junit-jupiter.version>
 
         <!-- Maven Plugin Versions -->
-        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
-        <flatten-maven-plugin.version>1.5.0</flatten-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-        <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
+        <flatten-maven-plugin.version>1.7.2</flatten-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
+        <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <!-- GPG key used for signing; set via -Dgpg.keyname=KEYID -->
         <!-- <gpg.keyname></gpg.keyname> -->
