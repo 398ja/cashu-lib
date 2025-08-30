@@ -2,10 +2,13 @@ package xyz.tcheeric.cashu.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import xyz.tcheeric.cashu.common.PrivateKey;
+import xyz.tcheeric.cashu.common.PublicKey;
+import xyz.tcheeric.cashu.common.Signature;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CryptoElementJsonCreatorTest {
+public class BaseKeyJsonCreatorTest {
 
     @Test
     public void deserializePrivateKey() throws Exception {
