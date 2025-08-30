@@ -1,11 +1,11 @@
-package xyz.tcheeric.cashu.test.crypto;
+package xyz.tcheeric.cashu.crypto;
 
 import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.math.ec.custom.sec.SecP256K1Curve;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import xyz.tcheeric.cashu.crypto.BDHKEUtils;
 
 import sun.misc.Unsafe;
 import java.lang.reflect.Field;
@@ -51,8 +51,8 @@ public class BDHKEUtilsLoopTest {
         try {
             byte[] secret = new byte[32];
             ECPoint result = BDHKEUtils.hashToCurve(secret);
-            assertEquals(countingCurve.point, result);
-            assertTrue(countingCurve.calls > 65536);
+            Assertions.assertEquals(countingCurve.point, result);
+            Assertions.assertTrue(countingCurve.calls > 65536);
         } finally {
             // Restore original curve
             unsafe.putObject(base, offset, originalCurve);
