@@ -13,8 +13,10 @@ import xyz.tcheeric.cashu.common.RandomStringSecret;
 import xyz.tcheeric.cashu.common.Secret;
 import xyz.tcheeric.cashu.common.Signature;
 import xyz.tcheeric.cashu.common.TokenV3;
+import xyz.tcheeric.cashu.common.TokenV4;
 import lombok.extern.slf4j.Slf4j;
 import xyz.tcheeric.cashu.crypto.BDHKEUtils;
+import xyz.tcheeric.cashu.crypto.util.Utils;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -117,8 +119,7 @@ public class NUT00Tests {
         Assertions.assertThrows(IllegalArgumentException.class, () -> TokenV3.deserialize(noPrefixToken));
     }
 
-    // FIXME
-/*
+    // Ensure TokenV4 serialization matches NUT-00 single keyset example
     @Test
     public void serializationOfTokenV4SingleKeyset() {
         TokenV4 tokenV4 = new TokenV4();
@@ -131,6 +132,7 @@ public class NUT00Tests {
         tokenProof.setAmount(1);
         tokenProof.setSecret("9a6dbb847bd232ba76db0df197216b29d3b8cc14553cd27827fc1cc942fedb4e");
         tokenProof.setSignature(Utils.hexStringToBytes("038618543ffb6b8695df4ad4babcde92a34a96bdcd97dcee0d7ccf98d472126792"));
+
         tokenV4.setTokenDataList(Set.of(
                 new TokenV4.TokenData(
                         Utils.hexStringToBytes("00ad268c4d1f5826"),
@@ -140,7 +142,6 @@ public class NUT00Tests {
 
         String strToken = "cashuBpGF0gaJhaUgArSaMTR9YJmFwgaNhYQFhc3hAOWE2ZGJiODQ3YmQyMzJiYTc2ZGIwZGYxOTcyMTZiMjlkM2I4Y2MxNDU1M2NkMjc4MjdmYzFjYzk0MmZlZGI0ZWFjWCEDhhhUP_trhpXfStS6vN6So0qWvc2X3O4NfM-Y1HISZ5JhZGlUaGFuayB5b3VhbXVodHRwOi8vbG9jYWxob3N0OjMzMzhhdWNzYXQ=";
 
-        assertEquals(strToken, tokenV4.serialize(false));
+        Assertions.assertEquals(strToken, tokenV4.serialize(false));
     }
-*/
 }
