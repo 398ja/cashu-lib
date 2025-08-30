@@ -61,6 +61,17 @@ Include the following dependencies in your project's `pom.xml`:
 
 - NUT-00 TokenV3 Serialization: For stable cashu-encoded tokens, proofs are serialized in a deterministic order (by `amount`), and Schnorr signatures (`C`) are serialized as hex strings.
 
+- NUT-00 TokenV4 Serialization: TokenV4 tokens serialize deterministically and are validated against [official single- and multi-keyset test vectors](https://github.com/cashubtc/nuts/blob/main/tests/00-tests.md).
+
+## Token Formats
+
+- Prefixes: Tokens use `cashuA` for V3 (JSON) and `cashuB` for V4 (CBOR), per NUT-00.
+- Clickable URIs: Both V3 and V4 deserializers accept clickable URIs with the scheme `cashu:` (e.g., `cashu:cashuB...`) and plain tokens without the scheme (e.g., `cashuB...`).
+- Encoding: Serialization uses URL-safe Base64 without padding.
+- TokenV4 order: Top-level CBOR map preserves the NUT-00 key order `t` (token data), `d` (memo), `m` (mint URL), `u` (unit) for deterministic output.
+- TokenV3 order: Proofs are serialized in a deterministic order (by `amount`) to ensure stable token strings.
+- References: See NUT-00 and related NUTs at https://github.com/cashubtc/nuts.
+
 ## Contributing
 Outstanding work and planned enhancements are tracked in
 [GitHub Issues](https://github.com/tcheeric/cashu-lib/issues). See
