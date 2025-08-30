@@ -9,7 +9,8 @@ public class UnCompressedPublicKey extends PublicKey {
 
     UnCompressedPublicKey(@NonNull byte[] bytes) {
         super(bytes);
-        if (bytes.length != PUBLIC_KEY_LENGTH_UNCOMPRESSED / 2) {
+        // Expect 64 bytes (x || y) for uncompressed point form
+        if (bytes.length != 64) {
             throw new IllegalArgumentException("Invalid uncompressed public key length (" + bytes.length + ")");
         }
     }
