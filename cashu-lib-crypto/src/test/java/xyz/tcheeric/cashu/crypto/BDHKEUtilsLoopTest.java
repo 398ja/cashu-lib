@@ -22,6 +22,9 @@ public class BDHKEUtilsLoopTest {
         unsafeField.setAccessible(true);
         Unsafe unsafe = (Unsafe) unsafeField.get(null);
 
+        // Ensure BDHKEUtils is initialized so CURVE is not null
+        BDHKEUtils.pointToHex(ECNamedCurveTable.getParameterSpec("secp256k1").getG());
+
         // Access and replace the static curve field
         Field curveField = BDHKEUtils.class.getDeclaredField("CURVE");
         Object base = unsafe.staticFieldBase(curveField);
