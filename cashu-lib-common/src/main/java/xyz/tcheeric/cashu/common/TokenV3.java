@@ -38,7 +38,7 @@ public class TokenV3<T extends Secret> implements Token {
         private String mint;
 
         @JsonProperty("proofs")
-        private Set<Proof<T>> proofs = new HashSet<>();
+        private Set<Proof<T>> proofs = new java.util.LinkedHashSet<>();
 
         public boolean addProof(@NonNull Proof<T> proof) {
             return this.proofs.add(proof);
@@ -46,6 +46,13 @@ public class TokenV3<T extends Secret> implements Token {
 
         public boolean removeProof(@NonNull Proof<T> proof) {
             return this.proofs.remove(proof);
+        }
+
+        public void setProofs(@NonNull Set<Proof<T>> proofs) {
+            // Preserve deterministic order (by amount, then stable insertion) for serialization
+            java.util.List<Proof<T>> list = new java.util.ArrayList<>(proofs);
+            list.sort(java.util.Comparator.comparingInt(Proof::getAmount));
+            this.proofs = new java.util.LinkedHashSet<>(list);
         }
     }
 
