@@ -40,7 +40,7 @@
 
         <jackson-dataformat-cbor.version>2.19.2</jackson-dataformat-cbor.version>
 
-        <jackson-databind.version>2.18.3</jackson-databind.version>
+        <jackson-databind.version>2.20.0</jackson-databind.version>
 
         <!-- Logging Dependency Versions -->
         <slf4j.version>2.0.13</slf4j.version>
