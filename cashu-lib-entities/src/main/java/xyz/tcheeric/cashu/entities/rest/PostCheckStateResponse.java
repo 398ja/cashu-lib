@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import xyz.tcheeric.cashu.common.CryptoElement;
+import xyz.tcheeric.cashu.common.BaseKey;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class PostCheckStateResponse {
     public static class ResponseState {
 
         @JsonProperty("Y")
-        private CryptoElement hashToCurveSecret;
+        private BaseKey hashToCurveSecret;
 
         @JsonProperty
         private String state;
