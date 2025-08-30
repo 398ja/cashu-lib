@@ -15,6 +15,6 @@ public class RandomStringSecretDeserializer extends JsonDeserializer<RandomStrin
         if (node.isTextual()) {
             return RandomStringSecret.fromString(node.textValue());
         }
-        throw new RuntimeException("Invalid CryptoElement format");
+        throw new RuntimeException("Invalid BaseKey format");
     }
 }
