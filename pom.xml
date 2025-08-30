@@ -43,7 +43,7 @@
         <jackson-databind.version>2.18.3</jackson-databind.version>
 
         <!-- Logging Dependency Versions -->
-        <slf4j.version>2.0.13</slf4j.version>
+        <slf4j.version>2.0.17</slf4j.version>
 
         <!-- Test Dependency Versions -->
         <junit.version>5.9.1</junit.version>
