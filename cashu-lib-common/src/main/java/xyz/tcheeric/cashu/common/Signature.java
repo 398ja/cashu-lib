@@ -60,7 +60,15 @@ public class Signature {
 
     @Override
     public boolean equals(Object obj) {
-        return publicKey.toString().equals(obj.toString());
+        if (this == obj) return true;
+        if (!(obj instanceof Signature)) return false;
+        Signature other = (Signature) obj;
+        return this.publicKey.toString().equals(other.publicKey.toString());
+    }
+
+    @Override
+    public int hashCode() {
+        return this.publicKey.toString().hashCode();
     }
 
     public static Signature sign(@NonNull String message, @NonNull PrivateKey privateKey) throws Exception {

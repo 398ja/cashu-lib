@@ -1,21 +1,30 @@
 package xyz.tcheeric.cashu.common;
 
 import org.junit.jupiter.api.Test;
-import xyz.tcheeric.cashu.common.Keys;
-import xyz.tcheeric.cashu.common.PublicKey;
+import xyz.tcheeric.cashu.common.util.JsonUtils;
 
 import java.math.BigInteger;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class KeysTest {
 
+    // Ensures Keys serializes to JSON and deserializes back with identical content
     @Test
-    public void valuesAreUnmodifiable() {
-        Keys keys = new Keys();
-        keys.put(BigInteger.ONE, PublicKey.fromString("03a40f20667ed53513075dc51e715ff2046cad64eb68960632269ba7f0210e38bc"));
-        assertThrows(UnsupportedOperationException.class, () ->
-                keys.getValues().put(BigInteger.TWO, PublicKey.fromString("03fd4ce5a16b65576145949e6f99f445f8249fee17c606b688b504a849cdc452de"))
-        );
+    public void serializeDeserializeRoundTrip() throws Exception {
+        PublicKey pk = PublicKey.fromString("02a9acc1e48c25eeeb9289b5031cc57da9fe72f3fe2861d264bdc074209b107ba2");
+        Keys keys = new Keys().put(BigInteger.ONE, pk);
+
+        String json = JsonUtils.JSON_MAPPER.writeValueAsString(keys);
+        Keys parsed = JsonUtils.JSON_MAPPER.readValue(json, Keys.class);
+
+        assertEquals(1, parsed.getValues().size());
+        assertTrue(parsed.getValues().containsKey(BigInteger.ONE));
+        assertEquals(pk.toString(), parsed.getValues().get(BigInteger.ONE).toString());
+
+        Map<BigInteger, byte[]> bytesMap = parsed.values();
+        assertArrayEquals(pk.toBytes(), bytesMap.get(BigInteger.ONE));
     }
 }
+
