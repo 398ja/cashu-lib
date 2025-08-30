@@ -61,4 +61,17 @@ public class TokenV4Test {
         assertEquals("sat", token.getUnit());
         assertEquals(2, token.getTokenDataList().size());
     }
+
+    /**
+     * Ensure a single-keyset token from NUT-00 deserializes with expected mint, unit, and proof count.
+     */
+    @Test
+    public void deserializeSingleKeysetToken() {
+        String serialized = "cashuBpGF0gaJhaUgArSaMTR9YJmFwgaNhYQFhc3hAOWE2ZGJiODQ3YmQyMzJiYTc2ZGIwZGYxOTcyMTZiMjlkM2I4Y2MxNDU1M2NkMjc4MjdmYzFjYzk0MmZlZGI0ZWFjWCEDhhhUP_trhpXfStS6vN6So0qWvc2X3O4NfM-Y1HISZ5JhZGlUaGFuayB5b3VhbXVodHRwOi8vbG9jYWxob3N0OjMzMzhhdWNzYXQ=";
+        TokenV4 token = TokenV4.deserialize(serialized);
+        assertEquals("http://localhost:3338", token.getMintUrl());
+        assertEquals("sat", token.getUnit());
+        assertEquals(1, token.getTokenDataList().size());
+        assertEquals(1, token.getTokenDataList().iterator().next().getProofs().size());
+    }
 }

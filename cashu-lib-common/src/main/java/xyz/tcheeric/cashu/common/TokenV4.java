@@ -2,6 +2,7 @@ package xyz.tcheeric.cashu.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
 import com.fasterxml.jackson.dataformat.cbor.CBORGenerator;
@@ -23,6 +24,7 @@ import java.util.List;
 @NoArgsConstructor
 @Slf4j
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({"t", "d", "m", "u"})
 public class TokenV4 implements Token {
 
     @JsonProperty("m")
@@ -49,6 +51,7 @@ public class TokenV4 implements Token {
     @NoArgsConstructor
     @AllArgsConstructor
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonPropertyOrder({"i", "p"})
     public static class TokenData {
         @JsonProperty("i")
         private byte[] keySetId;
@@ -63,6 +66,7 @@ public class TokenV4 implements Token {
         @Data
         @NoArgsConstructor
         @JsonInclude(JsonInclude.Include.NON_NULL)
+        @JsonPropertyOrder({"a", "s", "c", "d", "w"})
         public static class TokenProof {
             @JsonProperty("a")
             private Integer amount;
@@ -82,6 +86,7 @@ public class TokenV4 implements Token {
             @Data
             @NoArgsConstructor
             @JsonInclude(JsonInclude.Include.NON_NULL)
+            @JsonPropertyOrder({"e", "s", "r"})
             public static class DLEQProof {
                 @JsonProperty("e")
                 private byte[] e;
