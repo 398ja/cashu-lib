@@ -22,12 +22,6 @@
       "package-name": "cashu-lib-entities",
       "include-component-in-tag": true,
       "changelog-path": "CHANGELOG.md"
-    },
-    "cashu-lib-test": {
-      "release-type": "maven",
-      "package-name": "cashu-lib-test",
-      "include-component-in-tag": true,
-      "changelog-path": "CHANGELOG.md"
     }
   }
 }
