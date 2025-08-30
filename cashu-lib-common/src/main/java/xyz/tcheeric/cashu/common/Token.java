@@ -38,7 +38,7 @@ public interface Token {
         }
 
         static String serialize(byte @NonNull [] cborToken, @NonNull String prefix, Version version, boolean clickable) {
-            String strSerializedToken = prefix + version.getCode() + Base64.getUrlEncoder().encodeToString(cborToken);
+            String strSerializedToken = prefix + version.getCode() + Base64.getUrlEncoder().withoutPadding().encodeToString(cborToken);
             if (clickable) {
                 return URI_SCHEME + strSerializedToken;
             }
