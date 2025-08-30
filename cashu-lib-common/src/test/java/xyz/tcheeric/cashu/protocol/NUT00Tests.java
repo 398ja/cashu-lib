@@ -1,10 +1,11 @@
-package xyz.tcheeric.cashu.test.protocol;
+package xyz.tcheeric.cashu.protocol;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.bouncycastle.util.encoders.Hex;
+import org.junit.jupiter.api.Assertions;
+import xyz.tcheeric.cashu.common.BaseKey;
 import xyz.tcheeric.cashu.common.util.JsonUtils;
 import org.junit.jupiter.api.Test;
-import xyz.tcheeric.cashu.common.CryptoElement;
 import xyz.tcheeric.cashu.common.PrivateKey;
 import xyz.tcheeric.cashu.common.PublicKey;
 import xyz.tcheeric.cashu.common.RSSProof;
@@ -16,10 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import xyz.tcheeric.cashu.crypto.BDHKEUtils;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Slf4j
 public class NUT00Tests {
@@ -29,29 +28,29 @@ public class NUT00Tests {
         Secret message = RandomStringSecret.fromString("0000000000000000000000000000000000000000000000000000000000000000");
         String expected = "024cce997d3b518f739663b757deaec95bcd9473c30a14ac2fd04023a739d1a725";
         var result = BDHKEUtils.hashToCurve(((RandomStringSecret) message).toBytes());
-        assertEquals(expected, BDHKEUtils.pointToHex(result));
+        Assertions.assertEquals(expected, BDHKEUtils.pointToHex(result));
 
         message = RandomStringSecret.fromString("0000000000000000000000000000000000000000000000000000000000000001");
         expected = "022e7158e11c9506f1aa4248bf531298daa7febd6194f003edcd9b93ade6253acf";
         result = BDHKEUtils.hashToCurve(((RandomStringSecret) message).toBytes());
-        assertEquals(expected, BDHKEUtils.pointToHex(result));
+        Assertions.assertEquals(expected, BDHKEUtils.pointToHex(result));
 
         message = RandomStringSecret.fromString("0000000000000000000000000000000000000000000000000000000000000002");
         expected = "026cdbe15362df59cd1dd3c9c11de8aedac2106eca69236ecd9fbe117af897be4f";
         result = BDHKEUtils.hashToCurve(((RandomStringSecret) message).toBytes());
-        assertEquals(expected, BDHKEUtils.pointToHex(result));
+        Assertions.assertEquals(expected, BDHKEUtils.pointToHex(result));
     }
 
 
     @Test
     public void blindedSignatures() {
         // Test 1
-        CryptoElement k = PrivateKey.fromString("0000000000000000000000000000000000000000000000000000000000000001");
-        CryptoElement B_ = PublicKey.fromString("02a9acc1e48c25eeeb9289b5031cc57da9fe72f3fe2861d264bdc074209b107ba2");
-        CryptoElement C_ = Signature.fromString("02a9acc1e48c25eeeb9289b5031cc57da9fe72f3fe2861d264bdc074209b107ba2");
+        BaseKey k = PrivateKey.fromString("0000000000000000000000000000000000000000000000000000000000000001");
+        BaseKey B_ = PublicKey.fromString("02a9acc1e48c25eeeb9289b5031cc57da9fe72f3fe2861d264bdc074209b107ba2");
+        Signature C_ = Signature.fromString("02a9acc1e48c25eeeb9289b5031cc57da9fe72f3fe2861d264bdc074209b107ba2");
 
-        var result = BDHKEUtils.signBlindedMessage(B_.toBytes(), k.toBytes());
-        assertEquals(C_, Signature.fromBytes(result));
+        byte[] result = BDHKEUtils.signBlindedMessage(B_.toBytes(), k.toBytes());
+        Assertions.assertEquals(C_, Signature.fromString(Hex.toHexString(result)));
 
         // Test 2
         k = PrivateKey.fromString("7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f");
@@ -59,7 +58,7 @@ public class NUT00Tests {
         C_ = Signature.fromString("0398bc70ce8184d27ba89834d19f5199c84443c31131e48d3c1214db24247d005d");
 
         result = BDHKEUtils.signBlindedMessage(B_.toBytes(), k.toBytes());
-        assertEquals(C_, Signature.fromBytes(result));
+        Assertions.assertEquals(C_, Signature.fromString(Hex.toHexString(result)));
 
         // Test 3, mine
         k = PrivateKey.fromString("811d912719d64d21444862da82fe802223509c684825ed8d6ec569ebbb681f9b");
@@ -67,7 +66,7 @@ public class NUT00Tests {
         C_ = Signature.fromString("03b890b660bf5d5c3ad7651c7afe3a08793be57c150ad8d0646441e68aa77ef830");
 
         result = BDHKEUtils.signBlindedMessage(B_.toBytes(), k.toBytes());
-        assertEquals(C_, Signature.fromBytes(result));
+        Assertions.assertEquals(C_, Signature.fromString(Hex.toHexString(result)));
     }
 
 
@@ -78,7 +77,7 @@ public class NUT00Tests {
         tokenV3.setMemo("Thank you.");
         tokenV3.setUnit("sat");
 
-        Set<TokenV3.MintProof<RandomStringSecret>> mintProofs = new HashSet<>();
+        Set<TokenV3.MintProof<RandomStringSecret>> mintProofs = new LinkedHashSet<>();
         TokenV3.MintProof mintProof = new TokenV3.MintProof();
         mintProof.setMint("https://8333.space:3338");
 
@@ -103,19 +102,19 @@ public class NUT00Tests {
 
         log.debug(JsonUtils.JSON_MAPPER.writeValueAsString(tokenV3));
 
-        assertEquals("cashuAeyJ0b2tlbiI6W3sibWludCI6Imh0dHBzOi8vODMzMy5zcGFjZTozMzM4IiwicHJvb2ZzIjpbeyJhbW91bnQiOjIsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6IjQwNzkxNWJjMjEyYmU2MWE3N2UzZTZkMmFlYjRjNzI3OTgwYmRhNTFjZDA2YTZhZmMyOWUyODYxNzY4YTc4MzciLCJDIjoiMDJiYzkwOTc5OTdkODFhZmIyY2M3MzQ2YjVlNDM0NWE5MzQ2YmQyYTUwNmViNzk1ODU5OGE3MmYwY2Y4NTE2M2VhIn0seyJhbW91bnQiOjgsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6ImZlMTUxMDkzMTRlNjFkNzc1NmIwZjhlZTBmMjNhNjI0YWNhYTNmNGUwNDJmNjE0MzNjNzI4YzcwNTdiOTMxYmUiLCJDIjoiMDI5ZThlNTA1MGI4OTBhN2Q2YzA5NjhkYjE2YmMxZDVkNWZhMDQwZWExZGUyODRmNmVjNjlkNjEyOTlmNjcxMDU5In1dfV0sInVuaXQiOiJzYXQiLCJtZW1vIjoiVGhhbmsgeW91LiJ9", tokenV3.serialize(false));
+        Assertions.assertEquals("cashuAeyJ0b2tlbiI6W3sibWludCI6Imh0dHBzOi8vODMzMy5zcGFjZTozMzM4IiwicHJvb2ZzIjpbeyJhbW91bnQiOjIsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6IjQwNzkxNWJjMjEyYmU2MWE3N2UzZTZkMmFlYjRjNzI3OTgwYmRhNTFjZDA2YTZhZmMyOWUyODYxNzY4YTc4MzciLCJDIjoiMDJiYzkwOTc5OTdkODFhZmIyY2M3MzQ2YjVlNDM0NWE5MzQ2YmQyYTUwNmViNzk1ODU5OGE3MmYwY2Y4NTE2M2VhIn0seyJhbW91bnQiOjgsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6ImZlMTUxMDkzMTRlNjFkNzc1NmIwZjhlZTBmMjNhNjI0YWNhYTNmNGUwNDJmNjE0MzNjNzI4YzcwNTdiOTMxYmUiLCJDIjoiMDI5ZThlNTA1MGI4OTBhN2Q2YzA5NjhkYjE2YmMxZDVkNWZhMDQwZWExZGUyODRmNmVjNjlkNjEyOTlmNjcxMDU5In1dfV0sInVuaXQiOiJzYXQiLCJtZW1vIjoiVGhhbmsgeW91LiJ9", tokenV3.serialize(false));
     }
 
     @Test
     public void deserializationOfIncorrectPrefixTokenV3() {
         String incorrectPrefixToken = "ca$huAeyJ0b2tlbiI6W3sibWludCI6Imh0dHBzOi8vODMzMy5zcGFjZTozMzM4IiwicHJvb2ZzIjpbeyJhbW91bnQiOjIsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6IjQwNzkxNWJjMjEyYmU2MWE3N2UzZTZkMmFlYjRjNzI3OTgwYmRhNTFjZDA2YTZhZmMyOWUyODYxNzY4YTc4MzciLCJDIjoiMDJiYzkwOTc5OTdkODFhZmIyY2M3MzQ2YjVlNDM0NWE5MzQ2YmQyYTUwNmViNzk1ODU5OGE3MmYwY2Y4NTE2M2VhIn0seyJhbW91bnQiOjgsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6ImZlMTUxMDkzMTRlNjFkNzc1NmIwZjhlZTBmMjNhNjI0YWNhYTNmNGUwNDJmNjE0MzNjNzI4YzcwNTdiOTMxYmUiLCJDIjoiMDI5ZThlNTA1MGI4OTBhN2Q2YzA5NjhkYjE2YmMxZDVkNWZhMDQwZWExZGUyODRmNmVjNjlkNjEyOTlmNjcxMDU5In1dfV0sInVuaXQiOiJzYXQiLCJtZW1vIjoiVGhhbmsgeW91LiJ9";
-        assertThrows(IllegalArgumentException.class, () -> TokenV3.deserialize(incorrectPrefixToken));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> TokenV3.deserialize(incorrectPrefixToken));
     }
 
     @Test
     public void deserializationOfNoPrefixTokenV3() {
         String noPrefixToken = "eyJ0b2tlbiI6W3sibWludCI6Imh0dHBzOi8vODMzMy5zcGFjZTozMzM4IiwicHJvb2ZzIjpbeyJhbW91bnQiOjIsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6IjQwNzkxNWJjMjEyYmU2MWE3N2UzZTZkMmFlYjRjNzI3OTgwYmRhNTFjZDA2YTZhZmMyOWUyODYxNzY4YTc4MzciLCJDIjoiMDJiYzkwOTc5OTdkODFhZmIyY2M3MzQ2YjVlNDM0NWE5MzQ2YmQyYTUwNmViNzk1ODU5OGE3MmYwY2Y4NTE2M2VhIn0seyJhbW91bnQiOjgsImlkIjoiMDA5YTFmMjkzMjUzZTQxZSIsInNlY3JldCI6ImZlMTUxMDkzMTRlNjFkNzc1NmIwZjhlZTBmMjNhNjI0YWNhYTNmNGUwNDJmNjE0MzNjNzI4YzcwNTdiOTMxYmUiLCJDIjoiMDI5ZThlNTA1MGI4OTBhN2Q2YzA5NjhkYjE2YmMxZDVkNWZhMDQwZWExZGUyODRmNmVjNjlkNjEyOTlmNjcxMDU5In1dfV0sInVuaXQiOiJzYXQiLCJtZW1vIjoiVGhhbmsgeW91LiJ9";
-        assertThrows(IllegalArgumentException.class, () -> TokenV3.deserialize(noPrefixToken));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> TokenV3.deserialize(noPrefixToken));
     }
 
     // FIXME
