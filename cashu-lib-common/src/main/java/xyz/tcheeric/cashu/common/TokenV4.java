@@ -2,8 +2,9 @@ package xyz.tcheeric.cashu.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
+import com.fasterxml.jackson.dataformat.cbor.CBORGenerator;
 import xyz.tcheeric.cashu.common.util.JsonUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,11 +12,12 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -33,7 +35,7 @@ public class TokenV4 implements Token {
     private String memo;
 
     @JsonProperty("t")
-    private Set<TokenData> tokenDataList = new HashSet<>();
+    private List<TokenData> tokenDataList = new ArrayList<>();
 
     public void setMintUrl(String mintUrl) {
         if (mintUrl != null) {
@@ -52,7 +54,7 @@ public class TokenV4 implements Token {
         private byte[] keySetId;
 
         @JsonProperty("p")
-        private Set<TokenProof> proofs = new HashSet<>();
+        private List<TokenProof> proofs = new ArrayList<>();
 
         public void addProofs(@NonNull TokenProof... proofs) {
             Collections.addAll(this.proofs, proofs);
@@ -95,12 +97,107 @@ public class TokenV4 implements Token {
 
     @Override
     public String serialize(boolean clickable) {
-        ObjectMapper objectMapper = JsonUtils.CBOR_MAPPER;
-        try {
+        CBORFactory factory = (CBORFactory) JsonUtils.CBOR_MAPPER.getFactory();
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+             CBORGenerator gen = factory.createGenerator(out)) {
             log.debug("Serializing TokenV4 with {} token data entries", tokenDataList.size());
-            byte[] cborToken = objectMapper.writeValueAsBytes(this);
+
+            int mapSize = 0;
+            if (tokenDataList != null && !tokenDataList.isEmpty()) mapSize++;
+            if (mintUrl != null) mapSize++;
+            if (unit != null) mapSize++;
+            if (memo != null) mapSize++;
+
+            gen.writeStartObject(mapSize);
+
+            if (tokenDataList != null && !tokenDataList.isEmpty()) {
+                gen.writeFieldName("t");
+                gen.writeStartArray(tokenDataList.size());
+                for (TokenData td : tokenDataList) {
+                    int tdSize = 0;
+                    if (td.getKeySetId() != null) tdSize++;
+                    if (td.getProofs() != null && !td.getProofs().isEmpty()) tdSize++;
+                    gen.writeStartObject(tdSize);
+                    if (td.getKeySetId() != null) {
+                        gen.writeFieldName("i");
+                        gen.writeBinary(td.getKeySetId());
+                    }
+                    if (td.getProofs() != null && !td.getProofs().isEmpty()) {
+                        gen.writeFieldName("p");
+                        gen.writeStartArray(td.getProofs().size());
+                        for (TokenData.TokenProof proof : td.getProofs()) {
+                            int proofSize = 0;
+                            if (proof.getAmount() != null) proofSize++;
+                            if (proof.getSecret() != null) proofSize++;
+                            if (proof.getSignature() != null) proofSize++;
+                            if (proof.getDleqProof() != null) proofSize++;
+                            if (proof.getWitness() != null) proofSize++;
+                            gen.writeStartObject(proofSize);
+                            if (proof.getAmount() != null) {
+                                gen.writeFieldName("a");
+                                gen.writeNumber(proof.getAmount());
+                            }
+                            if (proof.getSecret() != null) {
+                                gen.writeFieldName("s");
+                                gen.writeString(proof.getSecret());
+                            }
+                            if (proof.getSignature() != null) {
+                                gen.writeFieldName("c");
+                                gen.writeBinary(proof.getSignature());
+                            }
+                            if (proof.getDleqProof() != null) {
+                                TokenData.TokenProof.DLEQProof dp = proof.getDleqProof();
+                                int dleqSize = 0;
+                                if (dp.getE() != null) dleqSize++;
+                                if (dp.getS() != null) dleqSize++;
+                                if (dp.getR() != null) dleqSize++;
+                                gen.writeFieldName("d");
+                                gen.writeStartObject(dleqSize);
+                                if (dp.getE() != null) {
+                                    gen.writeFieldName("e");
+                                    gen.writeBinary(dp.getE());
+                                }
+                                if (dp.getS() != null) {
+                                    gen.writeFieldName("s");
+                                    gen.writeBinary(dp.getS());
+                                }
+                                if (dp.getR() != null) {
+                                    gen.writeFieldName("r");
+                                    gen.writeBinary(dp.getR());
+                                }
+                                gen.writeEndObject();
+                            }
+                            if (proof.getWitness() != null) {
+                                gen.writeFieldName("w");
+                                gen.writeString(proof.getWitness());
+                            }
+                            gen.writeEndObject();
+                        }
+                        gen.writeEndArray();
+                    }
+                    gen.writeEndObject();
+                }
+                gen.writeEndArray();
+            }
+
+            if (mintUrl != null) {
+                gen.writeFieldName("m");
+                gen.writeString(mintUrl);
+            }
+            if (unit != null) {
+                gen.writeFieldName("u");
+                gen.writeString(unit);
+            }
+            if (memo != null) {
+                gen.writeFieldName("d");
+                gen.writeString(memo);
+            }
+
+            gen.writeEndObject();
+            gen.flush();
+            byte[] cborToken = out.toByteArray();
             return TokenUtil.serialize(cborToken, Version.V4, clickable);
-        } catch (JsonProcessingException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
