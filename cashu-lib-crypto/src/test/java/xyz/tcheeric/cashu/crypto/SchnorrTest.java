@@ -1,9 +1,10 @@
-package xyz.tcheeric.cashu.crypto.util;
+package xyz.tcheeric.cashu.crypto;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Test;
 import xyz.tcheeric.cashu.crypto.Schnorr;
+import xyz.tcheeric.cashu.crypto.util.Utils;
 
 import java.security.Provider;
 import java.security.Security;
