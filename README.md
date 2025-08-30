@@ -55,6 +55,12 @@ Include the following dependencies in your project's `pom.xml`:
 
 ```
 
+## Spec Compliance Notes
+
+- NUT-02 Keyset ID: The keyset id equals `00` plus the first 14 hex characters of SHA-256 over the concatenation of the SEC-compressed public key encodings (33 bytes with 0x02/0x03 prefix), sorted by amount (key). This library preserves the compressed prefix for public keys constructed from strings and concatenates raw bytes (not ASCII hex) for hashing.
+
+- NUT-00 TokenV3 Serialization: For stable cashu-encoded tokens, proofs are serialized in a deterministic order (by `amount`), and Schnorr signatures (`C`) are serialized as hex strings.
+
 ## Contributing
 Outstanding work and planned enhancements are tracked in
 [GitHub Issues](https://github.com/tcheeric/cashu-lib/issues). See
@@ -63,4 +69,3 @@ release.
 
 ## License
 This project is licensed under the MIT License – see [LICENSE.md](LICENSE.md).
-
