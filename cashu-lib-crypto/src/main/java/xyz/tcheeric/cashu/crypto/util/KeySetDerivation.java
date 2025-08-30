@@ -18,12 +18,11 @@ public class KeySetDerivation {
 
         try (ByteArrayOutputStream pubkeysConcat = new ByteArrayOutputStream()) {
             for (byte[] publicKey : sortedKeys.values()) {
+                // Concatenate compressed public key bytes per NUT-02
                 pubkeysConcat.write(publicKey);
             }
-
             byte[] hash = Utils.sha256(pubkeysConcat.toByteArray());
             String pkHash = Utils.bytesToHexString(hash);
-
             return "00" + pkHash.substring(0, 14);
         } catch (IOException | NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
