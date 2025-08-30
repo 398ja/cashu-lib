@@ -2,19 +2,20 @@ package xyz.tcheeric.cashu.common;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.NonNull;
+import org.bouncycastle.util.encoders.Hex;
 import xyz.tcheeric.cashu.crypto.util.KeysUtils;
-import xyz.tcheeric.cashu.crypto.util.Utils;
 
-import java.math.BigInteger;
-
-public class PrivateKey extends CryptoElement {
+public class PrivateKey extends BaseKey {
 
     protected PrivateKey(@NonNull String value) {
-        super(value, PRIVATE_KEY_LENGTH);
+        this(Hex.decode(value));
     }
 
     protected PrivateKey(byte[] value) {
-        super(value, PRIVATE_KEY_LENGTH);
+        super(value);
+        if (value.length != PRIVATE_KEY_LENGTH / 2) {
+            throw new IllegalArgumentException("Invalid private key length. (" + value.length + ")");
+        }
     }
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
@@ -26,12 +27,8 @@ public class PrivateKey extends CryptoElement {
         return new PrivateKey(bytes);
     }
 
-    public static PrivateKey fromBigInteger(@NonNull BigInteger b) {
-        return fromString(Utils.bytesToHexString(b.toByteArray()));
-    }
-
     public static PublicKey derivePublicKey(@NonNull PrivateKey privateKey) {
-        return PublicKey.fromBytes(KeysUtils.derivePublicKey(privateKey.toBytes()));
+        return PublicKey.fromString(Hex.toHexString(KeysUtils.derivePublicKey(privateKey.getBytes())));
     }
 
     public static PrivateKey generateRandom() {
