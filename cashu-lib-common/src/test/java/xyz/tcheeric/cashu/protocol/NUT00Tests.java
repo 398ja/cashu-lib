@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import xyz.tcheeric.cashu.common.PrivateKey;
 import xyz.tcheeric.cashu.common.PublicKey;
 import xyz.tcheeric.cashu.common.RSSProof;
+import xyz.tcheeric.cashu.common.Proof;
 import xyz.tcheeric.cashu.common.RandomStringSecret;
 import xyz.tcheeric.cashu.common.Secret;
 import xyz.tcheeric.cashu.common.Signature;
@@ -20,6 +21,7 @@ import xyz.tcheeric.cashu.crypto.util.Utils;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -80,10 +82,10 @@ public class NUT00Tests {
         tokenV3.setUnit("sat");
 
         Set<TokenV3.MintProof<RandomStringSecret>> mintProofs = new LinkedHashSet<>();
-        TokenV3.MintProof mintProof = new TokenV3.MintProof();
+        TokenV3.MintProof<RandomStringSecret> mintProof = new TokenV3.MintProof<>();
         mintProof.setMint("https://8333.space:3338");
 
-        Set<RSSProof> proofs = new HashSet<>();
+        Set<Proof<RandomStringSecret>> proofs = new LinkedHashSet<>();
         RSSProof proof = new RSSProof();
         proof.setUnblindedSignature(Signature.fromString("02bc9097997d81afb2cc7346b5e4345a9346bd2a506eb7958598a72f0cf85163ea"));
         proof.setAmount(2);
@@ -119,6 +121,36 @@ public class NUT00Tests {
         Assertions.assertThrows(IllegalArgumentException.class, () -> TokenV3.deserialize(noPrefixToken));
     }
 
+    // Ensure TokenV3 deserializes from the clickable URI form
+    @Test
+    public void deserializationOfClickableUriTokenV3() {
+        TokenV3<RandomStringSecret> tokenV3 = new TokenV3<>();
+        tokenV3.setMemo("Thank you.");
+        tokenV3.setUnit("sat");
+
+        Set<TokenV3.MintProof<RandomStringSecret>> mintProofs = new LinkedHashSet<>();
+        TokenV3.MintProof<RandomStringSecret> mintProof = new TokenV3.MintProof<>();
+        mintProof.setMint("https://8333.space:3338");
+
+        Set<Proof<RandomStringSecret>> proofs = new LinkedHashSet<>();
+        RSSProof proof = new RSSProof();
+        proof.setUnblindedSignature(Signature.fromString("02bc9097997d81afb2cc7346b5e4345a9346bd2a506eb7958598a72f0cf85163ea"));
+        proof.setAmount(2);
+        proof.setSecret(RandomStringSecret.fromString("407915bc212be61a77e3e6d2aeb4c727980bda51cd06a6afc29e2861768a7837"));
+        proof.setKeySetId("009a1f293253e41e");
+        proofs.add(proof);
+        mintProof.setProofs(proofs);
+        mintProofs.add(mintProof);
+        tokenV3.setMintProofs(mintProofs);
+
+        String clickable = tokenV3.serialize(true);
+        Assertions.assertTrue(clickable.startsWith("cashu:cashuA"));
+
+        TokenV3<?> parsed = TokenV3.deserialize(clickable);
+        Assertions.assertEquals("sat", parsed.getUnit());
+        Assertions.assertEquals("Thank you.", parsed.getMemo());
+    }
+
     // Ensure TokenV4 serialization matches NUT-00 single keyset example
     @Test
     public void serializationOfTokenV4SingleKeyset() {
@@ -133,14 +165,14 @@ public class NUT00Tests {
         tokenProof.setSecret("9a6dbb847bd232ba76db0df197216b29d3b8cc14553cd27827fc1cc942fedb4e");
         tokenProof.setSignature(Utils.hexStringToBytes("038618543ffb6b8695df4ad4babcde92a34a96bdcd97dcee0d7ccf98d472126792"));
 
-        tokenV4.setTokenDataList(Set.of(
+        tokenV4.setTokenDataList(List.of(
                 new TokenV4.TokenData(
                         Utils.hexStringToBytes("00ad268c4d1f5826"),
-                        Set.of(tokenProof)
+                        List.of(tokenProof)
                 )
         ));
 
-        String strToken = "cashuBpGF0gaJhaUgArSaMTR9YJmFwgaNhYQFhc3hAOWE2ZGJiODQ3YmQyMzJiYTc2ZGIwZGYxOTcyMTZiMjlkM2I4Y2MxNDU1M2NkMjc4MjdmYzFjYzk0MmZlZGI0ZWFjWCEDhhhUP_trhpXfStS6vN6So0qWvc2X3O4NfM-Y1HISZ5JhZGlUaGFuayB5b3VhbXVodHRwOi8vbG9jYWxob3N0OjMzMzhhdWNzYXQ=";
+        String strToken = "cashuBpGF0gaJhaUgArSaMTR9YJmFwgaNhYQFhc3hAOWE2ZGJiODQ3YmQyMzJiYTc2ZGIwZGYxOTcyMTZiMjlkM2I4Y2MxNDU1M2NkMjc4MjdmYzFjYzk0MmZlZGI0ZWFjWCEDhhhUP_trhpXfStS6vN6So0qWvc2X3O4NfM-Y1HISZ5JhZGlUaGFuayB5b3VhbXVodHRwOi8vbG9jYWxob3N0OjMzMzhhdWNzYXQ";
 
         Assertions.assertEquals(strToken, tokenV4.serialize(false));
     }

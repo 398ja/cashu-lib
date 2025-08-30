@@ -82,6 +82,11 @@ public class TokenV3<T extends Secret> implements Token {
     }
 
     public static TokenV3 deserialize(String serializedToken) {
+        // Accept clickable URI format (e.g., "cashu:cashuA...") by stripping the scheme if present
+        if (serializedToken.startsWith(URI_SCHEME)) {
+            serializedToken = serializedToken.substring(URI_SCHEME.length());
+        }
+
         if (!serializedToken.startsWith(TOKEN_PREFIX + Version.V3.getCode())) {
             throw new IllegalArgumentException("Invalid token format");
         }

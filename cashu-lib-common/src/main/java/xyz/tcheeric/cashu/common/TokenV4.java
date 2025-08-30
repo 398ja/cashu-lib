@@ -18,7 +18,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -185,6 +187,10 @@ public class TokenV4 implements Token {
                 gen.writeEndArray();
             }
 
+            if (memo != null) {
+                gen.writeFieldName("d");
+                gen.writeString(memo);
+            }
             if (mintUrl != null) {
                 gen.writeFieldName("m");
                 gen.writeString(mintUrl);
@@ -192,10 +198,6 @@ public class TokenV4 implements Token {
             if (unit != null) {
                 gen.writeFieldName("u");
                 gen.writeString(unit);
-            }
-            if (memo != null) {
-                gen.writeFieldName("d");
-                gen.writeString(memo);
             }
 
             gen.writeEndObject();
@@ -208,6 +210,11 @@ public class TokenV4 implements Token {
     }
 
     public static TokenV4 deserialize(@NonNull String serializedToken) {
+        // Accept clickable URI format (e.g., "cashu:cashuB...") by stripping the scheme if present
+        if (serializedToken.startsWith(URI_SCHEME)) {
+            serializedToken = serializedToken.substring(URI_SCHEME.length());
+        }
+
         if (!serializedToken.startsWith(TOKEN_PREFIX + Version.V4.getCode())) {
             throw new IllegalArgumentException("Invalid token format");
         }
