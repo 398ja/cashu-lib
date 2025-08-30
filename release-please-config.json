@@ -3,7 +3,8 @@
     ".": {
       "release-type": "maven",
       "package-name": "cashu-lib",
-      "changelog-path": "CHANGELOG.md"
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": false
     },
     "cashu-lib-common": {
       "release-type": "maven",
