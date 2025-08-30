@@ -1,10 +1,12 @@
 package xyz.tcheeric.cashu.common;
 
 import org.junit.jupiter.api.Test;
+import xyz.tcheeric.cashu.common.PrivateKey;
+import xyz.tcheeric.cashu.common.PublicKey;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PublicKeyTest {
+public class PublicBaseKeyTest {
 
     private static final String PRIVATE_KEY_HEX =
             "0000000000000000000000000000000000000000000000000000000000000001";

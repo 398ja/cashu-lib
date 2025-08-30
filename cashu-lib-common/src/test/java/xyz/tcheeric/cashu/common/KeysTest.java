@@ -1,4 +1,4 @@
-package xyz.tcheeric.cashu.test.common;
+package xyz.tcheeric.cashu.common;
 
 import org.junit.jupiter.api.Test;
 import xyz.tcheeric.cashu.common.Keys;

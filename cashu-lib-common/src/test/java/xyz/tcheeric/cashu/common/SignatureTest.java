@@ -1,6 +1,9 @@
 package xyz.tcheeric.cashu.common;
 
 import org.junit.jupiter.api.Test;
+import xyz.tcheeric.cashu.common.PrivateKey;
+import xyz.tcheeric.cashu.common.PublicKey;
+import xyz.tcheeric.cashu.common.Signature;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;

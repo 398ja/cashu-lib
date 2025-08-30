@@ -95,7 +95,9 @@ public abstract class WellKnownSecret implements Secret {
 
 
     @Data
-    //@JsonDeserialize(using = TagDeserializer.class)
+    @JsonDeserialize(using = xyz.tcheeric.cashu.common.json.deserializer.TagDeserializer.class)
+    @com.fasterxml.jackson.databind.annotation.JsonSerialize(
+            using = xyz.tcheeric.cashu.common.json.serializer.TagSerializer.class)
     public static class Tag {
         private String key;
         private List<Object> values;

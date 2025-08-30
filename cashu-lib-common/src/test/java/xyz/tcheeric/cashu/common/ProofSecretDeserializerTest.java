@@ -3,6 +3,9 @@ package xyz.tcheeric.cashu.common;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Test;
+import xyz.tcheeric.cashu.common.P2PKSecret;
+import xyz.tcheeric.cashu.common.Proof;
+import xyz.tcheeric.cashu.common.RandomStringSecret;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,10 +15,11 @@ public class ProofSecretDeserializerTest {
 
     @Test
     public void deserializeRandomStringSecretProof() throws Exception {
-        String json = "{\"amount\":1,\"secret\":\"deadbeef\",\"id\":\"keyset\"}";
+        RandomStringSecret secret = RandomStringSecret.create();
+        String json = "{\"amount\":1,\"secret\":\"" + secret + "\",\"id\":\"keyset\"}";
         Proof<?> proof = mapper.readValue(json, Proof.class);
         assertTrue(proof.getSecret() instanceof RandomStringSecret);
-        assertEquals("deadbeef", proof.getSecret().toString());
+        assertEquals(secret.toString(), proof.getSecret().toString());
     }
 
     @Test

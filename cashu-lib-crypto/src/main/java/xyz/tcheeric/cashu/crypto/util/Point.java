@@ -26,6 +26,12 @@ public class Point {
         pair = Pair.of(new BigInteger(1, b0), new BigInteger(1, b1));
     }
 
+    public Point(String hex) {
+        byte[] x = Utils.hexStringToBytes(hex.substring(0, 64));
+        byte[] y = Utils.hexStringToBytes(hex.substring(64));
+        pair = Pair.of(new BigInteger(1, x), new BigInteger(1, y));
+    }
+
     public static BigInteger getp() {
         return p;
     }

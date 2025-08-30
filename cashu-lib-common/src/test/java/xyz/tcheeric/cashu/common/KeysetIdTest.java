@@ -2,6 +2,7 @@ package xyz.tcheeric.cashu.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import xyz.tcheeric.cashu.common.KeysetId;
 
 import static org.junit.jupiter.api.Assertions.*;
 

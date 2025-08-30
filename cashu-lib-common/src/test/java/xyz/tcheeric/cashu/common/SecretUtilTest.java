@@ -3,6 +3,8 @@ package xyz.tcheeric.cashu.common;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import xyz.tcheeric.cashu.common.P2PKSecret;
+import xyz.tcheeric.cashu.common.Secret;
 import xyz.tcheeric.cashu.common.util.SecretUtil;
 
 import java.util.List;
