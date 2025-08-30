@@ -4,23 +4,16 @@ import org.junit.jupiter.api.Test;
 import xyz.tcheeric.cashu.common.TokenV4;
 import xyz.tcheeric.cashu.crypto.util.Utils;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TokenV4Test {
 
-    /**
-     * Test failed because the serialized token was not matching the expected value.
-     * Expected:
-     * cashuBo2F0gqJhaUgA_9SLj17PgGFwgaNhYQFhc3hAYWNjMTI0MzVlN2I4NDg0YzNjZjE4NTAxNDkyMThhZjkwZjcxNmE1MmJmNGE1ZWQzNDdlNDhlY2MxM2Y3NzM4OGFjWCECRFODGd5IXVW
-     *
-     * Actual:
-     * cashuBv2FtdWh0dHA6Ly9sb2NhbGhvc3Q6MzMzOGF1Y3NhdGF0gr9haUgArSaMTR9YJmFwgr9hYQFhc3hANTZiY2JjYmI3Y2M2NDA2YjNmYTVkNTdkMjE3NGY0ZWZmOGI0NDAyYjE3NjkyNmQzYTU3ZDNjM2RjYmI1OWQ1N2FjWCECcxKcVxnlmTeal0piY2PDM8Vsr8Dm0Bq
-     */
-/*
+    // Should serialize a token with multiple keysets exactly as NUT-00's example
     @Test
-    public void serializeExampleToken() {
+    public void shouldSerializeExampleToken() {
         TokenV4 token = new TokenV4();
         token.setMintUrl("http://localhost:3338/");
         token.setUnit("sat");
@@ -31,7 +24,7 @@ public class TokenV4Test {
         proof1.setSignature(Utils.hexStringToBytes("0244538319de485d55bed3b29a642bee5879375ab9e7a620e11e48ba482421f3cf"));
         TokenV4.TokenData td1 = new TokenV4.TokenData(
                 Utils.hexStringToBytes("00ffd48b8f5ecf80"),
-                Set.of(proof1)
+                new ArrayList<>(List.of(proof1))
         );
 
         TokenV4.TokenData.TokenProof proof2a = new TokenV4.TokenData.TokenProof();
@@ -46,22 +39,23 @@ public class TokenV4Test {
 
         TokenV4.TokenData td2 = new TokenV4.TokenData(
                 Utils.hexStringToBytes("00ad268c4d1f5826"),
-                Set.of(proof2a, proof2b)
+                new ArrayList<>(List.of(proof2a, proof2b))
         );
 
-        token.setTokenDataList(Set.of(td1, td2));
+        token.setTokenDataList(new ArrayList<>(List.of(td1, td2)));
 
         String expected = "cashuBo2F0gqJhaUgA_9SLj17PgGFwgaNhYQFhc3hAYWNjMTI0MzVlN2I4NDg0YzNjZjE4NTAxNDkyMThhZjkwZjcxNmE1MmJmNGE1ZWQzNDdlNDhlY2MxM2Y3NzM4OGFjWCECRFODGd5IXVW-07KaZCvuWHk3WrnnpiDhHki6SCQh88-iYWlIAK0mjE0fWCZhcIKjYWECYXN4QDEzMjNkM2Q0NzA3YTU4YWQyZTIzYWRhNGU5ZjFmNDlmNWE1YjRhYzdiNzA4ZWIwZDYxZjczOGY0ODMwN2U4ZWVhY1ghAjRWqhENhLSsdHrr2Cw7AFrKUL9Ffr1XN6RBT6w659lNo2FhAWFzeEA1NmJjYmNiYjdjYzY0MDZiM2ZhNWQ1N2QyMTc0ZjRlZmY4YjQ0MDJiMTc2OTI2ZDNhNTdkM2MzZGNiYjU5ZDU3YWNYIQJzEpxXGeWZN5qXSmJjY8MzxWyvwObQGr5G1YCCgHicY2FtdWh0dHA6Ly9sb2NhbGhvc3Q6MzMzOGF1Y3NhdA";
         assertEquals(expected, token.serialize(false));
     }
-*/
 
-    /**
-     * Ensure a multi-keyset token from NUT-00 deserializes with expected metadata.
-     */
+    // Should deserialize the example token with multiple keysets
     @Test
-    public void deserializeExampleToken() {
-        String serialized = "cashuBo2F0gqJhaUgA_9SLj17PgGFwgaNhYQFhc3hAYWNjMTI0MzVlN2I4NDg0YzNjZjE4NTAxNDkyMThhZjkwZjcxNmE1MmJmNGE1ZWQzNDdlNDhlY2MxM2Y3NzM4OGFjWCECRFODGd5IXVW-07KaZCvuWHk3WrnnpiDhHki6SCQh88-iYWlIAK0mjE0fWCZhcIKjYWECYXN4QDEzMjNkM2Q0NzA3YTU4YWQyZTIzYWRhNGU5ZjFmNDlmNWE1YjRhYzdiNzA4ZWIwZDYxZjczOGY0ODMwN2U4ZWVhY1ghAjRWqhENhLSsdHrr2Cw7AFrKUL9Ffr1XN6RBT6w659lNo2FhAWFzeEA1NmJjYmNiYjdjYzY0MDZiM2ZhNWQ1N2QyMTc0ZjRlZmY4YjQ0MDJiMTc2OTI2ZDNhNTdkM2MzZGNiYjU5ZDU3YWNYIQJzEpxXGeWZN5qXSmJjY8MzxWyvwObQGr5G1YCCgHicY2FtdWh0dHA6Ly9sb2NhbGhvc3Q6MzMzOGF1Y3NhdA";
+    public void shouldDeserializeExampleToken() {
+        String serialized = "cashuBo2F0gqJhaUgA_9SLj17PgGFwgaNhYQFhc3hAYWNjMTI0MzVlN2I4NDg0YzNjZjE4NTAxNDkyMThhZjkwZjcxNmE1MmJmN" +
+                "GE1ZWQzNDdlNDhlY2MxM2Y3NzM4OGFjWCECRFODGd5IXVW-07KaZCvuWHk3WrnnpiDhHki6SCQh88-iYWlIAK0mjE0fWCZhcIKjYWECYXN4QDEzMjNkM2Q0NzA3YTU4Y" +
+                "WQyZTIzYWRhNGU5ZjFmNDlmNWE1YjRhYzdiNzA4ZWIwZDYxZjczOGY0ODMwN2U4ZWVhY1ghAjRWqhENhLSsdHrr2Cw7AFrKUL9Ffr1XN6RBT6w659lNo2FhAWFzeEA1N" +
+                "mJjYmNiYjdjYzY0MDZiM2ZhNWQ1N2QyMTc0ZjRlZmY4YjQ0MDJiMTc2OTI2ZDNhNTdkM2MzZGNiYjU5ZDU3YWNYIQJzEpxXGeWZN5qXSmJjY8MzxWyvwObQGr5G1YCCg" +
+                "HicY2FtdWh0dHA6Ly9sb2NhbGhvc3Q6MzMzOGF1Y3NhdA";
         TokenV4 token = TokenV4.deserialize(serialized);
         assertEquals("http://localhost:3338", token.getMintUrl());
         assertEquals("sat", token.getUnit());
