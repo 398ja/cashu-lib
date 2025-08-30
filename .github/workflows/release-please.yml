@@ -19,5 +19,5 @@ jobs:
           command: manifest
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RP_TOKEN }}
 
