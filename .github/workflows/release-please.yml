@@ -27,5 +27,5 @@ jobs:
           command: manifest
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
-          # Use GITHUB_TOKEN which has repo-scoped permissions in this workflow
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # Use custom PAT to authenticate release-please
+          token: ${{ secrets.RP_TOKEN }}
