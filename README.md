@@ -67,6 +67,8 @@ TokenV4 v4b = TokenV4.deserialize("cashu:cashuB...");
 
 - NUT-00 TokenV4 Serialization: TokenV4 tokens serialize deterministically and are validated against [official single- and multi-keyset test vectors](https://github.com/cashubtc/nuts/blob/main/tests/00-tests.md).
 
+- NUT-09 Restore Signatures: Includes REST entities for the `/restore` endpoint to recover blind signatures.
+
 ## Token Formats
 
 - Prefixes: Tokens use `cashuA` for V3 (JSON) and `cashuB` for V4 (CBOR), per NUT-00.
