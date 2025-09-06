@@ -1,9 +1,10 @@
 name: CI
 
 on:
-  workflow_run:
-    workflows: ["Format"]
-    types: [completed]
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
 
 jobs:
   build:
