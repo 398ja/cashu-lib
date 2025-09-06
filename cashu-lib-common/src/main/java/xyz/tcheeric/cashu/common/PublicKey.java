@@ -2,8 +2,12 @@ package xyz.tcheeric.cashu.common;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.NonNull;
+import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.util.encoders.Hex;
 import xyz.tcheeric.cashu.crypto.util.Point;
+
+import java.util.Arrays;
+
 
 public class PublicKey extends BaseKey {
 
@@ -32,6 +36,11 @@ public class PublicKey extends BaseKey {
 
     public static PublicKey fromBytes(byte[] bytes) {
         return new UnCompressedPublicKey(bytes);
+    }
+
+    public static PublicKey fromPoint(ECPoint ecPoint) {
+        byte[] uncompressed = ecPoint.getEncoded(false); // 0x04 || X || Y
+        return fromBytes(Arrays.copyOfRange(uncompressed, 1, uncompressed.length));
     }
 
     public byte[] getSchnorr() {

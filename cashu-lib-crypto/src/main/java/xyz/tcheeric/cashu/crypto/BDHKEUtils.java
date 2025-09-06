@@ -16,6 +16,8 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.util.Arrays;
 
 
 
@@ -79,7 +81,9 @@ public class BDHKEUtils {
         ECPoint rG = G.multiply(r);
         ECPoint B_ = Y.add(rG);
 
-        result[0] = B_.getEncoded(true);
+        // Return B_ as uncompressed point without the 0x04 prefix: X(32) || Y(32) = 64 bytes
+        byte[] uncompressed = B_.getEncoded(false); // 0x04 || X || Y
+        result[0] = java.util.Arrays.copyOfRange(uncompressed, 1, uncompressed.length);
         result[1] = Utils.bytesFromBigInteger(r);
 
         return result;
@@ -93,11 +97,16 @@ public class BDHKEUtils {
         ECPoint rG = G.multiply(Utils.bigIntFromBytes(r));
         ECPoint B_ = Y.add(rG);
 
-        return B_.getEncoded(true);
+        byte[] uncompressed = B_.getEncoded(false); // 0x04 || X || Y
+        return java.util.Arrays.copyOfRange(uncompressed, 1, uncompressed.length);
     }
 
     public static byte[] signBlindedMessage(byte[] B_, byte[] k) {
-        return signBlindedMessage(CURVE.decodePoint(B_), Utils.bigIntFromBytes(k)).getEncoded(true);
+        // Accept raw64 (X||Y) or SEC1-encoded point. If raw64, add uncompressed prefix 0x04.
+        byte[] sec1 = (B_ != null && B_.length == 64)
+                ? concat(new byte[]{0x04}, B_)
+                : B_;
+        return signBlindedMessage(CURVE.decodePoint(sec1), Utils.bigIntFromBytes(k)).getEncoded(true);
     }
 
     public static ECPoint signBlindedMessage(@NonNull ECPoint B_, @NonNull BigInteger k) {
