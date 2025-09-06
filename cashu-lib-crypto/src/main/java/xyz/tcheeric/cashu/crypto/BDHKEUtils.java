@@ -102,7 +102,11 @@ public class BDHKEUtils {
     }
 
     public static byte[] signBlindedMessage(byte[] B_, byte[] k) {
-        return signBlindedMessage(CURVE.decodePoint(B_), Utils.bigIntFromBytes(k)).getEncoded(true);
+        // Accept raw64 (X||Y) or SEC1-encoded point. If raw64, add uncompressed prefix 0x04.
+        byte[] sec1 = (B_ != null && B_.length == 64)
+                ? concat(new byte[]{0x04}, B_)
+                : B_;
+        return signBlindedMessage(CURVE.decodePoint(sec1), Utils.bigIntFromBytes(k)).getEncoded(true);
     }
 
     public static ECPoint signBlindedMessage(@NonNull ECPoint B_, @NonNull BigInteger k) {
