@@ -16,6 +16,8 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.util.Arrays;
 
 
 
@@ -79,7 +81,9 @@ public class BDHKEUtils {
         ECPoint rG = G.multiply(r);
         ECPoint B_ = Y.add(rG);
 
-        result[0] = B_.getEncoded(true);
+        // Return B_ as uncompressed point without the 0x04 prefix: X(32) || Y(32) = 64 bytes
+        byte[] uncompressed = B_.getEncoded(false); // 0x04 || X || Y
+        result[0] = java.util.Arrays.copyOfRange(uncompressed, 1, uncompressed.length);
         result[1] = Utils.bytesFromBigInteger(r);
 
         return result;
@@ -93,7 +97,8 @@ public class BDHKEUtils {
         ECPoint rG = G.multiply(Utils.bigIntFromBytes(r));
         ECPoint B_ = Y.add(rG);
 
-        return B_.getEncoded(true);
+        byte[] uncompressed = B_.getEncoded(false); // 0x04 || X || Y
+        return java.util.Arrays.copyOfRange(uncompressed, 1, uncompressed.length);
     }
 
     public static byte[] signBlindedMessage(byte[] B_, byte[] k) {
