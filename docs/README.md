@@ -17,6 +17,9 @@ The documentation for cashu-lib follows the Diátaxis framework and is organized
 
 ## Reference
 - [API Reference](reference/README.md)
+- [cashu-lib-common](reference/cashu-lib-common.md)
+- [cashu-lib-crypto](reference/cashu-lib-crypto.md)
+- [cashu-lib-entities](reference/cashu-lib-entities.md)
 
 ## Explanation
 - [Background](explanation/README.md)
