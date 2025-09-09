@@ -23,3 +23,6 @@ The documentation for cashu-lib follows the Diátaxis framework and is organized
 
 ## Explanation
 - [Background](explanation/README.md)
+- [Architecture](explanation/architecture.md)
+- [Key Design Decisions](explanation/design-decisions.md)
+- [Relation to NUT Specifications](explanation/nut-compliance.md)
