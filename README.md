@@ -11,7 +11,7 @@ See the [installation tutorial](docs/tutorials/installation.md) to build the pro
 - [Tutorials](docs/tutorials/)
 - [How-to Guides](docs/how-to/)
 - [Reference](docs/reference/)
-- [Explanations](docs/explanations/)
+- [Explanation](docs/explanation/)
 
 ## Modules
 - `cashu-lib-common`: Common entity classes and utilities, including BIP-340 Schnorr signature helpers.
