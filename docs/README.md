@@ -9,9 +9,9 @@ The documentation for cashu-lib follows the Diátaxis framework and is organized
 
 ## Tutorials
 - [Installation](tutorials/installation.md)
+- [Quickstart](tutorials/quickstart.md)
 
 ## How-to Guides
-- [Quickstart](how-to/quickstart.md)
 - [CI Release](how-to/ci-release.md)
 - [Releasing](how-to/releasing.md)
 

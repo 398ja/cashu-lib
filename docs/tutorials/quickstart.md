@@ -1,18 +1,23 @@
 # Quickstart
 
-## Requirements
+This tutorial guides you through verifying your environment, adding the necessary dependencies, and running a basic Schnorr signature example with cashu-lib.
+
+## Step 1: Verify your setup
+
+Ensure the following tools are installed:
 
 - Java 21
 - Maven 3.8+
 
-Verify your setup:
+Check the versions to confirm:
 
 ```bash
 java -version
 mvn -version
 ```
 
-## Maven Dependencies
+## Step 2: Add Maven dependencies
+
 Add the modules you need to your project's `pom.xml`:
 
 ```xml
@@ -42,7 +47,7 @@ Add the modules you need to your project's `pom.xml`:
 </dependency>
 ```
 
-## Usage Example
+## Step 3: Run a usage example
 
 ```java
 import xyz.tcheeric.cashu.common.KeySet;

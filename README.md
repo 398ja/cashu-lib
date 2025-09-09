@@ -6,7 +6,7 @@
 cashu-lib is a Java library implementing the Cashu protocol. It provides common entities, cryptographic primitives, and data structures for building Cashu mints and wallets.
 
 ## Documentation
-See the [installation tutorial](docs/tutorials/installation.md) to build the project and the [quickstart guide](docs/how-to/quickstart.md) for usage examples.
+See the [installation tutorial](docs/tutorials/installation.md) to build the project and the [quickstart tutorial](docs/tutorials/quickstart.md) for usage examples.
 
 - [Tutorials](docs/tutorials/)
 - [How-to Guides](docs/how-to/)
