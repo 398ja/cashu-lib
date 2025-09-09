@@ -3,62 +3,20 @@
 [![codecov](https://codecov.io/gh/398ja/cashu-lib/graph/badge.svg?token=BV77LKDNGE)](https://codecov.io/gh/398ja/cashu-lib)
 # cashu-lib
 
-For a quick start, see [docs/how-to/quickstart.md](docs/how-to/quickstart.md).
+cashu-lib is a Java library implementing the Cashu protocol. It provides common entities, cryptographic primitives, and data structures for building Cashu mints and wallets.
 
-## Requirements
+## Documentation
+See the [installation tutorial](docs/tutorials/installation.md) to build the project and the [quickstart guide](docs/how-to/quickstart.md) for usage examples.
 
-Requires Java 21 and Maven 3.8+.
-
-## Build and install cashu-lib
-
-```
-$ cd <your_git_home_dir>
-$ git clone https://github.com/tcheeric/cashu-lib.git
-$ cd cashu-lib
-$ mvn clean install
-```
+- [Tutorials](docs/tutorials/)
+- [How-to Guides](docs/how-to/)
+- [Reference](docs/reference/)
+- [Explanations](docs/explanations/)
 
 ## Modules
 - `cashu-lib-common`: Common entity classes and utilities, including BIP-340 Schnorr signature helpers.
 - `cashu-lib-crypto`: Foundational cryptographic functions and utilities.
 - `cashu-lib-entities`: Core data structures of the Cashu protocol.
-
-## Usage
-Include the following dependencies in your project's `pom.xml`:
-
-```xml
-<dependency>
-    <groupId>xyz.tcheeric</groupId>
-    <artifactId>cashu-lib-common</artifactId>
-    <version>[VERSION]</version>
-</dependency>
-
-<dependency>
-    <groupId>xyz.tcheeric</groupId>
-    <artifactId>cashu-lib-crypto</artifactId>
-    <version>[VERSION]</version>
-</dependency>
-
-```
-
-### Deserialize Tokens (clickable and non-clickable)
-
-```java
-import xyz.tcheeric.cashu.common.TokenV3;
-import xyz.tcheeric.cashu.common.TokenV4;
-
-// V3 (JSON) non-clickable
-TokenV3<?> v3a = TokenV3.deserialize("cashuA...");
-
-// V3 clickable (cashu:cashuA...)
-TokenV3<?> v3b = TokenV3.deserialize("cashu:cashuA...");
-
-// V4 (CBOR) non-clickable
-TokenV4 v4a = TokenV4.deserialize("cashuB...");
-
-// V4 clickable (cashu:cashuB...)
-TokenV4 v4b = TokenV4.deserialize("cashu:cashuB...");
-```
 
 ## Spec Compliance Notes
 
@@ -87,10 +45,7 @@ TokenV4 v4b = TokenV4.deserialize("cashu:cashuB...");
 - Release automation: Versions and changelogs are managed by release-please (`release-please-config.json`, `.release-please-manifest.json`) and are cut after CI passes on `main`.
 
 ## Contributing
-Outstanding work and planned enhancements are tracked in
-[GitHub Issues](https://github.com/tcheeric/cashu-lib/issues). See
-[docs/how-to/releasing.md](docs/how-to/releasing.md) for steps to publish a
-release.
+Outstanding work and planned enhancements are tracked in [GitHub Issues](https://github.com/tcheeric/cashu-lib/issues). See [docs/how-to/releasing.md](docs/how-to/releasing.md) for steps to publish a release.
 
 ## License
 This project is licensed under the MIT License – see [LICENSE.md](LICENSE.md).
