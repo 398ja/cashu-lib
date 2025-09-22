@@ -24,25 +24,25 @@ Add the modules you need to your project's `pom.xml`:
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-common</artifactId>
-    <version>0.1.1</version>
+    <version>0.3.0</version>
 </dependency>
 
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-crypto</artifactId>
-    <version>0.1.1</version>
+    <version>0.3.0</version>
 </dependency>
 
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-entities</artifactId>
-    <version>0.1.1</version>
+    <version>0.3.0</version>
 </dependency>
 
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-test</artifactId>
-    <version>0.1.1</version>
+    <version>0.3.0</version>
     <scope>test</scope>
 </dependency>
 ```
