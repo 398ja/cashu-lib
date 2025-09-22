@@ -2,11 +2,17 @@ package xyz.tcheeric.cashu.common;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.NonNull;
 import xyz.tcheeric.cashu.crypto.Schnorr;
+import xyz.tcheeric.cashu.common.json.serializer.SignatureJsonSerializer;
+import xyz.tcheeric.cashu.common.json.deserializer.SignatureJsonDeserializer;
 
 import java.nio.charset.StandardCharsets;
 
+@JsonSerialize(using = SignatureJsonSerializer.class)
+@JsonDeserialize(using = SignatureJsonDeserializer.class)
 public class Signature {
 
     private final PublicKey publicKey;
