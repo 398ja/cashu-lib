@@ -2,9 +2,12 @@ package xyz.tcheeric.cashu.common.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
+import xyz.tcheeric.cashu.common.PublicKey;
 import xyz.tcheeric.cashu.common.RandomStringSecret;
 import xyz.tcheeric.cashu.common.Secret;
+import xyz.tcheeric.cashu.common.UnCompressedPublicKey;
 import xyz.tcheeric.cashu.common.WellKnownSecret;
+import xyz.tcheeric.cashu.crypto.BDHKEUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -51,6 +54,12 @@ public final class SecretUtil<T extends Secret> {
             return listToSecret(list);
         }
         throw new IllegalArgumentException("Unknown secret type");
+    }
+
+    public static <T extends Secret> String toY(@NonNull Secret secret) {
+        return PublicKey.fromPoint(
+                BDHKEUtils.hashToCurve(secret.toBytes())
+        ).toString();
     }
 
     @SuppressWarnings("unchecked")
