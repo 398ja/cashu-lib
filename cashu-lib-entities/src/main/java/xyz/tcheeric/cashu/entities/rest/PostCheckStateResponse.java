@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import xyz.tcheeric.cashu.common.BaseKey;
+import xyz.tcheeric.cashu.common.PublicKey;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,7 @@ public class PostCheckStateResponse {
     public static class ResponseState {
 
         @JsonProperty("Y")
-        private BaseKey hashToCurveSecret;
+        private PublicKey hashToCurveSecret;
 
         @JsonProperty
         private String state;
