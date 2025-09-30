@@ -56,7 +56,7 @@ public final class SecretUtil<T extends Secret> {
         throw new IllegalArgumentException("Unknown secret type");
     }
 
-    public static <T extends Secret> String toY(@NonNull Secret secret) {
+    public static <T extends Secret> String toY(@NonNull T secret) {
         return PublicKey.fromPoint(
                 BDHKEUtils.hashToCurve(secret.toBytes())
         ).toString();
