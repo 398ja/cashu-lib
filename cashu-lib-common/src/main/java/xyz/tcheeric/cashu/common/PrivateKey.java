@@ -5,7 +5,7 @@ import lombok.NonNull;
 import org.bouncycastle.util.encoders.Hex;
 import xyz.tcheeric.cashu.crypto.util.KeysUtils;
 
-public class PrivateKey extends BaseKey implements Confidential {
+public class PrivateKey extends BaseKey {
 
     protected PrivateKey(@NonNull String value) {
         this(Hex.decode(value));
@@ -35,12 +35,4 @@ public class PrivateKey extends BaseKey implements Confidential {
         return PrivateKey.fromBytes(KeysUtils.generatePrivateKey());
     }
 
-    @Override
-    public String getValue() {
-        return super.toString();
-    }
-
-    public String toString() {
-        return display();
-    }
 }
