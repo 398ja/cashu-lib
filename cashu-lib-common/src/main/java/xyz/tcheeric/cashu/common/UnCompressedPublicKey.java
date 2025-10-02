@@ -8,16 +8,25 @@ import xyz.tcheeric.cashu.crypto.util.Point;
 public class UnCompressedPublicKey extends PublicKey {
 
     UnCompressedPublicKey(@NonNull byte[] bytes) {
-        super(bytes);
+        setBytes(bytes);
         // Expect 64 bytes (x || y) for uncompressed point form
         if (bytes.length != 64) {
             throw new IllegalArgumentException("Invalid uncompressed public key length (" + bytes.length + ")");
         }
     }
 
+    UnCompressedPublicKey(@NonNull String s) {
+        this(Hex.decode(s));
+    }
+
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static UnCompressedPublicKey fromBytes(@NonNull byte[] bytes) {
         return new UnCompressedPublicKey(bytes);
+    }
+
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static UnCompressedPublicKey fromString(@NonNull String s) {
+        return new UnCompressedPublicKey(s);
     }
 
     @Override

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import xyz.tcheeric.cashu.common.BaseKey;
 import xyz.tcheeric.cashu.common.CompressedPublicKey;
+import xyz.tcheeric.cashu.common.HashToCurveSecret;
 import xyz.tcheeric.cashu.common.PublicKey;
 
 import java.util.List;
@@ -17,5 +18,5 @@ import java.util.List;
 public class PostCheckStateRequest {
 
     @JsonProperty("Ys")
-    private List<PublicKey> hashToCurveSecrets;
+    private List<HashToCurveSecret> hashToCurveSecrets;
 }

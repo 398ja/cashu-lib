@@ -33,7 +33,7 @@ public class PublicKeyTest {
         System.arraycopy(x32, 0, uncompressed, 0, 32);
         System.arraycopy(y32, 0, uncompressed, 32, 32);
 
-        PublicKey fromUncompressed = PublicKey.fromBytes(uncompressed);
+        PublicKey fromUncompressed = PublicKey.fromBytes(uncompressed, false);
         assertEquals(compressed, fromUncompressed.toString());
 
         PublicKey fromCompressed = PublicKey.fromString(compressed);

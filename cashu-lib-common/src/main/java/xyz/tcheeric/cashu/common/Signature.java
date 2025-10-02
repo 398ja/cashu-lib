@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.NonNull;
+import org.bouncycastle.util.encoders.Hex;
 import xyz.tcheeric.cashu.crypto.Schnorr;
 import xyz.tcheeric.cashu.common.json.serializer.SignatureJsonSerializer;
 import xyz.tcheeric.cashu.common.json.deserializer.SignatureJsonDeserializer;
@@ -20,17 +21,17 @@ public class Signature {
     // Schnorr signatures are 64 bytes (128 hex chars)
     private static final int SIGNATURE_LENGTH = 128;
 
-    protected Signature(@NonNull String value) {
-        publicKey = new PublicKey(value);
-        if (value.length() != 2 + SIGNATURE_LENGTH / 2) {
+    protected Signature(@NonNull String compressed) {
+        publicKey = new CompressedPublicKey(compressed);
+        if (compressed.length() != 2 + SIGNATURE_LENGTH / 2) {
             throw new IllegalArgumentException("Invalid signature length");
         }
     }
 
-    protected Signature(byte[] value) {
-        publicKey = new PublicKey(value);
-        if (value.length != SIGNATURE_LENGTH / 2) {
-            throw new IllegalArgumentException("Invalid signature length (" + value.length + ")");
+    protected Signature(byte[] uncompressed) {
+        publicKey = new UnCompressedPublicKey(uncompressed);
+        if (uncompressed.length != SIGNATURE_LENGTH / 2) {
+            throw new IllegalArgumentException("Invalid signature length (" + uncompressed.length + ")");
         }
     }
 

@@ -23,7 +23,7 @@ public class BaseKeyJsonCreatorTest {
         ObjectMapper mapper = new ObjectMapper();
         String value = PrivateKey.derivePublicKey(PrivateKey.generateRandom()).toString();
         PublicKey key = mapper.readValue("\"" + value + "\"", PublicKey.class);
-        assertEquals(PublicKey.fromString(value), key);
+        assertEquals(PublicKey.fromString(value, true), key);
     }
 
     @Test

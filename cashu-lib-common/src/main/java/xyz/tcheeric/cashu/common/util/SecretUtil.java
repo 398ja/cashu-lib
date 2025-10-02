@@ -2,6 +2,7 @@ package xyz.tcheeric.cashu.common.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
+import xyz.tcheeric.cashu.common.CompressedPublicKey;
 import xyz.tcheeric.cashu.common.PublicKey;
 import xyz.tcheeric.cashu.common.RandomStringSecret;
 import xyz.tcheeric.cashu.common.Secret;
@@ -58,8 +59,8 @@ public final class SecretUtil<T extends Secret> {
 
     public static <T extends Secret> String toY(@NonNull T secret) {
         return PublicKey.fromPoint(
-                BDHKEUtils.hashToCurve(secret.toBytes())
-        ).toString();
+                BDHKEUtils.hashToCurve(secret.toBytes()),
+                true).toString();
     }
 
     @SuppressWarnings("unchecked")
