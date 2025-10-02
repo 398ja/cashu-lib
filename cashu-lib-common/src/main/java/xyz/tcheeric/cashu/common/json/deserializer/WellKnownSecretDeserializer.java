@@ -32,9 +32,8 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
         }
         if (dto.getTags() != null) {
             for (WellKnownSecret.Tag tag : dto.getTags()) {
-                if (secret instanceof P2PKSecret) {
-                    convertP2PKTagValues(tag);
-                }
+                // Only P2PK is supported by this deserializer currently
+                convertP2PKTagValues(tag);
                 secret.addTag(tag);
             }
         }
