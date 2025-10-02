@@ -149,12 +149,14 @@ public class BDHKEUtils {
 
 
     private static boolean verify(byte[] Y, byte[] k, byte[] C) {
-        log.debug("verify({}, {}, {})", Utils.bytesToHexString(Y), Utils.bytesToHexString(k), Utils.bytesToHexString(C));
+        log.debug("verify(bytes): Y={}, k={}, C={}",
+                Utils.bytesToHexString(Y), Utils.bytesToHexString(k), Utils.bytesToHexString(C));
         return verify(CURVE.decodePoint(Y), Utils.bigIntFromBytes(k), CURVE.decodePoint(C));
     }
 
     private static boolean verify(ECPoint Y, BigInteger k, ECPoint C) {
-        log.debug("verify({}, {}, {})", pointToHex(Y), Utils.bytesToHexString(Utils.bytesFromBigInteger(k)), pointToHex(C));
+        log.debug("verify(points): Y={}, k={}, C={}",
+                pointToHex(Y), Utils.bytesToHexString(Utils.bytesFromBigInteger(k)), pointToHex(C));
         ECPoint result = Y.multiply(k);
         return C.equals(result);
     }
