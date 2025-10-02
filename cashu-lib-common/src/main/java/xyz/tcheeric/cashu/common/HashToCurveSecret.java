@@ -1,8 +1,7 @@
 package xyz.tcheeric.cashu.common;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import lombok.Data;
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.NonNull;
 import xyz.tcheeric.cashu.common.util.SecretUtil;
 
@@ -29,8 +28,13 @@ public class HashToCurveSecret {
         return new HashToCurveSecret(publicKey);
     }
 
+    @JsonValue
+    public String toJson() {
+        return publicKey.toString();
+    }
+
     @Override
     public String toString() {
-        return publicKey.toString();
+        return toJson();
     }
 }
