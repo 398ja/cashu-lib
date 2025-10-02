@@ -55,8 +55,13 @@ public class PublicKey extends BaseKey {
     }
 
     public static PublicKey fromPoint(ECPoint ecPoint, boolean compressed) {
-        byte[] bytes = ecPoint.getEncoded(compressed); // 0x04 || X || Y
-        return fromBytes(bytes, compressed);
+        byte[] bytes = ecPoint.getEncoded(compressed);
+        if (compressed) {
+            return fromBytes(bytes, true);
+        }
+
+        byte[] uncompressed = Arrays.copyOfRange(bytes, 1, bytes.length);
+        return fromBytes(uncompressed, false);
     }
 
     public byte[] getSchnorr() {
