@@ -28,9 +28,14 @@ public class HashToCurveSecret {
         return new HashToCurveSecret(publicKey);
     }
 
+    @JsonValue
+    public String toJson() {
+        return publicKey.toString();
+    }
+
     @Override
     public String toString() {
-        return publicKey.toString();
+        return toJson();
     }
 
     @JsonValue
