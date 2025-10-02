@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import xyz.tcheeric.cashu.common.BaseKey;
 import xyz.tcheeric.cashu.common.CompressedPublicKey;
+import xyz.tcheeric.cashu.common.HashToCurveSecret;
 import xyz.tcheeric.cashu.common.PublicKey;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class PostCheckStateRequestTest {
 
         PostCheckStateRequest request = mapper.readValue(json, PostCheckStateRequest.class);
 
-        List<PublicKey> secrets = request.getHashToCurveSecrets();
+        List<HashToCurveSecret> secrets = request.getHashToCurveSecrets();
         assertThat(secrets).hasSize(1);
         //assertThat(secrets.get(0)).isInstanceOf(CompressedPublicKey.class);
         assertThat(secrets.get(0).toString()).isEqualTo("02599b9ea0a1ad4143706c2a5a4a568ce442dd4313e1cf1f7f0b58a317c1a355ee");
