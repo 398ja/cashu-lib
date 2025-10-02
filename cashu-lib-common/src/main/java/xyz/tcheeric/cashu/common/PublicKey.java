@@ -56,6 +56,11 @@ public class PublicKey extends BaseKey {
 
     public static PublicKey fromPoint(ECPoint ecPoint, boolean compressed) {
         byte[] bytes = ecPoint.getEncoded(compressed); // 0x04 || X || Y
+
+        if (!compressed && bytes.length > 0) {
+            bytes = Arrays.copyOfRange(bytes, 1, bytes.length);
+        }
+
         return fromBytes(bytes, compressed);
     }
 
