@@ -5,6 +5,7 @@ import lombok.NonNull;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 
+@SuppressWarnings("SuspiciousNameCombination")
 public class Point {
 
     final static private BigInteger p = new BigInteger("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F", 16);
