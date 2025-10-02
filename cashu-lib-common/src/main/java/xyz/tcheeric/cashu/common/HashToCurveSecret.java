@@ -8,7 +8,7 @@ import xyz.tcheeric.cashu.common.util.SecretUtil;
 
 public class HashToCurveSecret {
 
-    private CompressedPublicKey publicKey;
+    private final CompressedPublicKey publicKey;
 
     public HashToCurveSecret(@NonNull Secret secret) {
         this((CompressedPublicKey) PublicKey.fromString(SecretUtil.toY(secret), true));
@@ -36,5 +36,10 @@ public class HashToCurveSecret {
     @Override
     public String toString() {
         return toJson();
+    }
+
+    @JsonValue
+    public String toJson() {
+        return toString();
     }
 }
