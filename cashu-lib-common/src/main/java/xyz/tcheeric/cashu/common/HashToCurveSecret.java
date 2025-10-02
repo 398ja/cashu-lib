@@ -37,9 +37,4 @@ public class HashToCurveSecret {
     public String toString() {
         return toJson();
     }
-
-    @JsonValue
-    public String toJson() {
-        return toString();
-    }
 }
