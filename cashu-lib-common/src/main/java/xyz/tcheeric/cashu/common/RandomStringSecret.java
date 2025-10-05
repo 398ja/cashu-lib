@@ -10,18 +10,28 @@ import java.security.SecureRandom;
 
 
 @JsonDeserialize(using = RandomStringSecretDeserializer.class)
-public class RandomStringSecret extends PrivateKey implements Secret {
+public class RandomStringSecret extends BaseKey implements Secret {
 
     private RandomStringSecret(@NonNull String value) {
-        super(value);
+        // Secrets are UTF-8 strings, often hex-encoded
+        // NUT-00: "use of a 64 character hex string generated from 32 random bytes is recommended"
+        this(org.bouncycastle.util.encoders.Hex.decode(value));
     }
 
     private RandomStringSecret(byte[] value) {
+        // Secrets can be any length per NUT-00 spec (recommendation: 64 hex chars/32 bytes)
         super(value);
     }
 
     public static RandomStringSecret create() {
-        byte[] bytes = new byte[32];
+        return create(32);
+    }
+
+    public static RandomStringSecret create(int length) {
+        if (length <= 0) {
+            throw new IllegalArgumentException("Length must be positive, got: " + length);
+        }
+        byte[] bytes = new byte[length];
         new SecureRandom().nextBytes(bytes);
         return new RandomStringSecret(bytes);
     }
