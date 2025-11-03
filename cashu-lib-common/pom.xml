@@ -3,7 +3,7 @@
     <parent>
         <groupId>xyz.tcheeric</groupId>
         <artifactId>cashu-lib</artifactId>
-        <version>0.4.3</version>
+        <version>0.5.0</version>
     </parent>
 
     <artifactId>cashu-lib-common</artifactId>
@@ -55,6 +55,13 @@
             <groupId>xyz.tcheeric</groupId>
             <artifactId>cashu-lib-crypto</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <!-- BIP39/BIP32/NUT-13 utilities for deterministic secret derivation -->
+        <dependency>
+            <groupId>xyz.tcheeric</groupId>
+            <artifactId>bip-utils</artifactId>
+            <version>2.0.0</version>
         </dependency>
 
         <dependency>
