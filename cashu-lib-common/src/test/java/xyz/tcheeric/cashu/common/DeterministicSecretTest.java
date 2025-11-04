@@ -3,56 +3,79 @@ package xyz.tcheeric.cashu.common;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
-import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Unit tests for {@link DeterministicSecret}.
- * Tests NUT-13 deterministic secret generation and serialization.
- *
- * @author NUT-13 Implementation Team
- * @since 1.0.0
+ * Unit tests for {@link DeterministicSecret} covering NUT-13 metadata handling and JSON serialization.
  */
 class DeterministicSecretTest {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-
-    // Test data: 32 bytes of deterministically derived data (simulated)
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final byte[] TEST_SECRET_BYTES = Hex.decode(
-        "a1b2c3d4e5f6071829384756a1b2c3d4e5f6071829384756a1b2c3d4e5f60718"
+            "a1b2c3d4e5f6071829384756a1b2c3d4e5f6071829384756a1b2c3d4e5f60718"
     );
+    private static final String TEST_SECRET_HEX =
+            "a1b2c3d4e5f6071829384756a1b2c3d4e5f6071829384756a1b2c3d4e5f60718";
 
-    private static final String TEST_SECRET_HEX = "a1b2c3d4e5f6071829384756a1b2c3d4e5f6071829384756a1b2c3d4e5f60718";
-
+    /**
+     * Ensures a secret can be created from raw bytes without metadata.
+     */
     @Test
-    void testFromBytes() {
-        DeterministicSecret secret = DeterministicSecret.fromBytes(TEST_SECRET_BYTES);
+    void shouldCreateSecretFromBytes() {
+        // Arrange
+        byte[] secretBytes = TEST_SECRET_BYTES.clone();
 
+        // Act
+        DeterministicSecret secret = DeterministicSecret.fromBytes(secretBytes);
+
+        // Assert
         assertNotNull(secret);
         assertArrayEquals(TEST_SECRET_BYTES, secret.getData());
         assertArrayEquals(TEST_SECRET_BYTES, secret.toBytes());
         assertFalse(secret.hasMetadata());
     }
 
+    /**
+     * Ensures a secret can be created from a hex string without metadata.
+     */
     @Test
-    void testFromString() {
-        DeterministicSecret secret = DeterministicSecret.fromString(TEST_SECRET_HEX);
+    void shouldCreateSecretFromHexString() {
+        // Arrange
+        String hex = TEST_SECRET_HEX;
 
+        // Act
+        DeterministicSecret secret = DeterministicSecret.fromString(hex);
+
+        // Assert
         assertNotNull(secret);
         assertArrayEquals(TEST_SECRET_BYTES, secret.getData());
-        assertEquals(TEST_SECRET_HEX, secret.toHexString());
+        assertEquals(hex, secret.toHexString());
         assertFalse(secret.hasMetadata());
     }
 
+    /**
+     * Ensures metadata is populated when a keyset and counter are provided.
+     */
     @Test
-    void testCreateWithMetadata() {
+    void shouldCreateSecretWithMetadata() {
+        // Arrange
         KeysetId keysetId = KeysetId.fromString("00ad268c4d1f5826");
         int counter = 5;
 
+        // Act
         DeterministicSecret secret = DeterministicSecret.create(TEST_SECRET_BYTES, keysetId, counter);
 
+        // Assert
         assertNotNull(secret);
         assertArrayEquals(TEST_SECRET_BYTES, secret.getData());
         assertTrue(secret.hasMetadata());
@@ -63,206 +86,290 @@ class DeterministicSecretTest {
         assertEquals(counter, secret.getDerivationPath().getCounter());
     }
 
+    /**
+     * Ensures secrets created from derivation path metadata inherit the path.
+     */
     @Test
-    void testCreateWithDerivationPath() {
+    void shouldCreateSecretFromDerivationPath() {
+        // Arrange
         KeysetId keysetId = KeysetId.fromString("00ad268c4d1f5826");
-        SecretDerivationPath path = new SecretDerivationPath();
-        path.setKeysetId(keysetId);
-        path.setCounter(10);
+        SecretDerivationPath derivationPath = new SecretDerivationPath();
+        derivationPath.setKeysetId(keysetId);
+        derivationPath.setCounter(10);
 
-        DeterministicSecret secret = DeterministicSecret.create(TEST_SECRET_BYTES, path);
+        // Act
+        DeterministicSecret secret = DeterministicSecret.create(TEST_SECRET_BYTES, derivationPath);
 
+        // Assert
         assertNotNull(secret);
         assertTrue(secret.hasMetadata());
         assertEquals(keysetId, secret.getKeysetId());
         assertEquals(10, secret.getCounter());
-        assertEquals(path, secret.getDerivationPath());
+        assertEquals(derivationPath, secret.getDerivationPath());
     }
 
+    /**
+     * Ensures the secret remains immutable once created.
+     */
     @Test
-    void testImmutability() {
+    void shouldRejectMutableUpdates() {
+        // Arrange
         DeterministicSecret secret = DeterministicSecret.fromBytes(TEST_SECRET_BYTES);
 
-        // Attempting to modify the secret should throw UnsupportedOperationException
-        assertThrows(UnsupportedOperationException.class, () -> {
-            secret.setData(new byte[32]);
-        });
+        // Act
+        Executable mutation = () -> secret.setData(new byte[32]);
+
+        // Assert
+        assertThrows(UnsupportedOperationException.class, mutation);
     }
 
+    /**
+     * Ensures string representations show raw hex and optionally include metadata details.
+     */
     @Test
-    void testToString() {
-        // toString() always returns just the hex
-        DeterministicSecret secret1 = DeterministicSecret.fromBytes(TEST_SECRET_BYTES);
-        assertEquals(TEST_SECRET_HEX, secret1.toString());
+    void shouldRenderToStringWithoutMetadata() {
+        // Arrange
+        DeterministicSecret withoutMetadata = DeterministicSecret.fromBytes(TEST_SECRET_BYTES);
+        DeterministicSecret withMetadata =
+                DeterministicSecret.create(TEST_SECRET_BYTES, KeysetId.fromString("00ad268c4d1f5826"), 5);
 
-        // Even with metadata, toString() returns just hex (for JSON serialization)
-        KeysetId keysetId = KeysetId.fromString("00ad268c4d1f5826");
-        DeterministicSecret secret2 = DeterministicSecret.create(TEST_SECRET_BYTES, keysetId, 5);
-        assertEquals(TEST_SECRET_HEX, secret2.toString());
+        // Act
+        String simpleString = withoutMetadata.toString();
+        String metadataString = withMetadata.toString();
+        String detailedString = withMetadata.toStringWithMetadata();
 
-        // toStringWithMetadata() includes the metadata
-        String toStringWithMetadata = secret2.toStringWithMetadata();
-        assertTrue(toStringWithMetadata.contains(TEST_SECRET_HEX));
-        assertTrue(toStringWithMetadata.contains("keyset=" + keysetId));
-        assertTrue(toStringWithMetadata.contains("counter=5"));
+        // Assert
+        assertEquals(TEST_SECRET_HEX, simpleString);
+        assertEquals(TEST_SECRET_HEX, metadataString);
+        assertTrue(detailedString.contains(TEST_SECRET_HEX));
+        assertTrue(detailedString.contains("keyset=00ad268c4d1f5826"));
+        assertTrue(detailedString.contains("counter=5"));
     }
 
+    /**
+     * Ensures toHexString returns the canonical hex value.
+     */
     @Test
-    void testToHexString() {
-        KeysetId keysetId = KeysetId.fromString("00ad268c4d1f5826");
-        DeterministicSecret secret = DeterministicSecret.create(TEST_SECRET_BYTES, keysetId, 5);
+    void shouldReturnHexString() {
+        // Arrange
+        DeterministicSecret secret =
+                DeterministicSecret.create(TEST_SECRET_BYTES, KeysetId.fromString("00ad268c4d1f5826"), 5);
 
-        // toHexString should return only the hex without metadata
-        assertEquals(TEST_SECRET_HEX, secret.toHexString());
+        // Act
+        String hexString = secret.toHexString();
+
+        // Assert
+        assertEquals(TEST_SECRET_HEX, hexString);
     }
 
+    /**
+     * Ensures JSON serialization emits a plain quoted hex string.
+     */
     @Test
-    void testJsonSerialization() throws Exception {
+    void shouldSerializeToJson() throws Exception {
+        // Arrange
         DeterministicSecret secret = DeterministicSecret.fromBytes(TEST_SECRET_BYTES);
 
-        // Serialize to JSON
-        String json = objectMapper.writeValueAsString(secret);
+        // Act
+        String json = OBJECT_MAPPER.writeValueAsString(secret);
 
-        // Should serialize as a simple quoted string (hex)
+        // Assert
         assertEquals("\"" + TEST_SECRET_HEX + "\"", json);
     }
 
+    /**
+     * Ensures JSON deserialization restores the original secret bytes.
+     */
     @Test
-    void testJsonDeserialization() throws Exception {
+    void shouldDeserializeFromJson() throws Exception {
+        // Arrange
         String json = "\"" + TEST_SECRET_HEX + "\"";
 
-        // Deserialize from JSON
-        DeterministicSecret secret = objectMapper.readValue(json, DeterministicSecret.class);
+        // Act
+        DeterministicSecret secret = OBJECT_MAPPER.readValue(json, DeterministicSecret.class);
 
+        // Assert
         assertNotNull(secret);
         assertArrayEquals(TEST_SECRET_BYTES, secret.getData());
         assertEquals(TEST_SECRET_HEX, secret.toHexString());
     }
 
+    /**
+     * Ensures JSON round-trips preserve byte content but drop metadata.
+     */
     @Test
-    void testJsonRoundTrip() throws Exception {
+    void shouldRoundTripJsonWithoutMetadata() throws Exception {
+        // Arrange
         DeterministicSecret original = DeterministicSecret.create(
-            TEST_SECRET_BYTES,
-            KeysetId.fromString("00ad268c4d1f5826"),
-            5
+                TEST_SECRET_BYTES,
+                KeysetId.fromString("00ad268c4d1f5826"),
+                5
         );
 
-        // Serialize
-        String json = objectMapper.writeValueAsString(original);
+        // Act
+        String json = OBJECT_MAPPER.writeValueAsString(original);
+        DeterministicSecret deserialized = OBJECT_MAPPER.readValue(json, DeterministicSecret.class);
 
-        // Deserialize
-        DeterministicSecret deserialized = objectMapper.readValue(json, DeterministicSecret.class);
-
-        // Compare (note: metadata is not serialized, so only hex should match)
+        // Assert
         assertEquals(original.toHexString(), deserialized.toHexString());
         assertArrayEquals(original.getData(), deserialized.getData());
-
-        // Metadata is not preserved in JSON
         assertFalse(deserialized.hasMetadata());
     }
 
+    /**
+     * Ensures equality is based on the secret bytes.
+     */
     @Test
-    void testEqualityBasedOnBytes() {
-        DeterministicSecret secret1 = DeterministicSecret.fromBytes(TEST_SECRET_BYTES);
-        DeterministicSecret secret2 = DeterministicSecret.fromBytes(TEST_SECRET_BYTES.clone());
+    void shouldCompareSecretsByData() {
+        // Arrange
+        DeterministicSecret first = DeterministicSecret.fromBytes(TEST_SECRET_BYTES);
+        DeterministicSecret second = DeterministicSecret.fromBytes(TEST_SECRET_BYTES.clone());
 
-        // Should be equal if bytes are the same (BaseKey uses bytes for equals)
-        assertEquals(secret1, secret2);
-        assertEquals(secret1.hashCode(), secret2.hashCode());
+        // Act & Assert
+        assertEquals(first, second);
+        assertEquals(first.hashCode(), second.hashCode());
     }
 
+    /**
+     * Ensures metadata differences do not impact equality.
+     */
     @Test
-    void testEqualityWithMetadata() {
-        KeysetId keysetId = KeysetId.fromString("00ad268c4d1f5826");
-        DeterministicSecret secret1 = DeterministicSecret.create(TEST_SECRET_BYTES, keysetId, 5);
-        DeterministicSecret secret2 = DeterministicSecret.fromBytes(TEST_SECRET_BYTES);
+    void shouldConsiderSecretsEqualEvenWithMetadata() {
+        // Arrange
+        DeterministicSecret withMetadata =
+                DeterministicSecret.create(TEST_SECRET_BYTES, KeysetId.fromString("00ad268c4d1f5826"), 5);
+        DeterministicSecret withoutMetadata = DeterministicSecret.fromBytes(TEST_SECRET_BYTES);
 
-        // Should be equal even if one has metadata and the other doesn't
-        // because equality is based on bytes (BaseKey behavior)
-        assertEquals(secret1, secret2);
+        // Act & Assert
+        assertEquals(withoutMetadata, withMetadata);
     }
 
+    /**
+     * Ensures different data produces non-equal secrets.
+     */
     @Test
-    void testDifferentSecretsNotEqual() {
+    void shouldConsiderSecretsWithDifferentDataNotEqual() {
+        // Arrange
         byte[] otherBytes = new byte[32];
-        for (int i = 0; i < 32; i++) {
-            otherBytes[i] = (byte) i;
-        }
+        Arrays.fill(otherBytes, (byte) 0x42);
+        DeterministicSecret original = DeterministicSecret.fromBytes(TEST_SECRET_BYTES);
+        DeterministicSecret different = DeterministicSecret.fromBytes(otherBytes);
 
-        DeterministicSecret secret1 = DeterministicSecret.fromBytes(TEST_SECRET_BYTES);
-        DeterministicSecret secret2 = DeterministicSecret.fromBytes(otherBytes);
-
-        assertNotEquals(secret1, secret2);
+        // Act & Assert
+        assertNotEquals(original, different);
     }
 
+    /**
+     * Ensures null byte arrays are rejected.
+     */
     @Test
-    void testNullBytesShouldThrow() {
-        assertThrows(NullPointerException.class, () -> {
-            DeterministicSecret.fromBytes(null);
-        });
+    void shouldRejectNullByteArray() {
+        // Arrange
+        Executable action = () -> DeterministicSecret.fromBytes(null);
+
+        // Act & Assert
+        assertThrows(NullPointerException.class, action);
     }
 
+    /**
+     * Ensures null hex strings are rejected.
+     */
     @Test
-    void testNullHexStringShouldThrow() {
-        assertThrows(NullPointerException.class, () -> {
-            DeterministicSecret.fromString(null);
-        });
+    void shouldRejectNullHex() {
+        // Arrange
+        Executable action = () -> DeterministicSecret.fromString(null);
+
+        // Act & Assert
+        assertThrows(NullPointerException.class, action);
     }
 
+    /**
+     * Ensures creating secrets with null keyset id is rejected.
+     */
     @Test
-    void testNullKeysetIdShouldThrow() {
-        assertThrows(NullPointerException.class, () -> {
-            DeterministicSecret.create(TEST_SECRET_BYTES, (KeysetId) null, 0);
-        });
+    void shouldRejectNullKeysetId() {
+        // Arrange
+        Executable action = () -> DeterministicSecret.create(TEST_SECRET_BYTES, (KeysetId) null, 0);
+
+        // Act & Assert
+        assertThrows(NullPointerException.class, action);
     }
 
+    /**
+     * Ensures creating secrets with null derivation path is rejected.
+     */
     @Test
-    void testNullDerivationPathShouldThrow() {
-        assertThrows(NullPointerException.class, () -> {
-            DeterministicSecret.create(TEST_SECRET_BYTES, (SecretDerivationPath) null);
-        });
+    void shouldRejectNullDerivationPath() {
+        // Arrange
+        Executable action = () -> DeterministicSecret.create(TEST_SECRET_BYTES, (SecretDerivationPath) null);
+
+        // Act & Assert
+        assertThrows(NullPointerException.class, action);
     }
 
-    // Note: Derivation path consistency validation tests removed
-    // as they would require accessing private constructor which is an implementation detail
-
+    /**
+     * Ensures deriving the same secret bytes is reproducible.
+     */
     @Test
-    void testReproducibility() {
-        // Same bytes should always produce the same secret
+    void shouldBeReproducibleForSameBytes() {
+        // Arrange
         byte[] bytes = TEST_SECRET_BYTES.clone();
 
-        DeterministicSecret secret1 = DeterministicSecret.fromBytes(bytes);
-        DeterministicSecret secret2 = DeterministicSecret.fromBytes(bytes);
+        // Act
+        DeterministicSecret first = DeterministicSecret.fromBytes(bytes);
+        DeterministicSecret second = DeterministicSecret.fromBytes(bytes);
 
-        assertEquals(secret1, secret2);
-        assertEquals(secret1.toHexString(), secret2.toHexString());
+        // Assert
+        assertEquals(first, second);
+        assertEquals(first.toHexString(), second.toHexString());
     }
 
+    /**
+     * Ensures the generic Secret.fromString factory can create deterministic secrets.
+     */
     @Test
-    void testSecretFromStringIntegration() {
-        // Test the Secret.fromString() factory method
-        Secret secret = Secret.fromString(TEST_SECRET_HEX, DeterministicSecret.class);
+    void shouldCreateSecretViaFactory() {
+        // Arrange
+        String hex = TEST_SECRET_HEX;
 
+        // Act
+        Secret secret = Secret.fromString(hex, DeterministicSecret.class);
+
+        // Assert
         assertNotNull(secret);
         assertTrue(secret instanceof DeterministicSecret);
-        assertEquals(TEST_SECRET_HEX, ((DeterministicSecret) secret).toHexString());
+        assertEquals(hex, ((DeterministicSecret) secret).toHexString());
     }
 
+    /**
+     * Ensures getData returns a copy of the underlying byte array.
+     */
     @Test
-    void testGetData() {
+    void shouldReturnCopyOfData() {
+        // Arrange
         DeterministicSecret secret = DeterministicSecret.fromBytes(TEST_SECRET_BYTES);
+
+        // Act
         byte[] data = secret.getData();
 
+        // Assert
         assertNotNull(data);
         assertArrayEquals(TEST_SECRET_BYTES, data);
     }
 
+    /**
+     * Ensures toBytes returns a copy of the underlying byte array.
+     */
     @Test
-    void testToBytes() {
+    void shouldReturnCopyOfBytes() {
+        // Arrange
         DeterministicSecret secret = DeterministicSecret.fromBytes(TEST_SECRET_BYTES);
-        byte[] bytes = secret.toBytes();
 
-        assertNotNull(bytes);
-        assertArrayEquals(TEST_SECRET_BYTES, bytes);
+        // Act
+        byte[] data = secret.toBytes();
+
+        // Assert
+        assertNotNull(data);
+        assertArrayEquals(TEST_SECRET_BYTES, data);
     }
 }

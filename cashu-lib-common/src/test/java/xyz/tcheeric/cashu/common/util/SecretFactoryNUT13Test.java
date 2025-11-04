@@ -2,343 +2,414 @@ package xyz.tcheeric.cashu.common.util;
 
 import org.bitcoinj.crypto.DeterministicKey;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import xyz.tcheeric.bips.bip39.Bip39;
-import xyz.tcheeric.bips.bip32.Bip32;
 import xyz.tcheeric.cashu.common.DeterministicSecret;
 import xyz.tcheeric.cashu.common.KeysetId;
 
+import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for SecretFactory NUT-13 deterministic secret generation methods.
- *
- * @author NUT-13 Implementation Team
- * @since 1.0.0
  */
 class SecretFactoryNUT13Test {
 
-    // Known test vectors
     private static final String TEST_MNEMONIC =
             "abandon abandon abandon abandon abandon abandon " +
-            "abandon abandon abandon abandon abandon about";
+                    "abandon abandon abandon abandon abandon about";
     private static final String TEST_PASSPHRASE = "";
     private static final String TEST_KEYSET_ID = "009a1f293253e41e";
 
+    /**
+     * Ensures deterministic secrets contain metadata and a derivation path.
+     */
     @Test
-    void testCreateDeterministic() {
-        // Derive master key
+    void shouldCreateDeterministicSecretWithMetadata() {
+        // Arrange
         DeterministicKey masterKey = Bip39.mnemonicToMasterKey(TEST_MNEMONIC, TEST_PASSPHRASE);
         KeysetId keysetId = KeysetId.fromString(TEST_KEYSET_ID);
         int counter = 0;
 
-        // Create deterministic secret
+        // Act
         DeterministicSecret secret = SecretFactory.createDeterministic(masterKey, keysetId, counter);
 
-        // Verify
+        // Assert
         assertNotNull(secret);
-        assertNotNull(secret.getData());
-        assertEquals(32, secret.getData().length); // Secrets are 32 bytes
+        assertEquals(32, secret.getData().length);
         assertTrue(secret.hasMetadata());
         assertEquals(keysetId, secret.getKeysetId());
         assertEquals(counter, secret.getCounter());
         assertNotNull(secret.getDerivationPath());
     }
 
+    /**
+     * Ensures deterministic secret derivation is reproducible for identical inputs.
+     */
     @Test
-    void testCreateDeterministicReproducibility() {
-        // Same inputs should produce same secret
+    void shouldCreateIdenticalSecretsForSameInputs() {
+        // Arrange
         DeterministicKey masterKey = Bip39.mnemonicToMasterKey(TEST_MNEMONIC, TEST_PASSPHRASE);
         KeysetId keysetId = KeysetId.fromString(TEST_KEYSET_ID);
 
-        DeterministicSecret secret1 = SecretFactory.createDeterministic(masterKey, keysetId, 0);
-        DeterministicSecret secret2 = SecretFactory.createDeterministic(masterKey, keysetId, 0);
+        // Act
+        DeterministicSecret secretOne = SecretFactory.createDeterministic(masterKey, keysetId, 0);
+        DeterministicSecret secretTwo = SecretFactory.createDeterministic(masterKey, keysetId, 0);
 
-        // Should be equal
-        assertEquals(secret1, secret2);
-        assertArrayEquals(secret1.getData(), secret2.getData());
-        assertEquals(secret1.toHexString(), secret2.toHexString());
+        // Assert
+        assertEquals(secretOne, secretTwo);
+        assertArrayEquals(secretOne.getData(), secretTwo.getData());
+        assertEquals(secretOne.toHexString(), secretTwo.toHexString());
     }
 
+    /**
+     * Ensures different counters yield unique deterministic secrets.
+     */
     @Test
-    void testCreateDeterministicDifferentCounters() {
-        // Different counters should produce different secrets
+    void shouldProduceDifferentSecretsWhenCounterDiffers() {
+        // Arrange
         DeterministicKey masterKey = Bip39.mnemonicToMasterKey(TEST_MNEMONIC, TEST_PASSPHRASE);
         KeysetId keysetId = KeysetId.fromString(TEST_KEYSET_ID);
 
-        DeterministicSecret secret0 = SecretFactory.createDeterministic(masterKey, keysetId, 0);
-        DeterministicSecret secret1 = SecretFactory.createDeterministic(masterKey, keysetId, 1);
+        // Act
+        DeterministicSecret counterZeroSecret = SecretFactory.createDeterministic(masterKey, keysetId, 0);
+        DeterministicSecret counterOneSecret = SecretFactory.createDeterministic(masterKey, keysetId, 1);
 
-        // Should be different
-        assertNotEquals(secret0, secret1);
-        assertFalse(java.util.Arrays.equals(secret0.getData(), secret1.getData()));
+        // Assert
+        assertNotEquals(counterZeroSecret, counterOneSecret);
+        assertFalse(Arrays.equals(counterZeroSecret.getData(), counterOneSecret.getData()));
     }
 
+    /**
+     * Ensures different keysets produce distinct secrets.
+     */
     @Test
-    void testCreateDeterministicDifferentKeysets() {
-        // Different keysets should produce different secrets
+    void shouldProduceDifferentSecretsWhenKeysetDiffers() {
+        // Arrange
         DeterministicKey masterKey = Bip39.mnemonicToMasterKey(TEST_MNEMONIC, TEST_PASSPHRASE);
-        KeysetId keysetId1 = KeysetId.fromString("009a1f293253e41e");
-        KeysetId keysetId2 = KeysetId.fromString("00bf9e9d1f935a41");
+        KeysetId firstKeyset = KeysetId.fromString(TEST_KEYSET_ID);
+        KeysetId secondKeyset = KeysetId.fromString("00bf9e9d1f935a41");
 
-        DeterministicSecret secret1 = SecretFactory.createDeterministic(masterKey, keysetId1, 0);
-        DeterministicSecret secret2 = SecretFactory.createDeterministic(masterKey, keysetId2, 0);
+        // Act
+        DeterministicSecret firstSecret = SecretFactory.createDeterministic(masterKey, firstKeyset, 0);
+        DeterministicSecret secondSecret = SecretFactory.createDeterministic(masterKey, secondKeyset, 0);
 
-        // Should be different
-        assertNotEquals(secret1, secret2);
-        assertFalse(java.util.Arrays.equals(secret1.getData(), secret2.getData()));
+        // Assert
+        assertNotEquals(firstSecret, secondSecret);
+        assertFalse(Arrays.equals(firstSecret.getData(), secondSecret.getData()));
     }
 
+    /**
+     * Ensures a null master key triggers a helpful NullPointerException.
+     */
     @Test
-    void testCreateDeterministicNullMasterKey() {
+    void shouldRejectNullMasterKey() {
+        // Arrange
         KeysetId keysetId = KeysetId.fromString(TEST_KEYSET_ID);
+        Executable action = () -> SecretFactory.createDeterministic(null, keysetId, 0);
 
-        assertThrows(NullPointerException.class, () -> {
-            SecretFactory.createDeterministic(null, keysetId, 0);
-        });
+        // Act & Assert
+        assertThrows(NullPointerException.class, action);
     }
 
+    /**
+     * Ensures a null keyset id triggers a helpful NullPointerException.
+     */
     @Test
-    void testCreateDeterministicNullKeysetId() {
+    void shouldRejectNullKeysetId() {
+        // Arrange
         DeterministicKey masterKey = Bip39.mnemonicToMasterKey(TEST_MNEMONIC, TEST_PASSPHRASE);
+        Executable action = () -> SecretFactory.createDeterministic(masterKey, null, 0);
 
-        assertThrows(NullPointerException.class, () -> {
-            SecretFactory.createDeterministic(masterKey, null, 0);
-        });
+        // Act & Assert
+        assertThrows(NullPointerException.class, action);
     }
 
+    /**
+     * Ensures batches contain sequential counters with preserved metadata.
+     */
     @Test
-    void testCreateDeterministicBatch() {
+    void shouldCreateSequentialBatch() {
+        // Arrange
         DeterministicKey masterKey = Bip39.mnemonicToMasterKey(TEST_MNEMONIC, TEST_PASSPHRASE);
         KeysetId keysetId = KeysetId.fromString(TEST_KEYSET_ID);
         int startCounter = 0;
         int count = 10;
 
-        // Create batch
-        List<DeterministicSecret> secrets = SecretFactory.createDeterministicBatch(
-                masterKey, keysetId, startCounter, count
-        );
+        // Act
+        List<DeterministicSecret> secrets =
+                SecretFactory.createDeterministicBatch(masterKey, keysetId, startCounter, count);
 
-        // Verify batch
+        // Assert
         assertNotNull(secrets);
         assertEquals(count, secrets.size());
-
-        // Verify each secret has correct counter
-        for (int i = 0; i < count; i++) {
-            DeterministicSecret secret = secrets.get(i);
-            assertEquals(startCounter + i, secret.getCounter());
+        for (int index = 0; index < count; index++) {
+            DeterministicSecret secret = secrets.get(index);
+            assertEquals(startCounter + index, secret.getCounter());
             assertEquals(keysetId, secret.getKeysetId());
             assertTrue(secret.hasMetadata());
         }
-
-        // Verify all secrets are different
-        for (int i = 0; i < count; i++) {
-            for (int j = i + 1; j < count; j++) {
-                assertNotEquals(secrets.get(i), secrets.get(j));
+        for (int firstIndex = 0; firstIndex < count; firstIndex++) {
+            for (int secondIndex = firstIndex + 1; secondIndex < count; secondIndex++) {
+                assertNotEquals(secrets.get(firstIndex), secrets.get(secondIndex));
             }
         }
     }
 
+    /**
+     * Ensures the recommended batch size of 100 secrets covers the expected counter range.
+     */
     @Test
-    void testCreateDeterministicBatchLargeCount() {
-        // Test with NUT-13 recommended batch size of 100
+    void shouldCreateHundredSecretsForRecommendedBatch() {
+        // Arrange
         DeterministicKey masterKey = Bip39.mnemonicToMasterKey(TEST_MNEMONIC, TEST_PASSPHRASE);
         KeysetId keysetId = KeysetId.fromString(TEST_KEYSET_ID);
 
-        List<DeterministicSecret> secrets = SecretFactory.createDeterministicBatch(
-                masterKey, keysetId, 0, 100
-        );
+        // Act
+        List<DeterministicSecret> secrets =
+                SecretFactory.createDeterministicBatch(masterKey, keysetId, 0, 100);
 
+        // Assert
         assertEquals(100, secrets.size());
         assertEquals(0, secrets.get(0).getCounter());
         assertEquals(99, secrets.get(99).getCounter());
     }
 
+    /**
+     * Ensures a zero-count batch returns an empty list.
+     */
     @Test
-    void testCreateDeterministicBatchZeroCount() {
+    void shouldReturnEmptyBatchWhenCountZero() {
+        // Arrange
         DeterministicKey masterKey = Bip39.mnemonicToMasterKey(TEST_MNEMONIC, TEST_PASSPHRASE);
         KeysetId keysetId = KeysetId.fromString(TEST_KEYSET_ID);
 
-        List<DeterministicSecret> secrets = SecretFactory.createDeterministicBatch(
-                masterKey, keysetId, 0, 0
-        );
+        // Act
+        List<DeterministicSecret> secrets =
+                SecretFactory.createDeterministicBatch(masterKey, keysetId, 0, 0);
 
+        // Assert
         assertNotNull(secrets);
         assertTrue(secrets.isEmpty());
     }
 
+    /**
+     * Ensures negative batch sizes are rejected.
+     */
     @Test
-    void testCreateDeterministicBatchNegativeCount() {
+    void shouldRejectNegativeBatchCount() {
+        // Arrange
         DeterministicKey masterKey = Bip39.mnemonicToMasterKey(TEST_MNEMONIC, TEST_PASSPHRASE);
         KeysetId keysetId = KeysetId.fromString(TEST_KEYSET_ID);
+        Executable action = () -> SecretFactory.createDeterministicBatch(masterKey, keysetId, 0, -1);
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            SecretFactory.createDeterministicBatch(masterKey, keysetId, 0, -1);
-        });
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, action);
     }
 
+    /**
+     * Ensures deterministic secrets can be built directly from mnemonics.
+     */
     @Test
-    void testCreateDeterministicFromMnemonic() {
+    void shouldCreateDeterministicSecretFromMnemonic() {
+        // Arrange
         KeysetId keysetId = KeysetId.fromString(TEST_KEYSET_ID);
         int counter = 0;
 
-        // Create directly from mnemonic
-        DeterministicSecret secret = SecretFactory.createDeterministicFromMnemonic(
-                TEST_MNEMONIC, TEST_PASSPHRASE, keysetId, counter
-        );
+        // Act
+        DeterministicSecret secret =
+                SecretFactory.createDeterministicFromMnemonic(TEST_MNEMONIC, TEST_PASSPHRASE, keysetId, counter);
 
-        // Verify
+        // Assert
         assertNotNull(secret);
-        assertNotNull(secret.getData());
         assertEquals(32, secret.getData().length);
         assertTrue(secret.hasMetadata());
         assertEquals(keysetId, secret.getKeysetId());
         assertEquals(counter, secret.getCounter());
     }
 
+    /**
+     * Ensures mnemonic-based derivation matches master-key derivation.
+     */
     @Test
-    void testCreateDeterministicFromMnemonicMatchesMasterKeyMethod() {
+    void shouldMatchMnemonicAndMasterKeyDerivation() {
+        // Arrange
         KeysetId keysetId = KeysetId.fromString(TEST_KEYSET_ID);
         int counter = 5;
 
-        // Method 1: From mnemonic directly
-        DeterministicSecret secret1 = SecretFactory.createDeterministicFromMnemonic(
-                TEST_MNEMONIC, TEST_PASSPHRASE, keysetId, counter
-        );
-
-        // Method 2: Derive master key first
+        // Act
+        DeterministicSecret fromMnemonic =
+                SecretFactory.createDeterministicFromMnemonic(TEST_MNEMONIC, TEST_PASSPHRASE, keysetId, counter);
         DeterministicKey masterKey = Bip39.mnemonicToMasterKey(TEST_MNEMONIC, TEST_PASSPHRASE);
-        DeterministicSecret secret2 = SecretFactory.createDeterministic(masterKey, keysetId, counter);
+        DeterministicSecret fromMasterKey = SecretFactory.createDeterministic(masterKey, keysetId, counter);
 
-        // Should produce identical secrets
-        assertEquals(secret1, secret2);
-        assertArrayEquals(secret1.getData(), secret2.getData());
-        assertEquals(secret1.toHexString(), secret2.toHexString());
+        // Assert
+        assertEquals(fromMnemonic, fromMasterKey);
+        assertArrayEquals(fromMnemonic.getData(), fromMasterKey.getData());
+        assertEquals(fromMnemonic.toHexString(), fromMasterKey.toHexString());
     }
 
+    /**
+     * Ensures passphrases affect deterministic secret derivation.
+     */
     @Test
-    void testCreateDeterministicFromMnemonicWithPassphrase() {
-        KeysetId keysetId = KeysetId.fromString(TEST_KEYSET_ID);
-        String passphrase = "my secret passphrase";
-
-        DeterministicSecret secretWithPass = SecretFactory.createDeterministicFromMnemonic(
-                TEST_MNEMONIC, passphrase, keysetId, 0
-        );
-
-        DeterministicSecret secretWithoutPass = SecretFactory.createDeterministicFromMnemonic(
-                TEST_MNEMONIC, "", keysetId, 0
-        );
-
-        // Different passphrases should produce different secrets
-        assertNotEquals(secretWithPass, secretWithoutPass);
-        assertFalse(java.util.Arrays.equals(secretWithPass.getData(), secretWithoutPass.getData()));
-    }
-
-    @Test
-    void testCreateDeterministicFromMnemonicNullMnemonic() {
+    void shouldProduceDifferentSecretsWhenPassphraseDiffers() {
+        // Arrange
         KeysetId keysetId = KeysetId.fromString(TEST_KEYSET_ID);
 
-        assertThrows(NullPointerException.class, () -> {
-            SecretFactory.createDeterministicFromMnemonic(null, "", keysetId, 0);
-        });
+        // Act
+        DeterministicSecret withPassphrase =
+                SecretFactory.createDeterministicFromMnemonic(TEST_MNEMONIC, "my secret passphrase", keysetId, 0);
+        DeterministicSecret withoutPassphrase =
+                SecretFactory.createDeterministicFromMnemonic(TEST_MNEMONIC, "", keysetId, 0);
+
+        // Assert
+        assertNotEquals(withPassphrase, withoutPassphrase);
+        assertFalse(Arrays.equals(withPassphrase.getData(), withoutPassphrase.getData()));
     }
 
+    /**
+     * Ensures null mnemonics are rejected.
+     */
     @Test
-    void testCreateDeterministicFromMnemonicNullPassphrase() {
+    void shouldRejectNullMnemonic() {
+        // Arrange
         KeysetId keysetId = KeysetId.fromString(TEST_KEYSET_ID);
+        Executable action = () -> SecretFactory.createDeterministicFromMnemonic(null, "", keysetId, 0);
 
-        assertThrows(NullPointerException.class, () -> {
-            SecretFactory.createDeterministicFromMnemonic(TEST_MNEMONIC, null, keysetId, 0);
-        });
+        // Act & Assert
+        assertThrows(NullPointerException.class, action);
     }
 
+    /**
+     * Ensures null passphrases are rejected.
+     */
     @Test
-    void testCreateDeterministicWithBlindingFactor() {
+    void shouldRejectNullPassphrase() {
+        // Arrange
+        KeysetId keysetId = KeysetId.fromString(TEST_KEYSET_ID);
+        Executable action =
+                () -> SecretFactory.createDeterministicFromMnemonic(TEST_MNEMONIC, null, keysetId, 0);
+
+        // Act & Assert
+        assertThrows(NullPointerException.class, action);
+    }
+
+    /**
+     * Ensures both secret and blinding factor are returned with metadata.
+     */
+    @Test
+    void shouldCreateSecretAndBlindingFactor() {
+        // Arrange
         DeterministicKey masterKey = Bip39.mnemonicToMasterKey(TEST_MNEMONIC, TEST_PASSPHRASE);
         KeysetId keysetId = KeysetId.fromString(TEST_KEYSET_ID);
         int counter = 0;
 
-        // Create secret with blinding factor
-        SecretFactory.SecretAndBlindingFactor pair = SecretFactory.createDeterministicWithBlindingFactor(
-                masterKey, keysetId, counter
-        );
+        // Act
+        SecretFactory.SecretAndBlindingFactor pair =
+                SecretFactory.createDeterministicWithBlindingFactor(masterKey, keysetId, counter);
 
-        // Verify secret
+        // Assert
         assertNotNull(pair);
         assertNotNull(pair.secret());
         assertEquals(keysetId, pair.secret().getKeysetId());
         assertEquals(counter, pair.secret().getCounter());
-
-        // Verify blinding factor
         assertNotNull(pair.blindingFactor());
-        assertEquals(32, pair.blindingFactor().length); // Blinding factors are 32 bytes
-
-        // Verify convenience methods
+        assertEquals(32, pair.blindingFactor().length);
         assertEquals(keysetId, pair.getKeysetId());
         assertEquals(counter, pair.getCounter());
     }
 
+    /**
+     * Ensures the secret and blinding factor pair is reproducible.
+     */
     @Test
-    void testCreateDeterministicWithBlindingFactorReproducibility() {
+    void shouldProduceSamePairForSameInputs() {
+        // Arrange
         DeterministicKey masterKey = Bip39.mnemonicToMasterKey(TEST_MNEMONIC, TEST_PASSPHRASE);
         KeysetId keysetId = KeysetId.fromString(TEST_KEYSET_ID);
 
-        var pair1 = SecretFactory.createDeterministicWithBlindingFactor(masterKey, keysetId, 0);
-        var pair2 = SecretFactory.createDeterministicWithBlindingFactor(masterKey, keysetId, 0);
+        // Act
+        SecretFactory.SecretAndBlindingFactor firstPair =
+                SecretFactory.createDeterministicWithBlindingFactor(masterKey, keysetId, 0);
+        SecretFactory.SecretAndBlindingFactor secondPair =
+                SecretFactory.createDeterministicWithBlindingFactor(masterKey, keysetId, 0);
 
-        // Both secret and blinding factor should be identical
-        assertEquals(pair1.secret(), pair2.secret());
-        assertArrayEquals(pair1.secret().getData(), pair2.secret().getData());
-        assertArrayEquals(pair1.blindingFactor(), pair2.blindingFactor());
+        // Assert
+        assertEquals(firstPair.secret(), secondPair.secret());
+        assertArrayEquals(firstPair.secret().getData(), secondPair.secret().getData());
+        assertArrayEquals(firstPair.blindingFactor(), secondPair.blindingFactor());
     }
 
+    /**
+     * Ensures different counters produce distinct secret/blinding-factor pairs.
+     */
     @Test
-    void testCreateDeterministicWithBlindingFactorDifferentValues() {
+    void shouldProduceDifferentPairsForDifferentCounters() {
+        // Arrange
         DeterministicKey masterKey = Bip39.mnemonicToMasterKey(TEST_MNEMONIC, TEST_PASSPHRASE);
         KeysetId keysetId = KeysetId.fromString(TEST_KEYSET_ID);
 
-        var pair0 = SecretFactory.createDeterministicWithBlindingFactor(masterKey, keysetId, 0);
-        var pair1 = SecretFactory.createDeterministicWithBlindingFactor(masterKey, keysetId, 1);
+        // Act
+        SecretFactory.SecretAndBlindingFactor firstPair =
+                SecretFactory.createDeterministicWithBlindingFactor(masterKey, keysetId, 0);
+        SecretFactory.SecretAndBlindingFactor secondPair =
+                SecretFactory.createDeterministicWithBlindingFactor(masterKey, keysetId, 1);
 
-        // Secret and blinding factor should both be different for different counters
-        assertNotEquals(pair0.secret(), pair1.secret());
-        assertFalse(java.util.Arrays.equals(pair0.secret().getData(), pair1.secret().getData()));
-        assertFalse(java.util.Arrays.equals(pair0.blindingFactor(), pair1.blindingFactor()));
+        // Assert
+        assertNotEquals(firstPair.secret(), secondPair.secret());
+        assertFalse(Arrays.equals(firstPair.secret().getData(), secondPair.secret().getData()));
+        assertFalse(Arrays.equals(firstPair.blindingFactor(), secondPair.blindingFactor()));
     }
 
+    /**
+     * Ensures record accessors expose metadata without creating new objects.
+     */
     @Test
-    void testSecretAndBlindingFactorRecord() {
+    void shouldExposeMetadataThroughRecordAccessors() {
+        // Arrange
         DeterministicKey masterKey = Bip39.mnemonicToMasterKey(TEST_MNEMONIC, TEST_PASSPHRASE);
         KeysetId keysetId = KeysetId.fromString(TEST_KEYSET_ID);
 
-        var pair = SecretFactory.createDeterministicWithBlindingFactor(masterKey, keysetId, 42);
+        // Act
+        SecretFactory.SecretAndBlindingFactor pair =
+                SecretFactory.createDeterministicWithBlindingFactor(masterKey, keysetId, 42);
 
-        // Test record methods
+        // Assert
         assertEquals(42, pair.getCounter());
         assertEquals(keysetId, pair.getKeysetId());
-        assertSame(pair.secret(), pair.secret()); // record accessor
-        assertSame(pair.blindingFactor(), pair.blindingFactor()); // record accessor
+        assertSame(pair.secret(), pair.secret());
+        assertSame(pair.blindingFactor(), pair.blindingFactor());
     }
 
+    /**
+     * Ensures different mnemonics produce distinct deterministic secrets.
+     */
     @Test
-    void testMultipleMnemonicsProduceDifferentSecrets() {
-        String mnemonic1 = "abandon abandon abandon abandon abandon abandon " +
-                          "abandon abandon abandon abandon abandon about";
-        String mnemonic2 = "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong";
-
+    void shouldProduceDifferentSecretsForDifferentMnemonics() {
+        // Arrange
+        String firstMnemonic = "abandon abandon abandon abandon abandon abandon " +
+                "abandon abandon abandon abandon abandon about";
+        String secondMnemonic = "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong";
         KeysetId keysetId = KeysetId.fromString(TEST_KEYSET_ID);
 
-        DeterministicSecret secret1 = SecretFactory.createDeterministicFromMnemonic(
-                mnemonic1, "", keysetId, 0
-        );
+        // Act
+        DeterministicSecret firstSecret =
+                SecretFactory.createDeterministicFromMnemonic(firstMnemonic, "", keysetId, 0);
+        DeterministicSecret secondSecret =
+                SecretFactory.createDeterministicFromMnemonic(secondMnemonic, "", keysetId, 0);
 
-        DeterministicSecret secret2 = SecretFactory.createDeterministicFromMnemonic(
-                mnemonic2, "", keysetId, 0
-        );
-
-        // Different mnemonics should produce different secrets
-        assertNotEquals(secret1, secret2);
-        assertFalse(java.util.Arrays.equals(secret1.getData(), secret2.getData()));
+        // Assert
+        assertNotEquals(firstSecret, secondSecret);
+        assertFalse(Arrays.equals(firstSecret.getData(), secondSecret.getData()));
     }
 }

@@ -1,32 +1,47 @@
 package xyz.tcheeric.cashu.crypto;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class BDHKEUtilsValidationTest {
+/**
+ * Validation tests for BDHKE hash-to-curve input sanitisation.
+ */
+class BDHKEUtilsValidationTest {
 
+    /**
+     * Ensures hashing a null or empty string raises an IllegalArgumentException with context.
+     */
     @Test
-    public void hashToCurveStringNullOrEmpty() {
-        IllegalArgumentException nullEx = assertThrows(IllegalArgumentException.class,
-                () -> BDHKEUtils.hashToCurve((String) null));
-        assertEquals("secret must not be null or empty", nullEx.getMessage());
+    void shouldRejectNullOrEmptyStringWhenHashingToCurve() {
+        // Arrange
+        Executable nullAction = () -> BDHKEUtils.hashToCurve((String) null);
+        Executable emptyAction = () -> BDHKEUtils.hashToCurve("");
 
-        IllegalArgumentException emptyEx = assertThrows(IllegalArgumentException.class,
-                () -> BDHKEUtils.hashToCurve(""));
-        assertEquals("secret must not be null or empty", emptyEx.getMessage());
+        // Act & Assert
+        IllegalArgumentException nullException = assertThrows(IllegalArgumentException.class, nullAction);
+        assertEquals("secret must not be null or empty", nullException.getMessage());
+
+        IllegalArgumentException emptyException = assertThrows(IllegalArgumentException.class, emptyAction);
+        assertEquals("secret must not be null or empty", emptyException.getMessage());
     }
 
+    /**
+     * Ensures hashing null or empty byte arrays raises an IllegalArgumentException with context.
+     */
     @Test
-    public void hashToCurveBytesNullOrEmpty() {
-        IllegalArgumentException nullEx = assertThrows(IllegalArgumentException.class,
-                () -> BDHKEUtils.hashToCurve((byte[]) null));
-        assertEquals("secret must not be null or empty", nullEx.getMessage());
+    void shouldRejectNullOrEmptyBytesWhenHashingToCurve() {
+        // Arrange
+        Executable nullAction = () -> BDHKEUtils.hashToCurve((byte[]) null);
+        Executable emptyAction = () -> BDHKEUtils.hashToCurve(new byte[0]);
 
-        IllegalArgumentException emptyEx = assertThrows(IllegalArgumentException.class,
-                () -> BDHKEUtils.hashToCurve(new byte[0]));
-        assertEquals("secret must not be null or empty", emptyEx.getMessage());
+        // Act & Assert
+        IllegalArgumentException nullException = assertThrows(IllegalArgumentException.class, nullAction);
+        assertEquals("secret must not be null or empty", nullException.getMessage());
+
+        IllegalArgumentException emptyException = assertThrows(IllegalArgumentException.class, emptyAction);
+        assertEquals("secret must not be null or empty", emptyException.getMessage());
     }
 }
-
