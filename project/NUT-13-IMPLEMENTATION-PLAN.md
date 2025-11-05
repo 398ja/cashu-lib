@@ -76,7 +76,7 @@ NUT-13 enables deterministic secret derivation for wallet recovery using BIP39 m
 | Metric | Value |
 |--------|-------|
 | **Total Tasks** | 36 tasks (31 required + 5 optional) |
-| **Completed Tasks** | 5 tasks (14%) |
+| **Completed Tasks** | 6 tasks (17%) |
 | **In Progress** | Phase 1 - cashu-lib Foundation |
 | **Estimated Duration** | 9-14 days |
 | **Start Date** | 2025-11-03 |
@@ -115,10 +115,10 @@ NUT-13 enables deterministic secret derivation for wallet recovery using BIP39 m
 | **Phase 1** | cashu-lib Foundation | 5 tasks | 1-2 days | In Progress (4/5 complete) |
 | **Phase 2** | Wallet Implementation | 6 tasks | 2-3 days | Not Started |
 | **Phase 3** | Mint Implementation | 5 tasks | 1 day | Partially Complete (1/5) |
-| **Phase 4** | Integration & Testing | 8 tasks | 2-3 days | Not Started |
+| **Phase 4** | Integration & Testing | 8 tasks | 2-3 days | In Progress (1/8 complete) |
 | **Phase 5** | Optional Enhancements | 5 tasks | 1-2 days | Not Started |
 | **Phase 6** | CLI Implementation (cashu-cli) | 7 tasks | 1-2 days | Not Started |
-| **Total** | All Phases | **36 tasks** | **9-14 days** | **14% Complete** |
+| **Total** | All Phases | **36 tasks** | **9-14 days** | **17% Complete** |
 
 ### Task Table Legend
 
@@ -684,7 +684,7 @@ ALTER TABLE proofs ADD COLUMN is_deterministic BOOLEAN DEFAULT FALSE;
 
 | ID | Task | Status | Task Size | Priority | Dependency | Location | Commit | Notes |
 |----|------|--------|-----------|----------|------------|----------|--------|-------|
-| 4.1 | Create cashu-lib Tests | Pending | Medium | P0 | Phase 1 | `cashu-lib-common/src/test/java/xyz/tcheeric/cashu/protocol/NUT13Tests.java` | - | Test derivation paths, secrets |
+| 4.1 | Create cashu-lib Tests | ✓ Complete | Medium | P0 | Phase 1 | `cashu-lib-common/src/test/java/xyz/tcheeric/cashu/protocol/NUT13IntegrationTest.java` | TBD | 40 comprehensive tests - all passing ✓ |
 | 4.2 | Create Wallet Tests | Pending | Large | P0 | Phase 2 | `cashu-wallet-protocol/src/test/java/xyz/tcheeric/cashu/wallet/proto/WalletRecoveryTest.java` | - | Test recovery services |
 | 4.3 | Create E2E Recovery Test | Pending | Large | P0 | Phase 1-3 | `cashu-mint-protocol/src/test/java/xyz/tcheeric/cashu/mint/proto/nut/NUT13RecoveryIntegrationTest.java` | - | Full mint→recover flow |
 | 4.4 | Test Batch Recovery Logic | Pending | Medium | P0 | 4.2, 4.3 | Integration tests | - | 100 token batch testing |
@@ -2057,8 +2057,9 @@ For questions about this implementation plan, please refer to:
 | 1.2 | 2025-11-03 | Added separate ID column to all task tables for better referencing | TBD |
 | 1.3 | 2025-11-03 | Added Phase 6 for CLI implementation (cashu-cli) with 7 tasks | TBD |
 | 1.4 | 2025-11-03 | Comprehensive bip-utils integration guide with detailed API documentation and usage patterns | TBD |
+| 1.5 | 2025-11-04 | Completed Phase 4.1 - NUT13IntegrationTest with 40 comprehensive tests | TBD |
 
-*Last Updated: 2025-11-03*
+*Last Updated: 2025-11-04*
 *Status: Active Implementation Plan*
 *Total Tasks: 36 (31 required + 5 optional)*
-*Progress: 14% Complete (5/36 tasks)*
+*Progress: 17% Complete (6/36 tasks)*
