@@ -7,74 +7,70 @@ import xyz.tcheeric.cashu.crypto.util.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-/**
- * Test to reproduce the "token missing unit" bug
- */
-public class TokenV4UnitBugTest {
+class TokenV4UnitBugTest {
 
     @Test
-    public void testUnitFieldPreservedAfterSerialization() {
-        // Create a token with unit field set
-        TokenV4 original = new TokenV4();
-        original.setMintUrl("https://mint.example");
-        original.setUnit("sat");
+    /**
+     * Ensures clickable serialization preserves the unit field.
+     */
+    void shouldPreserveUnitWhenSerializedAsClickable() {
+        // Arrange
+        TokenV4 token = new TokenV4();
+        token.setMintUrl("https://mint.example");
+        token.setUnit("sat");
 
         TokenV4.TokenData.TokenProof proof = new TokenV4.TokenData.TokenProof();
         proof.setAmount(1);
         proof.setSecret("test-secret-12345");
         proof.setSignature(Utils.hexStringToBytes("0244538319de485d55bed3b29a642bee5879375ab9e7a620e11e48ba482421f3cf"));
 
-        TokenV4.TokenData td = new TokenV4.TokenData(
+        TokenV4.TokenData tokenData = new TokenV4.TokenData(
                 Utils.hexStringToBytes("00ffd48b8f5ecf80"),
                 new ArrayList<>(List.of(proof))
         );
+        token.setTokenDataList(new ArrayList<>(List.of(tokenData)));
 
-        original.setTokenDataList(new ArrayList<>(List.of(td)));
+        // Act
+        String serializedToken = token.serialize(true);
+        TokenV4 deserialized = TokenV4.deserialize(serializedToken);
 
-        // Serialize with clickable=true (as mentioned in the bug report)
-        String serialized = original.serialize(true);
-        System.out.println("Serialized token: " + serialized);
-
-        // Deserialize
-        TokenV4 deserialized = TokenV4.deserialize(serialized);
-
-        // Verify all fields are preserved
-        assertEquals("https://mint.example", deserialized.getMintUrl(), "Mint URL should be preserved");
-        assertNotNull(deserialized.getUnit(), "Unit should not be null after deserialization");
-        assertEquals("sat", deserialized.getUnit(), "Unit should be 'sat' after deserialization");
+        // Assert
+        assertEquals("https://mint.example", deserialized.getMintUrl());
+        assertNotNull(deserialized.getUnit());
+        assertEquals("sat", deserialized.getUnit());
     }
 
     @Test
-    public void testUnitFieldWithNonClickable() {
-        // Create a token with unit field set
-        TokenV4 original = new TokenV4();
-        original.setMintUrl("https://mint.example");
-        original.setUnit("sat");
+    /**
+     * Ensures non-clickable serialization also preserves the unit field.
+     */
+    void shouldPreserveUnitWhenSerializedWithoutClickablePrefix() {
+        // Arrange
+        TokenV4 token = new TokenV4();
+        token.setMintUrl("https://mint.example");
+        token.setUnit("sat");
 
         TokenV4.TokenData.TokenProof proof = new TokenV4.TokenData.TokenProof();
         proof.setAmount(1);
         proof.setSecret("test-secret-12345");
         proof.setSignature(Utils.hexStringToBytes("0244538319de485d55bed3b29a642bee5879375ab9e7a620e11e48ba482421f3cf"));
 
-        TokenV4.TokenData td = new TokenV4.TokenData(
+        TokenV4.TokenData tokenData = new TokenV4.TokenData(
                 Utils.hexStringToBytes("00ffd48b8f5ecf80"),
                 new ArrayList<>(List.of(proof))
         );
+        token.setTokenDataList(new ArrayList<>(List.of(tokenData)));
 
-        original.setTokenDataList(new ArrayList<>(List.of(td)));
+        // Act
+        String serializedToken = token.serialize(false);
+        TokenV4 deserialized = TokenV4.deserialize(serializedToken);
 
-        // Serialize with clickable=false
-        String serialized = original.serialize(false);
-        System.out.println("Serialized token (non-clickable): " + serialized);
-
-        // Deserialize
-        TokenV4 deserialized = TokenV4.deserialize(serialized);
-
-        // Verify all fields are preserved
-        assertEquals("https://mint.example", deserialized.getMintUrl(), "Mint URL should be preserved");
-        assertNotNull(deserialized.getUnit(), "Unit should not be null after deserialization");
-        assertEquals("sat", deserialized.getUnit(), "Unit should be 'sat' after deserialization");
+        // Assert
+        assertEquals("https://mint.example", deserialized.getMintUrl());
+        assertNotNull(deserialized.getUnit());
+        assertEquals("sat", deserialized.getUnit());
     }
 }
