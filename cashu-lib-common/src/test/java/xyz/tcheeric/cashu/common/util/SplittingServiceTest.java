@@ -25,7 +25,7 @@ class SplittingServiceTest {
      */
     @Test
     void shouldUseLargestDenominations() {
-        List<Integer> result = splittingService.split(5000, List.of(8, 16, 256, 512, 4096));
+        List<Integer> result = splittingService.split(5000, List.of(8, 16, 128, 256, 512, 4096));
         assertThat(result).containsExactly(4096, 512, 256, 128, 8);
     }
 
