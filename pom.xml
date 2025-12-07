@@ -37,7 +37,7 @@
 
         <bcprov-jdk18on.version>1.81</bcprov-jdk18on.version>
 
-        <jackson-dataformat-cbor.version>2.20.0</jackson-dataformat-cbor.version>
+        <jackson-dataformat-cbor.version>2.20.1</jackson-dataformat-cbor.version>
 
         <jackson-databind.version>2.20.0</jackson-databind.version>
 
