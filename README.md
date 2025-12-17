@@ -6,46 +6,67 @@
 cashu-lib is a Java library implementing the Cashu protocol. It provides common entities, cryptographic primitives, and data structures for building Cashu mints and wallets.
 
 ## Documentation
-See the [installation tutorial](docs/tutorials/installation.md) to build the project and the [quickstart tutorial](docs/tutorials/quickstart.md) for usage examples.
+See the [installation tutorial](docs/tutorials/installation.md) to build the project and the [quickstart tutorial](docs/tutorials/quickstart.md) for usage examples. Full docs follow the Diátaxis structure:
 
 - [Tutorials](docs/tutorials/)
 - [How-to Guides](docs/how-to/)
 - [Reference](docs/reference/)
 - [Explanation](docs/explanation/)
 
+## Requirements & Build
+- Java 21 (Temurin recommended)
+- Build and test all modules with `./mvnw -q verify` (coverage: `target/site/jacoco-aggregate`)
+- Build a specific module with dependencies via `./mvnw -q -pl <module> -am verify`
+
+## Use in your project
+Add the releases repository and depend on the modules you need (replace `0.6.2` with the latest tag):
+
+```xml
+<repositories>
+    <repository>
+        <id>cashu-lib</id>
+        <url>https://maven.398ja.xyz/releases</url>
+    </repository>
+</repositories>
+
+<dependency>
+    <groupId>xyz.tcheeric</groupId>
+    <artifactId>cashu-lib-common</artifactId>
+    <version>0.6.2</version>
+</dependency>
+<dependency>
+    <groupId>xyz.tcheeric</groupId>
+    <artifactId>cashu-lib-crypto</artifactId>
+    <version>0.6.2</version>
+</dependency>
+<dependency>
+    <groupId>xyz.tcheeric</groupId>
+    <artifactId>cashu-lib-entities</artifactId>
+    <version>0.6.2</version>
+</dependency>
+```
+
 ## Modules
-- `cashu-lib-common`: Common entity classes and utilities, including BIP-340 Schnorr signature helpers.
-- `cashu-lib-crypto`: Foundational cryptographic functions and utilities.
-- `cashu-lib-entities`: Core data structures of the Cashu protocol.
+- `cashu-lib-common`: Token codecs (V3/V4), keysets, deterministic secrets (NUT-13), and JSON/CBOR utilities.
+- `cashu-lib-crypto`: BIP-340 Schnorr helpers, BDHKE utilities, and key derivation primitives.
+- `cashu-lib-entities`: REST DTOs for mint APIs (quotes, swaps, melts, restores) with Jackson annotations.
 
-## Spec Compliance Notes
+## Protocol alignment
 
-- NUT-02 Keyset ID: The keyset id equals `00` plus the first 14 hex characters of SHA-256 over the concatenation of the SEC-compressed public key encodings (33 bytes with 0x02/0x03 prefix), sorted by amount (key). This library preserves the compressed prefix for public keys constructed from strings and concatenates raw bytes (not ASCII hex) for hashing.
+- Keyset IDs follow the NUT-02 16-hex-character format; `PublicKey` preserves compressed SEC encoding for hashing/serialization.
+- TokenV3: proofs are sorted by `amount` for deterministic JSON serialization; clickable `cashu:` URIs are accepted.
+- TokenV4: CBOR maps are ordered `t`, `d`, `m`, `u` per NUT-00 and trailing slashes are removed from mint URLs; clickable URIs and URL-safe Base64 without padding are supported.
+- Restore: `/restore` entities are provided for NUT-09; deterministic secret generation helpers follow the NUT-13 derivation path.
 
-- NUT-00 TokenV3 Serialization: For stable cashu-encoded tokens, proofs are serialized in a deterministic order (by `amount`), and Schnorr signatures (`C`) are serialized as hex strings.
-
-- NUT-00 TokenV4 Serialization: TokenV4 tokens serialize deterministically and are validated against [official single- and multi-keyset test vectors](https://github.com/cashubtc/nuts/blob/main/tests/00-tests.md).
-
-- NUT-09 Restore Signatures: Includes REST entities for the `/restore` endpoint to recover blind signatures.
-
-## Token Formats
-
-- Prefixes: Tokens use `cashuA` for V3 (JSON) and `cashuB` for V4 (CBOR), per NUT-00.
-- Clickable URIs: Both V3 and V4 deserializers accept clickable URIs with the scheme `cashu:` (e.g., `cashu:cashuB...`) and plain tokens without the scheme (e.g., `cashuB...`).
-- Encoding: Serialization uses URL-safe Base64 without padding.
-- TokenV4 order: Top-level CBOR map preserves the NUT-00 key order `t` (token data), `d` (memo), `m` (mint URL), `u` (unit) for deterministic output.
-- TokenV3 order: Proofs are serialized in a deterministic order (by `amount`) to ensure stable token strings.
-- References: See NUT-00 and related NUTs at https://github.com/cashubtc/nuts.
+Token prefixes remain `cashuA` (V3, JSON) and `cashuB` (V4, CBOR). See the [NUTs](https://github.com/cashubtc/nuts) for the full protocol.
 
 ## Versioning
-
-- Root tags: Releases for the repository root are tagged as `vX.Y.Z`.
-- Module tags: Module releases are tagged as `cashu-lib-common-vX.Y.Z`, `cashu-lib-crypto-vX.Y.Z`, and `cashu-lib-entities-vX.Y.Z`.
-- Snapshot policy: Active development on `develop` uses `-SNAPSHOT` versions in POMs (for example, `0.1.2-SNAPSHOT`) while the manifest tracks the last released versions (for example, `0.1.1`).
-- Release automation: Versions and changelogs are managed by release-please (`release-please-config.json`, `.release-please-manifest.json`) and are cut after CI passes on `main`.
+- Releases are published to `https://maven.398ja.xyz/releases`.
+- Tags follow release-please: root tags use `vX.Y.Z`; component tags use `cashu-lib-common-vX.Y.Z`, `cashu-lib-crypto-vX.Y.Z`, and `cashu-lib-entities-vX.Y.Z`.
+- Changelogs and version bumps are managed by `release-please` (`release-please-config.json`, `.release-please-manifest.json`).
 
 ## Contributing
-Outstanding work and planned enhancements are tracked in [GitHub Issues](https://github.com/tcheeric/cashu-lib/issues). See [docs/how-to/releasing.md](docs/how-to/releasing.md) for steps to publish a release.
+Open tasks live in [GitHub Issues](https://github.com/398ja/cashu-lib/issues). Run `./mvnw -q verify` before sending a PR. See [docs/how-to/releasing.md](docs/how-to/releasing.md) for release steps.
 
 ## License
 This project is licensed under the MIT License – see [LICENSE.md](LICENSE.md).

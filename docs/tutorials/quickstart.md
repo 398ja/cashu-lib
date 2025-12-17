@@ -1,49 +1,51 @@
 # Quickstart
 
-This tutorial guides you through verifying your environment, adding the necessary dependencies, and running a basic Schnorr signature example with cashu-lib.
+This tutorial guides you through verifying your environment, adding the dependencies, and running a basic Schnorr signature example with cashu-lib.
 
 ## Step 1: Verify your setup
 
 Ensure the following tools are installed:
 
 - Java 21
-- Maven 3.8+
+- Maven Wrapper (bundled in the repository)
 
 Check the versions to confirm:
 
 ```bash
 java -version
-mvn -version
+./mvnw -v
 ```
 
 ## Step 2: Add Maven dependencies
 
-Add the modules you need to your project's `pom.xml`:
+Add the modules you need to your project's `pom.xml` (replace `0.6.2` with the latest tag as needed):
+
+```xml
+<repositories>
+    <repository>
+        <id>cashu-lib</id>
+        <url>https://maven.398ja.xyz/releases</url>
+    </repository>
+</repositories>
+```
 
 ```xml
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-common</artifactId>
-    <version>0.3.0</version>
+    <version>0.6.2</version>
 </dependency>
 
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-crypto</artifactId>
-    <version>0.3.0</version>
+    <version>0.6.2</version>
 </dependency>
 
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-entities</artifactId>
-    <version>0.3.0</version>
-</dependency>
-
-<dependency>
-    <groupId>xyz.tcheeric</groupId>
-    <artifactId>cashu-lib-test</artifactId>
-    <version>0.3.0</version>
-    <scope>test</scope>
+    <version>0.6.2</version>
 </dependency>
 ```
 
@@ -54,25 +56,35 @@ import xyz.tcheeric.cashu.common.KeySet;
 import xyz.tcheeric.cashu.common.Keys;
 import xyz.tcheeric.cashu.common.PublicKey;
 import xyz.tcheeric.cashu.crypto.Schnorr;
+import xyz.tcheeric.cashu.crypto.util.KeysUtils;
+import xyz.tcheeric.cashu.crypto.util.Utils;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 
-byte[] priv = Schnorr.generatePrivateKey();
-byte[] pub = Schnorr.genPubKey(priv);
+public class QuickstartExample {
+    public static void main(String[] args) throws Exception {
+        byte[] secretKey = Schnorr.generatePrivateKey();
 
-KeySet keyset = KeySet.builder()
-        .id("keyset1")
-        .unit("sat")
-        .keys(new Keys().put(BigInteger.ONE, PublicKey.fromBytes(pub)))
-        .partPerThousand(0)
-        .build();
+        // Use the compressed key for KeySet and derive the x-only key for Schnorr verification
+        PublicKey publicKey = PublicKey.fromBytes(KeysUtils.derivePublicKey(secretKey));
+        byte[] schnorrPublicKey = PublicKey.getSchnorr(publicKey);
 
-byte[] msg = "hello cashu".getBytes(StandardCharsets.UTF_8);
-byte[] sig = Schnorr.sign(msg, priv);
-boolean valid = Schnorr.verify(msg, pub, sig);
+        KeySet keyset = KeySet.builder()
+                .id("keyset1")
+                .unit("sat")
+                .keys(new Keys().put(BigInteger.ONE, publicKey))
+                .partPerThousand(0)
+                .build();
 
-System.out.println("Signature valid: " + valid);
+        byte[] message = Utils.sha256("hello cashu".getBytes(StandardCharsets.UTF_8));
+        byte[] signature = Schnorr.sign(message, secretKey);
+        boolean valid = Schnorr.verify(message, schnorrPublicKey, signature);
+
+        System.out.println("Keyset id: " + keyset.getId());
+        System.out.println("Signature valid: " + valid);
+    }
+}
 ```
 
 ## Further Reading
