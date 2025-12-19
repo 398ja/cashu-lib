@@ -50,13 +50,30 @@ public class Signature {
     }
 
     /**
+     * Creates a Signature from raw bytes.
      *
-     * @param bytes The 64-byte (128 hex character) value, which is just the x and y coordinates concatenated (uncompressed format).
-     * @return The uncompressed signature.
+     * <p>Accepts both compressed (33 bytes) and uncompressed (64 bytes) formats:
+     * <ul>
+     *   <li>33 bytes: compressed point (0x02/0x03 prefix + 32-byte x-coordinate)</li>
+     *   <li>64 bytes: uncompressed point (x||y coordinates without prefix)</li>
+     * </ul>
+     *
+     * @param bytes signature bytes in compressed or uncompressed format
+     * @return the Signature
+     * @throws IllegalArgumentException if bytes length is neither 33 nor 64
      */
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static Signature fromBytes(byte[] bytes) {
-        return new Signature(bytes);
+        if (bytes.length == 33) {
+            // Compressed format: 0x02/0x03 prefix + 32-byte x-coordinate
+            return new Signature(Hex.toHexString(bytes));
+        } else if (bytes.length == 64) {
+            // Uncompressed format: x||y without prefix
+            return new Signature(bytes);
+        } else {
+            throw new IllegalArgumentException(
+                    "Invalid signature bytes length: " + bytes.length + ". Expected 33 (compressed) or 64 (uncompressed)");
+        }
     }
 
     @Override
