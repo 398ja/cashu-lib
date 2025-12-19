@@ -5,26 +5,31 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.NonNull;
 import xyz.tcheeric.cashu.common.util.SecretUtil;
 
-
+/**
+ * Represents the hash-to-curve result Y = hash_to_curve(secret) for a Cashu secret.
+ *
+ * <p>This is an elliptic curve point derived from a secret using the hash-to-curve
+ * algorithm specified in NUT-00. Used for BDHKE blind signature operations.
+ */
 public class HashToCurveSecret {
 
-    private final CompressedPublicKey publicKey;
+    private final PublicKey publicKey;
 
     public HashToCurveSecret(@NonNull Secret secret) {
-        this((CompressedPublicKey) PublicKey.fromString(SecretUtil.toY(secret), true));
+        this(PublicKey.fromString(SecretUtil.toY(secret)));
     }
 
     public HashToCurveSecret(@NonNull Proof proof) {
         this(proof.getSecret());
     }
 
-    HashToCurveSecret(@NonNull CompressedPublicKey publicKey) {
+    HashToCurveSecret(@NonNull PublicKey publicKey) {
         this.publicKey = publicKey;
     }
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static HashToCurveSecret fromString(@NonNull String htcs) {
-        CompressedPublicKey publicKey = CompressedPublicKey.fromString(htcs);
+        PublicKey publicKey = PublicKey.fromString(htcs);
         return new HashToCurveSecret(publicKey);
     }
 

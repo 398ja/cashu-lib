@@ -4,12 +4,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import xyz.tcheeric.cashu.common.CompressedPublicKey;
 import xyz.tcheeric.cashu.common.P2PKSecret;
 import xyz.tcheeric.cashu.common.PublicKey;
 import xyz.tcheeric.cashu.common.RandomStringSecret;
 import xyz.tcheeric.cashu.common.Secret;
-import xyz.tcheeric.cashu.common.UnCompressedPublicKey;
 import xyz.tcheeric.cashu.common.VoucherWellKnownSecret;
 import xyz.tcheeric.cashu.common.WellKnownSecret;
 import xyz.tcheeric.cashu.crypto.BDHKEUtils;
@@ -94,9 +92,7 @@ public final class SecretUtil<T extends Secret> {
         // Per Cashu spec: Y = hash_to_curve(secret_string)
         // The secret_string is the UTF-8 representation of the secret
         byte[] secretStringBytes = secret.toString().getBytes(StandardCharsets.UTF_8);
-        return PublicKey.fromPoint(
-                BDHKEUtils.hashToCurve(secretStringBytes),
-                true).toString();
+        return PublicKey.fromPoint(BDHKEUtils.hashToCurve(secretStringBytes)).toString();
     }
 
     /**
@@ -108,9 +104,7 @@ public final class SecretUtil<T extends Secret> {
      */
     public static String toYFromString(@NonNull String secretString) {
         byte[] secretStringBytes = secretString.getBytes(StandardCharsets.UTF_8);
-        return PublicKey.fromPoint(
-                BDHKEUtils.hashToCurve(secretStringBytes),
-                true).toString();
+        return PublicKey.fromPoint(BDHKEUtils.hashToCurve(secretStringBytes)).toString();
     }
 
     /**

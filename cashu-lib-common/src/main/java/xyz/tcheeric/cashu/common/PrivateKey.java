@@ -13,8 +13,9 @@ public class PrivateKey extends BaseKey {
 
     protected PrivateKey(byte[] value) {
         super(value);
-        if (value.length != PRIVATE_KEY_LENGTH / 2) {
-            throw new IllegalArgumentException("Invalid private key length. (" + value.length + ")");
+        if (value.length != PRIVATE_KEY_HEX_LENGTH / 2) {
+            throw new IllegalArgumentException("Invalid private key length: " + value.length +
+                    ". Expected " + (PRIVATE_KEY_HEX_LENGTH / 2) + " bytes.");
         }
     }
 

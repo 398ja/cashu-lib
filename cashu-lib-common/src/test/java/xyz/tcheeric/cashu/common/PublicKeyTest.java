@@ -1,6 +1,5 @@
 package xyz.tcheeric.cashu.common;
 
-import org.bouncycastle.util.encoders.DecoderException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import xyz.tcheeric.cashu.crypto.util.Point;
@@ -67,7 +66,7 @@ class PublicKeyTest {
 
     @Test
     /**
-     * Ensures compressed keys with invalid lengths throw DecoderException.
+     * Ensures compressed keys with invalid lengths throw IllegalArgumentException.
      */
     void shouldRejectInvalidCompressedLengths() {
         // Arrange
@@ -77,8 +76,8 @@ class PublicKeyTest {
         Executable buildTooLong = () -> PublicKey.fromString(tooLong);
 
         // Act & Assert
-        assertThrows(DecoderException.class, buildTooShort);
-        assertThrows(DecoderException.class, buildTooLong);
+        assertThrows(IllegalArgumentException.class, buildTooShort);
+        assertThrows(IllegalArgumentException.class, buildTooLong);
     }
 
     @Test
