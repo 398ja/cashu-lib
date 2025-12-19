@@ -1,5 +1,45 @@
 # Changelog
 
+All notable changes to cashu-lib-common will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
+## [0.8.0] - 2025-12-19
+
+### Changed
+
+- **PublicKey**: Consolidated `CompressedPublicKey` and `UnCompressedPublicKey` into single unified class
+  - Auto-detects input format (33, 64, or 65 bytes)
+  - Always stores and serializes as compressed format per NUT-00
+  - Added `getUncompressedBytes()` for NUT-12 DLEQ proof hashing
+  - Added `getSec1Uncompressed()` for SEC1 format output
+- **Signature**: Refactored to be standalone, no longer uses PublicKey internally
+  - Stores both compressed (33 bytes) and raw (64 bytes) formats
+  - Preserves raw format for Schnorr signature verification
+  - Added comprehensive documentation for dual use (BDHKE/Schnorr)
+- **BaseKey**: Improved constant naming with clearer semantics
+  - Added `PRIVATE_KEY_HEX_LENGTH`, `X_COORDINATE_HEX_LENGTH`, `COMPRESSED_KEY_HEX_LENGTH`, etc.
+- **HashToCurveSecret**: Now uses `PublicKey` directly instead of `CompressedPublicKey`
+- **SecretUtil**: Updated to use non-deprecated `PublicKey.fromPoint()` method
+
+### Deprecated
+
+- `CompressedPublicKey` class - use `PublicKey` directly
+- `UnCompressedPublicKey` class - use `PublicKey` directly
+- `PublicKey.fromBytes(bytes, boolean)` - use `PublicKey.fromBytes(bytes)`
+- `PublicKey.fromString(str, boolean)` - use `PublicKey.fromString(str)`
+- `PublicKey.fromPoint(ecPoint, boolean)` - use `PublicKey.fromPoint(ecPoint)`
+- Old `BaseKey` constants (`PUBLIC_KEY_LENGTH_COMPRESSED`, `PUBLIC_KEY_LENGTH_UNCOMPRESSED`, etc.)
+
+### Fixed
+
+- **Signature.fromBytes**: Now correctly handles both 33-byte compressed and 64-byte Schnorr signatures
+
+---
+
 ## 1.0.0 (2025-08-30)
 
 
