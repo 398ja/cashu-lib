@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.1] - 2025-12-20
+
+### Added
+
+- **LiteralSecret**: New Secret implementation that preserves exact string representation
+  - Prevents hex case normalization when sending proofs to mint for swap
+  - Fixes proof verification failures caused by case changes (e.g., "AABBCC" → "aabbcc")
+  - Critical for preserving cryptographic integrity: Y = hash_to_curve(UTF-8(secret_string))
+
+---
+
 ## [0.8.0] - 2025-12-19
 
 ### Changed
