@@ -3,27 +3,50 @@ package xyz.tcheeric.cashu.common;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.NonNull;
 import org.bouncycastle.util.encoders.Hex;
-import xyz.tcheeric.cashu.crypto.util.Point;
 
+/**
+ * @deprecated Use {@link PublicKey} directly instead. PublicKey now handles all formats
+ *             including uncompressed input, and provides {@link PublicKey#getUncompressedBytes()}
+ *             when uncompressed output is needed. This class will be removed in a future version.
+ */
+@Deprecated(forRemoval = true)
+@SuppressWarnings("deprecation")
 public class UnCompressedPublicKey extends PublicKey {
 
+    /**
+     * Expected byte length for uncompressed coordinates (x || y without prefix).
+     */
+    private static final int UNCOMPRESSED_XY_BYTES = 64;
+
     UnCompressedPublicKey(@NonNull byte[] bytes) {
-        setBytes(bytes);
-        // Expect 64 bytes (x || y) for uncompressed point form
-        if (bytes.length != 64) {
-            throw new IllegalArgumentException("Invalid uncompressed public key length (" + bytes.length + ")");
+        super();
+        if (bytes.length != UNCOMPRESSED_XY_BYTES) {
+            throw new IllegalArgumentException(
+                    "Invalid uncompressed public key length: " + bytes.length +
+                    ". Expected " + UNCOMPRESSED_XY_BYTES + " bytes (x || y coordinates).");
         }
+        // Convert to PublicKey and get compressed bytes
+        PublicKey pk = PublicKey.fromBytes(bytes);
+        setBytes(pk.getBytes());
     }
 
     UnCompressedPublicKey(@NonNull String s) {
         this(Hex.decode(s));
     }
 
+    /**
+     * @deprecated Use {@link PublicKey#fromBytes(byte[])} instead.
+     */
+    @Deprecated(forRemoval = true)
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static UnCompressedPublicKey fromBytes(@NonNull byte[] bytes) {
         return new UnCompressedPublicKey(bytes);
     }
 
+    /**
+     * @deprecated Use {@link PublicKey#fromString(String)} instead.
+     */
+    @Deprecated(forRemoval = true)
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static UnCompressedPublicKey fromString(@NonNull String s) {
         return new UnCompressedPublicKey(s);
@@ -31,14 +54,6 @@ public class UnCompressedPublicKey extends PublicKey {
 
     @Override
     public String toString() {
-        return compress(this).toString();
+        return Hex.toHexString(getBytes());
     }
-
-    static CompressedPublicKey compress(UnCompressedPublicKey unCompressedPublicKey) {
-        Point point = new Point(Hex.toHexString(unCompressedPublicKey.getBytes()));
-        String prefix = point.hasEvenY() ? "02" : "03";
-        byte[] bytes = toFixed32(point.getX().toByteArray());
-        return CompressedPublicKey.fromString(prefix + Hex.toHexString(bytes));
-    }
-
 }

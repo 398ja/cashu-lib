@@ -14,7 +14,7 @@ import xyz.tcheeric.cashu.common.json.deserializer.SecretDeserializer;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonPropertyOrder({"amount", "id", "secret", "C", "witness"})
+@JsonPropertyOrder({"amount", "id", "secret", "C", "dleq", "witness"})
 public class Proof<T extends Secret> {
 
     @JsonProperty
@@ -30,11 +30,32 @@ public class Proof<T extends Secret> {
     @JsonProperty("C")
     private Signature unblindedSignature;
 
+    /**
+     * Optional DLEQ proof for NUT-12 offline verification.
+     */
+    @JsonProperty("dleq")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private DLEQProof dleq;
+
     @JsonProperty("witness")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Witness witness;
 
     public void setSecretData(byte[] data) {
         this.secret.setData(data);
+    }
+
+    /**
+     * Checks if this Proof includes a DLEQ proof.
+     */
+    public boolean hasDLEQProof() {
+        return dleq != null;
+    }
+
+    /**
+     * Checks if this Proof includes a DLEQ proof with the blinding factor.
+     */
+    public boolean hasDLEQWithBlindingFactor() {
+        return dleq != null && dleq.hasBlindingFactor();
     }
 }

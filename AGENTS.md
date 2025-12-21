@@ -125,6 +125,17 @@ cashu-lib is a Java 21 multi-module library that implements the core data struct
 - Keep versions inside the parent `properties` block consistent. If you bump a dependency or plugin, change it in the parent and let modules inherit the new value.
 - Release automation is managed by `release-please`. After merging to `main`, new tags are created from conventional commits. Do not edit `.release-please-manifest.json` manually.
 
+## Changelog Maintenance
+- **Always update `CHANGELOG.md`** after any version change or significant code modification.
+- Follow the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format:
+  - Group changes under: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`
+  - List versions in reverse chronological order (newest first)
+  - Use `[Unreleased]` section for changes not yet in a release
+  - Include the release date in ISO format: `## [1.0.0] - 2025-12-17`
+- Each entry should be a concise, human-readable description of the change
+- Reference related issues or PRs where applicable
+- Update the changelog in the same commit as the version bump when possible
+
 ## Project Research Notes
 - The `project/` directory captures ongoing protocol work (voucher compatibility, CLI integration, release phases). Review those documents when implementing NUT-13 or voucher features to stay aligned with the planned architecture.
 - Many TODOs in the code reference these documents (for example the `TokenV3` merge TODO). Cross-link code changes with the corresponding plan where possible.

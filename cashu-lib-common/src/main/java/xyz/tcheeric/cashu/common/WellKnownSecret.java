@@ -24,7 +24,8 @@ public abstract class WellKnownSecret implements Secret {
 
     public enum Kind {
         P2PK,
-        HTLC
+        HTLC,
+        VOUCHER
     }
 
     private Kind kind;
