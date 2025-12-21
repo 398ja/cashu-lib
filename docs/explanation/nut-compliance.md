@@ -14,6 +14,11 @@ Keyset identifiers are derived from compressed public keys sorted by amount and 
 
 [`cashu-lib-crypto`](../../cashu-lib-crypto/) provides BIP-340 Schnorr signature helpers used across the project. These primitives satisfy the cryptographic requirements outlined in the early NUTs.
 
+Hash-to-curve input handling mirrors the NUT guidance:
+
+- NUT-00 random secrets are hex-decoded before hashing.
+- NUT-10 well-known secrets (JSON arrays) are hashed using their UTF-8 representation.
+
 ## Restore Signatures (NUT-09)
 
 Support for the `/restore` endpoint entities is included so that clients can recover blind signatures as described in [NUT-09](https://github.com/cashubtc/nuts/blob/main/09.md).

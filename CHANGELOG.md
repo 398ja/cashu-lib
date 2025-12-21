@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.9.1] - 2025-12-22
+
+### Added
+
+- Unit tests covering `SecretUtil.toY` for NUT-00 hex secrets, NUT-10 JSON secrets, and string/secret parity to guard hash_to_curve consistency.
+
+### Changed
+
+- Bumped parent and module versions to `0.9.1`.
+
+### Fixed
+
+- `SecretUtil.toY` now matches `BDHKEUtils.hashToCurve(String)` decoding rules (hex decode for NUT-00, UTF-8 for NUT-10), keeping Y values consistent with mint verification and `/checkstate`.
+
+---
+
 ## [0.9.0] - 2025-12-21
 
 ### Added

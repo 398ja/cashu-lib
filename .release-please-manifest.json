@@ -1,6 +1,6 @@
 {
-  ".": "0.9.0",
-  "cashu-lib-common": "0.9.0",
-  "cashu-lib-crypto": "0.9.0",
-  "cashu-lib-entities": "0.9.0"
+  ".": "0.9.1",
+  "cashu-lib-common": "0.9.1",
+  "cashu-lib-crypto": "0.9.1",
+  "cashu-lib-entities": "0.9.1"
 }

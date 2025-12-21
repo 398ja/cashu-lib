@@ -12,7 +12,6 @@ import xyz.tcheeric.cashu.common.VoucherWellKnownSecret;
 import xyz.tcheeric.cashu.common.WellKnownSecret;
 import xyz.tcheeric.cashu.crypto.BDHKEUtils;
 
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,10 +88,8 @@ public final class SecretUtil<T extends Secret> {
      * @return hex-encoded Y point on secp256k1 curve
      */
     public static <T extends Secret> String toY(@NonNull T secret) {
-        // Per Cashu spec: Y = hash_to_curve(secret_string)
-        // The secret_string is the UTF-8 representation of the secret
-        byte[] secretStringBytes = secret.toString().getBytes(StandardCharsets.UTF_8);
-        return PublicKey.fromPoint(BDHKEUtils.hashToCurve(secretStringBytes)).toString();
+        byte[] y = BDHKEUtils.hashToCurve(secret.toString());
+        return PublicKey.fromBytes(y).toString();
     }
 
     /**
@@ -103,8 +100,8 @@ public final class SecretUtil<T extends Secret> {
      * @return hex-encoded Y point on secp256k1 curve
      */
     public static String toYFromString(@NonNull String secretString) {
-        byte[] secretStringBytes = secretString.getBytes(StandardCharsets.UTF_8);
-        return PublicKey.fromPoint(BDHKEUtils.hashToCurve(secretStringBytes)).toString();
+        byte[] y = BDHKEUtils.hashToCurve(secretString);
+        return PublicKey.fromBytes(y).toString();
     }
 
     /**
@@ -276,4 +273,3 @@ public final class SecretUtil<T extends Secret> {
         return legacyMapToSecret(kind, map);
     }
 }
-
