@@ -66,8 +66,8 @@ NUT-12 is an optional Cashu protocol extension that enables **offline signature 
 | Metric | Value |
 |--------|-------|
 | **Total Tasks** | 24 tasks (21 required + 3 optional) |
-| **Completed Tasks** | 0 tasks (0%) |
-| **In Progress** | Not Started |
+| **Completed Tasks** | 4 tasks (17%) |
+| **In Progress** | Phase 1 complete; Phase 2 pending |
 | **Start Date** | TBD |
 | **Target Completion** | TBD |
 | **Primary Developer** | TBD |
@@ -103,13 +103,13 @@ NUT-12 is an optional Cashu protocol extension that enables **offline signature 
 
 | Phase | Focus Area | Tasks | Status |
 |-------|-----------|-------|--------|
-| **Phase 1** | Core DLEQ Primitives | 4 tasks | Not Started |
+| **Phase 1** | Core DLEQ Primitives | 4 tasks | Complete |
 | **Phase 2** | Data Structure Extensions | 4 tasks | Not Started |
 | **Phase 3** | Mint Implementation | 4 tasks | Not Started |
 | **Phase 4** | Wallet Implementation | 5 tasks | Not Started |
 | **Phase 5** | Integration & Testing | 4 tasks | Not Started |
 | **Phase 6** | CLI Implementation | 3 tasks | Not Started |
-| **Total** | All Phases | **24 tasks** | **0% Complete** |
+| **Total** | All Phases | **24 tasks** | **17% Complete** |
 
 ### Task Table Legend
 
@@ -232,10 +232,10 @@ public static byte[] dleqHash(ECPoint R1, ECPoint R2, ECPoint A, ECPoint C_) {
 
 | ID | Task | Status | Priority | Dependency | Location | Commit | Notes |
 |----|------|--------|----------|------------|----------|--------|-------|
-| 1.1 | Create DLEQProof Class | Pending | P0 | None | `cashu-lib-common` | - | Data class for (e, s, r) |
-| 1.2 | Create DLEQUtils | Pending | P0 | 1.1 | `cashu-lib-crypto` | - | Core DLEQ operations |
-| 1.3 | Implement DLEQ Hash Function | Pending | P0 | 1.2 | `cashu-lib-crypto` | - | SHA256 of uncompressed points |
-| 1.4 | Write Unit Tests | Pending | P0 | 1.1-1.3 | `cashu-lib-crypto/test` | - | Test vectors and edge cases |
+| 1.1 | Create DLEQProof Class | Complete | P0 | None | `cashu-lib-common` | 6537f6d | Data class for (e, s, r) |
+| 1.2 | Create DLEQUtils | Complete | P0 | 1.1 | `cashu-lib-crypto` | 6537f6d | Core DLEQ operations |
+| 1.3 | Implement DLEQ Hash Function | Complete | P0 | 1.2 | `cashu-lib-crypto` | 6537f6d | SHA256 of uncompressed points |
+| 1.4 | Write Unit Tests | Complete | P0 | 1.1-1.3 | `cashu-lib-crypto/test` | 6537f6d | Test vectors and edge cases |
 
 ### 1.1 Create DLEQProof Class
 
@@ -2092,9 +2092,10 @@ The `TokenV4.java` class already contains a nested `DLEQProof` class for V4 toke
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
+| 1.1 | 2025-12-21 | Phase 1 completed; added DLEQ primitives and tests | eric |
 | 1.0 | 2025-12-12 | Initial implementation plan created | Claude |
 
-*Last Updated: 2025-12-12*
-*Status: New Implementation Plan*
+*Last Updated: 2025-12-21*
+*Status: Phase 1 complete*
 *Total Tasks: 24 (21 required + 3 optional)*
-*Progress: 0% Complete (0/24 tasks)*
+*Progress: 17% Complete (4/24 tasks)*
