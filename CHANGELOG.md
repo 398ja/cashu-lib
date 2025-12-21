@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.9.0] - 2025-12-21
+
+### Added
+
+- **NUT-12 DLEQ primitives**: Introduced `DLEQProof` model and `DLEQUtils` generation/verification helpers for offline signature verification.
+- **DLEQ token payloads**: Blind signatures and proofs now carry optional DLEQ data (`e`, `s`, `r`) with JSON/CBOR serialization and validation.
+- **Test coverage**: Added unit tests for DLEQ proof serialization and cryptographic verification paths.
+
+### Changed
+
+- Bumped parent and module versions to `0.9.0`.
+
+---
+
 ## [0.8.0] - 2025-12-19
 
 ### Changed
