@@ -66,8 +66,8 @@ NUT-12 is an optional Cashu protocol extension that enables **offline signature 
 | Metric | Value |
 |--------|-------|
 | **Total Tasks** | 24 tasks (21 required + 3 optional) |
-| **Completed Tasks** | 4 tasks (17%) |
-| **In Progress** | Phase 1 complete; Phase 2 pending |
+| **Completed Tasks** | 8 tasks (33%) |
+| **In Progress** | Phase 2 complete; Phase 3 pending |
 | **Start Date** | TBD |
 | **Target Completion** | TBD |
 | **Primary Developer** | TBD |
@@ -104,12 +104,12 @@ NUT-12 is an optional Cashu protocol extension that enables **offline signature 
 | Phase | Focus Area | Tasks | Status |
 |-------|-----------|-------|--------|
 | **Phase 1** | Core DLEQ Primitives | 4 tasks | Complete |
-| **Phase 2** | Data Structure Extensions | 4 tasks | Not Started |
+| **Phase 2** | Data Structure Extensions | 4 tasks | Complete |
 | **Phase 3** | Mint Implementation | 4 tasks | Not Started |
 | **Phase 4** | Wallet Implementation | 5 tasks | Not Started |
 | **Phase 5** | Integration & Testing | 4 tasks | Not Started |
 | **Phase 6** | CLI Implementation | 3 tasks | Not Started |
-| **Total** | All Phases | **24 tasks** | **17% Complete** |
+| **Total** | All Phases | **24 tasks** | **33% Complete** |
 
 ### Task Table Legend
 
@@ -870,10 +870,10 @@ class DLEQUtilsTest {
 
 | ID | Task | Status | Priority | Dependency | Location | Commit | Notes |
 |----|------|--------|----------|------------|----------|--------|-------|
-| 2.1 | Create BlindSignatureDLEQ | Pending | P0 | 1.1 | `cashu-lib-common` | - | Extends BlindSignature with DLEQ |
-| 2.2 | Create ProofDLEQ | Pending | P0 | 1.1 | `cashu-lib-common` | - | Extends Proof with DLEQ + r |
-| 2.3 | Update JSON Serializers | Pending | P0 | 2.1, 2.2 | `cashu-lib-common/json` | - | Handle optional DLEQ field |
-| 2.4 | Write Unit Tests | Pending | P1 | 2.1-2.3 | `cashu-lib-common/test` | - | Serialization tests |
+| 2.1 | Create BlindSignatureDLEQ | Complete | P0 | 1.1 | `cashu-lib-common` | 2ee23ae | Extends BlindSignature with DLEQ |
+| 2.2 | Create ProofDLEQ | Complete | P0 | 1.1 | `cashu-lib-common` | 2ee23ae | Extends Proof with DLEQ + r |
+| 2.3 | Update JSON Serializers | Complete | P0 | 2.1, 2.2 | `cashu-lib-common/json` | 2ee23ae | Handle optional DLEQ field |
+| 2.4 | Write Unit Tests | Complete | P1 | 2.1-2.3 | `cashu-lib-common/test` | 2ee23ae | Serialization tests |
 
 ### 2.1 Create BlindSignatureDLEQ Class
 
@@ -2092,10 +2092,11 @@ The `TokenV4.java` class already contains a nested `DLEQProof` class for V4 toke
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
+| 1.2 | 2025-12-21 | Phase 2 completed; added DLEQ fields + serializers | eric |
 | 1.1 | 2025-12-21 | Phase 1 completed; added DLEQ primitives and tests | eric |
 | 1.0 | 2025-12-12 | Initial implementation plan created | Claude |
 
 *Last Updated: 2025-12-21*
-*Status: Phase 1 complete*
+*Status: Phase 2 complete*
 *Total Tasks: 24 (21 required + 3 optional)*
-*Progress: 17% Complete (4/24 tasks)*
+*Progress: 33% Complete (8/24 tasks)*
