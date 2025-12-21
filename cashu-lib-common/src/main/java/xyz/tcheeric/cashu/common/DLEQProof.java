@@ -3,10 +3,12 @@ package xyz.tcheeric.cashu.common;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import xyz.tcheeric.cashu.common.json.deserializer.DLEQProofDeserializer;
 
 /**
  * Discrete Log Equality (DLEQ) proof for NUT-12 offline signature verification.
@@ -18,6 +20,7 @@ import lombok.NonNull;
  */
 @Data
 @NoArgsConstructor
+@JsonDeserialize(using = DLEQProofDeserializer.class)
 @JsonPropertyOrder({"e", "s", "r"})
 public class DLEQProof {
 
