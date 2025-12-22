@@ -32,7 +32,17 @@ public class BDHKEUtils {
         if (secret == null || secret.isEmpty()) {
             throw new IllegalArgumentException("secret must not be null or empty");
         }
-        ECPoint result = hashToCurve(Utils.hexStringToBytes(secret));
+        // NUT-10 well-known secrets are JSON arrays (start with '[')
+        // They should be UTF-8 encoded for hashing, not hex decoded
+        byte[] secretBytes;
+        if (secret.startsWith("[")) {
+            // NUT-10 JSON secret: UTF-8 encode the JSON string
+            secretBytes = secret.getBytes(StandardCharsets.UTF_8);
+        } else {
+            // Legacy hex secret: hex decode
+            secretBytes = Utils.hexStringToBytes(secret);
+        }
+        ECPoint result = hashToCurve(secretBytes);
         return result.getEncoded(true);
     }
 
@@ -142,19 +152,34 @@ public class BDHKEUtils {
     }
 
     public static boolean verify(@NonNull String secret, @NonNull BigInteger k, @NonNull ECPoint C) {
-        ECPoint Y = hashToCurve(Utils.hexStringToBytes(secret));
+        // NUT-10 well-known secrets are JSON arrays (start with '[')
+        // They should be UTF-8 encoded for hashing, not hex decoded
+        // Legacy hex secrets continue to be hex decoded for backward compatibility
+        byte[] secretBytes;
+        if (secret.startsWith("[")) {
+            // NUT-10 JSON secret: UTF-8 encode the JSON string
+            secretBytes = secret.getBytes(StandardCharsets.UTF_8);
+            log.debug("verify: NUT-10 secret detected, using UTF-8 encoding, length={}", secretBytes.length);
+        } else {
+            // Legacy hex secret: hex decode
+            secretBytes = Utils.hexStringToBytes(secret);
+            log.debug("verify: hex secret detected, using hex decoding, length={}", secretBytes.length);
+        }
+        ECPoint Y = hashToCurve(secretBytes);
         boolean valid = verify(Y, k, C);
         return valid;
     }
 
 
     private static boolean verify(byte[] Y, byte[] k, byte[] C) {
-        log.debug("verify({}, {}, {})", Utils.bytesToHexString(Y), Utils.bytesToHexString(k), Utils.bytesToHexString(C));
+        log.debug("verify(bytes): Y={}, k={}, C={}",
+                Utils.bytesToHexString(Y), Utils.bytesToHexString(k), Utils.bytesToHexString(C));
         return verify(CURVE.decodePoint(Y), Utils.bigIntFromBytes(k), CURVE.decodePoint(C));
     }
 
     private static boolean verify(ECPoint Y, BigInteger k, ECPoint C) {
-        log.debug("verify({}, {}, {})", pointToHex(Y), Utils.bytesToHexString(Utils.bytesFromBigInteger(k)), pointToHex(C));
+        log.debug("verify(points): Y={}, k={}, C={}",
+                pointToHex(Y), Utils.bytesToHexString(Utils.bytesFromBigInteger(k)), pointToHex(C));
         ECPoint result = Y.multiply(k);
         return C.equals(result);
     }

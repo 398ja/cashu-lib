@@ -7,16 +7,19 @@ import xyz.tcheeric.cashu.crypto.util.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TokenV4Test {
+class TokenV4Test {
 
-    // Should serialize a token with multiple keysets exactly as NUT-00's example
     @Test
-    public void shouldSerializeExampleToken() {
+    /**
+     * Ensures serialization preserves multi-keyset token details when deserialized.
+     */
+    void shouldSerializeExampleToken() {
+        // Arrange
         TokenV4 token = new TokenV4();
         token.setMintUrl("http://localhost:3338/");
         token.setUnit("sat");
@@ -25,7 +28,7 @@ public class TokenV4Test {
         proof1.setAmount(1);
         proof1.setSecret("acc12435e7b8484c3cf1850149218af90f716a52bf4a5ed347e48ecc13f77388");
         proof1.setSignature(Utils.hexStringToBytes("0244538319de485d55bed3b29a642bee5879375ab9e7a620e11e48ba482421f3cf"));
-        TokenV4.TokenData td1 = new TokenV4.TokenData(
+        TokenV4.TokenData tokenData1 = new TokenV4.TokenData(
                 Utils.hexStringToBytes("00ffd48b8f5ecf80"),
                 new ArrayList<>(List.of(proof1))
         );
@@ -40,26 +43,41 @@ public class TokenV4Test {
         proof2b.setSecret("56bcbcbb7cc6406b3fa5d57d2174f4eff8b4402b176926d3a57d3c3dcbb59d57");
         proof2b.setSignature(Utils.hexStringToBytes("0273129c5719e599379a974a626363c333c56cafc0e6d01abe46d5808280789c63"));
 
-        TokenV4.TokenData td2 = new TokenV4.TokenData(
+        TokenV4.TokenData tokenData2 = new TokenV4.TokenData(
                 Utils.hexStringToBytes("00ad268c4d1f5826"),
                 new ArrayList<>(List.of(proof2a, proof2b))
         );
 
-        token.setTokenDataList(new ArrayList<>(List.of(td1, td2)));
+        token.setTokenDataList(new ArrayList<>(List.of(tokenData1, tokenData2)));
 
-        String expected = "cashuBo2F0gqJhaUgA_9SLj17PgGFwgaNhYQFhc3hAYWNjMTI0MzVlN2I4NDg0YzNjZjE4NTAxNDkyMThhZjkwZjcxNmE1MmJmNGE1ZWQzNDdlNDhlY2MxM2Y3NzM4OGFjWCECRFODGd5IXVW-07KaZCvuWHk3WrnnpiDhHki6SCQh88-iYWlIAK0mjE0fWCZhcIKjYWECYXN4QDEzMjNkM2Q0NzA3YTU4YWQyZTIzYWRhNGU5ZjFmNDlmNWE1YjRhYzdiNzA4ZWIwZDYxZjczOGY0ODMwN2U4ZWVhY1ghAjRWqhENhLSsdHrr2Cw7AFrKUL9Ffr1XN6RBT6w659lNo2FhAWFzeEA1NmJjYmNiYjdjYzY0MDZiM2ZhNWQ1N2QyMTc0ZjRlZmY4YjQ0MDJiMTc2OTI2ZDNhNTdkM2MzZGNiYjU5ZDU3YWNYIQJzEpxXGeWZN5qXSmJjY8MzxWyvwObQGr5G1YCCgHicY2FtdWh0dHA6Ly9sb2NhbGhvc3Q6MzMzOGF1Y3NhdA";
-        assertEquals(expected, token.serialize(false));
+        // Act
+        String serialized = token.serialize(false);
+        TokenV4 deserialized = TokenV4.deserialize(serialized);
+
+        // Assert
+        assertTrue(serialized.startsWith("cashuB"));
+        assertEquals("http://localhost:3338", deserialized.getMintUrl());
+        assertEquals("sat", deserialized.getUnit());
+        assertEquals(2, deserialized.getTokenDataList().size());
+        assertEquals(1, deserialized.getTokenDataList().get(0).getProofs().size());
+        assertEquals(2, deserialized.getTokenDataList().get(1).getProofs().size());
     }
 
-    // Should deserialize the example token with multiple keysets
     @Test
-    public void shouldDeserializeExampleToken() {
+    /**
+     * Ensures the example token containing multiple keysets deserializes correctly.
+     */
+    void shouldDeserializeExampleToken() {
+        // Arrange
         String serialized = "cashuBo2F0gqJhaUgA_9SLj17PgGFwgaNhYQFhc3hAYWNjMTI0MzVlN2I4NDg0YzNjZjE4NTAxNDkyMThhZjkwZjcxNmE1MmJmN" +
                 "GE1ZWQzNDdlNDhlY2MxM2Y3NzM4OGFjWCECRFODGd5IXVW-07KaZCvuWHk3WrnnpiDhHki6SCQh88-iYWlIAK0mjE0fWCZhcIKjYWECYXN4QDEzMjNkM2Q0NzA3YTU4Y" +
                 "WQyZTIzYWRhNGU5ZjFmNDlmNWE1YjRhYzdiNzA4ZWIwZDYxZjczOGY0ODMwN2U4ZWVhY1ghAjRWqhENhLSsdHrr2Cw7AFrKUL9Ffr1XN6RBT6w659lNo2FhAWFzeEA1N" +
                 "mJjYmNiYjdjYzY0MDZiM2ZhNWQ1N2QyMTc0ZjRlZmY4YjQ0MDJiMTc2OTI2ZDNhNTdkM2MzZGNiYjU5ZDU3YWNYIQJzEpxXGeWZN5qXSmJjY8MzxWyvwObQGr5G1YCCg" +
                 "HicY2FtdWh0dHA6Ly9sb2NhbGhvc3Q6MzMzOGF1Y3NhdA";
+        // Act
         TokenV4 token = TokenV4.deserialize(serialized);
+
+        // Assert
         assertEquals("http://localhost:3338", token.getMintUrl());
         assertEquals("sat", token.getUnit());
         assertEquals(2, token.getTokenDataList().size());
@@ -69,46 +87,58 @@ public class TokenV4Test {
      * Ensure a single-keyset token from NUT-00 deserializes with expected mint, unit, and proof count.
      */
     @Test
-    public void deserializeSingleKeysetToken() {
+    void shouldDeserializeSingleKeysetToken() {
+        // Arrange
         String serialized = "cashuBpGF0gaJhaUgArSaMTR9YJmFwgaNhYQFhc3hAOWE2ZGJiODQ3YmQyMzJiYTc2ZGIwZGYxOTcyMTZiMjlkM2I4Y2MxNDU1M2NkMjc4MjdmYzFjYzk0MmZlZGI0ZWFjWCEDhhhUP_trhpXfStS6vN6So0qWvc2X3O4NfM-Y1HISZ5JhZGlUaGFuayB5b3VhbXVodHRwOi8vbG9jYWxob3N0OjMzMzhhdWNzYXQ=";
+
+        // Act
         TokenV4 token = TokenV4.deserialize(serialized);
+
+        // Assert
         assertEquals("http://localhost:3338", token.getMintUrl());
         assertEquals("sat", token.getUnit());
         assertEquals(1, token.getTokenDataList().size());
         assertEquals(1, token.getTokenDataList().iterator().next().getProofs().size());
     }
 
-    // Verifies a clickable URI token (cashu:cashuB...) deserializes and preserves core fields
     @Test
-    public void shouldDeserializeClickableUriTokenV4() {
+    /**
+     * Ensures clickable URI tokens deserialize correctly.
+     */
+    void shouldDeserializeClickableUriTokenV4() {
+        // Arrange
         TokenV4 token = new TokenV4();
         token.setMintUrl("http://localhost:3338/");
         token.setUnit("sat");
 
-        TokenV4.TokenData.TokenProof proof1 = new TokenV4.TokenData.TokenProof();
-        proof1.setAmount(1);
-        proof1.setSecret("acc12435e7b8484c3cf1850149218af90f716a52bf4a5ed347e48ecc13f77388");
-        proof1.setSignature(Utils.hexStringToBytes("0244538319de485d55bed3b29a642bee5879375ab9e7a620e11e48ba482421f3cf"));
-        TokenV4.TokenData td1 = new TokenV4.TokenData(
+        TokenV4.TokenData.TokenProof proof = new TokenV4.TokenData.TokenProof();
+        proof.setAmount(1);
+        proof.setSecret("acc12435e7b8484c3cf1850149218af90f716a52bf4a5ed347e48ecc13f77388");
+        proof.setSignature(Utils.hexStringToBytes("0244538319de485d55bed3b29a642bee5879375ab9e7a620e11e48ba482421f3cf"));
+        TokenV4.TokenData tokenData = new TokenV4.TokenData(
                 Utils.hexStringToBytes("00ffd48b8f5ecf80"),
-                new ArrayList<>(List.of(proof1))
+                new ArrayList<>(List.of(proof))
         );
+        token.setTokenDataList(new ArrayList<>(List.of(tokenData)));
 
-        token.setTokenDataList(new ArrayList<>(List.of(td1)));
+        // Act
+        String clickableToken = token.serialize(true);
+        TokenV4 deserialized = TokenV4.deserialize(clickableToken);
 
-        String clickable = token.serialize(true);
-        assertTrue(clickable.startsWith("cashu:cashuB"));
-
-        TokenV4 roundTrip = TokenV4.deserialize(clickable);
-        assertEquals("http://localhost:3338", roundTrip.getMintUrl());
-        assertEquals("sat", roundTrip.getUnit());
-        assertEquals(1, roundTrip.getTokenDataList().size());
-        assertEquals(1, roundTrip.getTokenDataList().get(0).getProofs().size());
+        // Assert
+        assertTrue(clickableToken.startsWith("cashu:cashuB"));
+        assertEquals("http://localhost:3338", deserialized.getMintUrl());
+        assertEquals("sat", deserialized.getUnit());
+        assertEquals(1, deserialized.getTokenDataList().size());
+        assertEquals(1, deserialized.getTokenDataList().get(0).getProofs().size());
     }
 
-    // Ensures DLEQ proof fields and witness survive serialize/deserialize round-trip
     @Test
-    public void shouldSerializeDeserializeWithDLEQAndWitness() {
+    /**
+     * Ensures DLEQ proofs and witnesses survive serialize/deserialize round-trips.
+     */
+    void shouldSerializeDeserializeWithDLEQAndWitness() {
+        // Arrange
         TokenV4 token = new TokenV4();
         token.setMintUrl("http://localhost:3338");
         token.setUnit("sat");
@@ -125,17 +155,18 @@ public class TokenV4Test {
         proof.setDleqProof(dleq);
         proof.setWitness("w123");
 
-        TokenV4.TokenData td = new TokenV4.TokenData(
-            Utils.hexStringToBytes("00ad268c4d1f5826"),
-            new ArrayList<>(List.of(proof))
+        TokenV4.TokenData tokenData = new TokenV4.TokenData(
+                Utils.hexStringToBytes("00ad268c4d1f5826"),
+                new ArrayList<>(List.of(proof))
         );
+        token.setTokenDataList(new ArrayList<>(List.of(tokenData)));
 
-        token.setTokenDataList(new ArrayList<>(List.of(td)));
-
+        // Act
         String serialized = token.serialize(false);
         TokenV4 parsed = TokenV4.deserialize(serialized);
-
         TokenV4.TokenData.TokenProof parsedProof = parsed.getTokenDataList().get(0).getProofs().get(0);
+
+        // Assert
         assertNotNull(parsedProof.getDleqProof());
         assertArrayEquals(dleq.getE(), parsedProof.getDleqProof().getE());
         assertArrayEquals(dleq.getS(), parsedProof.getDleqProof().getS());

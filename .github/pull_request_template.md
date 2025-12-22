@@ -15,6 +15,5 @@ Related issue: #____
 ## Checklist
 - [ ] Scope ≤ 300 lines (or split/stack)
 - [ ] Title is **verb + object** (e.g., “Refactor auth middleware to async”)
-- [ ] Description links the issue and answers “why now?”
 - [ ] **BREAKING** flagged if needed
 - [ ] Tests/docs updated (if relevant)

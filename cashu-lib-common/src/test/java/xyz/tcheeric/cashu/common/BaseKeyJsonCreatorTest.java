@@ -2,35 +2,56 @@ package xyz.tcheeric.cashu.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import xyz.tcheeric.cashu.common.PrivateKey;
-import xyz.tcheeric.cashu.common.PublicKey;
-import xyz.tcheeric.cashu.common.Signature;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BaseKeyJsonCreatorTest {
+class BaseKeyJsonCreatorTest {
 
     @Test
-    public void deserializePrivateKey() throws Exception {
+    /**
+     * Ensures JSON deserialization maps to PrivateKey correctly.
+     */
+    void shouldDeserializePrivateKey() throws Exception {
+        // Arrange
         ObjectMapper mapper = new ObjectMapper();
-        String value = PrivateKey.generateRandom().toString();
-        PrivateKey key = mapper.readValue("\"" + value + "\"", PrivateKey.class);
-        assertEquals(PrivateKey.fromString(value), key);
+        String privateKeyHex = PrivateKey.generateRandom().toString();
+
+        // Act
+        PrivateKey deserializedKey = mapper.readValue("\"" + privateKeyHex + "\"", PrivateKey.class);
+
+        // Assert
+        assertEquals(PrivateKey.fromString(privateKeyHex), deserializedKey);
     }
 
     @Test
-    public void deserializePublicKey() throws Exception {
+    /**
+     * Ensures JSON deserialization maps to PublicKey correctly.
+     */
+    void shouldDeserializePublicKey() throws Exception {
+        // Arrange
         ObjectMapper mapper = new ObjectMapper();
-        String value = PrivateKey.derivePublicKey(PrivateKey.generateRandom()).toString();
-        PublicKey key = mapper.readValue("\"" + value + "\"", PublicKey.class);
-        assertEquals(PublicKey.fromString(value), key);
+        String publicKeyHex = PrivateKey.derivePublicKey(PrivateKey.generateRandom()).toString();
+
+        // Act
+        PublicKey deserializedKey = mapper.readValue("\"" + publicKeyHex + "\"", PublicKey.class);
+
+        // Assert
+        assertEquals(PublicKey.fromString(publicKeyHex, true), deserializedKey);
     }
 
     @Test
-    public void deserializeSignature() throws Exception {
+    /**
+     * Ensures JSON deserialization maps to Signature correctly.
+     */
+    void shouldDeserializeSignature() throws Exception {
+        // Arrange
         ObjectMapper mapper = new ObjectMapper();
-        String value = "029e8e5050b890a7d6c0968db16bc1d5d5fa040ea1de284f6ec69d61299f671059";
-        Signature sig = mapper.readValue("\"" + value + "\"", Signature.class);
-        assertEquals(Signature.fromString(value), sig);
+        String signatureHex = "029e8e5050b890a7d6c0968db16bc1d5d5fa040ea1de284f6ec69d61299f671059";
+
+        // Act
+        Signature deserializedSignature = mapper.readValue("\"" + signatureHex + "\"", Signature.class);
+
+        // Assert
+        assertEquals(Signature.fromString(signatureHex), deserializedSignature);
     }
 }

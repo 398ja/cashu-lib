@@ -1,4 +1,18 @@
 version: 2
+
+# Private registries used by Dependabot
+registries:
+  maven-releases:
+    type: maven-repository
+    url: https://maven.398ja.xyz/releases
+    username: ${{secrets.MVN_USER}}
+    password: ${{secrets.MVN_PASSWORD}}
+  maven-snapshots:
+    type: maven-repository
+    url: https://maven.398ja.xyz/snapshots
+    username: ${{secrets.MVN_USER}}
+    password: ${{secrets.MVN_PASSWORD}}
+
 updates:
   - package-ecosystem: "maven"
     directory: "/"

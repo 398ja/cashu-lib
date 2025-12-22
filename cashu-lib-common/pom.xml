@@ -3,7 +3,7 @@
     <parent>
         <groupId>xyz.tcheeric</groupId>
         <artifactId>cashu-lib</artifactId>
-        <version>0.2.0</version>
+        <version>0.9.1</version>
     </parent>
 
     <artifactId>cashu-lib-common</artifactId>
@@ -57,9 +57,23 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- BIP39/BIP32/NUT-13 utilities for deterministic secret derivation -->
+        <dependency>
+            <groupId>xyz.tcheeric</groupId>
+            <artifactId>bip-utils</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
+        </dependency>
+
+        <!-- JUnit Jupiter Params for parameterized tests (@ParameterizedTest, @MethodSource) -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

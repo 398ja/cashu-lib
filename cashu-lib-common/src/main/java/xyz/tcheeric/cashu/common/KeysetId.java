@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
+import java.math.BigInteger;
+
 /**
  * Value object representing a keyset identifier.
  * The identifier must be a hexadecimal string of length 16.
@@ -32,5 +34,11 @@ public class KeysetId {
     @Override
     public String toString() {
         return value;
+    }
+
+    public int toInt() {
+        BigInteger bi = new BigInteger(value, 16);
+        BigInteger mod = BigInteger.valueOf(Integer.MAX_VALUE); // 2^31 - 1
+        return bi.mod(mod).intValue();
     }
 }

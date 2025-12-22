@@ -15,6 +15,7 @@ public interface Secret {
         return switch (type.getSimpleName()) {
             case "P2PKSecret" -> P2PKSecret.fromString(secret);
             case "RandomStringSecret" -> RandomStringSecret.fromString(secret);
+            case "DeterministicSecret" -> DeterministicSecret.fromString(secret);
             default -> throw new IllegalArgumentException("Unknown secret type: " + type.getSimpleName());
         };
     }

@@ -2,30 +2,51 @@ package xyz.tcheeric.cashu.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import xyz.tcheeric.cashu.common.KeysetId;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class KeysetIdTest {
+class KeysetIdTest {
 
     @Test
-    public void validKeysetId() throws Exception {
-        String value = "009a1f293253e41e";
-        KeysetId id = KeysetId.fromString(value);
-        assertEquals(value, id.toString());
-
+    /**
+     * Ensures valid hex strings round-trip through the KeysetId type and JSON serialization.
+     */
+    void shouldParseValidKeysetId() throws Exception {
+        // Arrange
+        String keysetIdHex = "009a1f293253e41e";
         ObjectMapper mapper = new ObjectMapper();
-        KeysetId fromJson = mapper.readValue("\"" + value + "\"", KeysetId.class);
-        assertEquals(id, fromJson);
+
+        // Act
+        KeysetId keysetId = KeysetId.fromString(keysetIdHex);
+        KeysetId fromJson = mapper.readValue("\"" + keysetIdHex + "\"", KeysetId.class);
+
+        // Assert
+        assertEquals(keysetIdHex, keysetId.toString());
+        assertEquals(keysetId, fromJson);
     }
 
     @Test
-    public void invalidHexKeysetId() {
-        assertThrows(IllegalArgumentException.class, () -> KeysetId.fromString("zzzzzzzzzzzzzzzz"));
+    /**
+     * Ensures keyset IDs reject non-hex characters.
+     */
+    void shouldRejectNonHexCharacters() {
+        // Arrange
+        String invalidHex = "zzzzzzzzzzzzzzzz";
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> KeysetId.fromString(invalidHex));
     }
 
     @Test
-    public void invalidLengthKeysetId() {
-        assertThrows(IllegalArgumentException.class, () -> KeysetId.fromString("1234abcd"));
+    /**
+     * Ensures keyset IDs reject strings with invalid length.
+     */
+    void shouldRejectInvalidLength() {
+        // Arrange
+        String invalidLength = "1234abcd";
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> KeysetId.fromString(invalidLength));
     }
 }
