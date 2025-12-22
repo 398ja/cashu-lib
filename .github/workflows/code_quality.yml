@@ -5,7 +5,7 @@ on:
   push:
     branches: # Specify your branches here
       - main # The 'main' branch
-      - develop
+      - 'releases/*' # The release branches
 
 jobs:
   qodana:
@@ -19,10 +19,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}  # to check out the actual pull request commit, not the merge commit
           fetch-depth: 0  # a full history is required for pull request analysis
-      - name: Qodana Scan
-        uses: JetBrains/qodana-action@v2024.x
+      - name: 'Qodana Scan'
+        uses: JetBrains/qodana-action@v2025.2
         with:
-          linter: jetbrains/qodana-jvm-community:latest
+          pr-mode: false
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
           QODANA_ENDPOINT: 'https://qodana.cloud'
