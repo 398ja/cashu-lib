@@ -8,19 +8,21 @@ import java.nio.charset.StandardCharsets;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests VoucherWellKnownSecret serialization and deserialization via SecretUtil.
+ * Tests VoucherSecret serialization and deserialization with raw byte data.
+ * This tests backward compatibility with legacy data formats.
  */
 class VoucherWellKnownSecretTest {
 
     /**
-     * Tests that VoucherWellKnownSecret can be serialized to NUT-10 JSON and parsed back.
+     * Tests that VoucherSecret can be serialized to NUT-10 JSON and parsed back.
      */
     @Test
     void shouldSerializeAndParseVoucherSecret() {
         // Arrange: Create voucher secret with test data
         byte[] voucherData = "test-voucher-data-with-signature-and-metadata-longer-than-32-bytes"
                 .getBytes(StandardCharsets.UTF_8);
-        VoucherWellKnownSecret original = new VoucherWellKnownSecret(voucherData);
+        VoucherSecret original = new VoucherSecret();
+        original.setData(voucherData);
 
         // Act: Serialize to JSON and parse back
         String json = original.toString();
@@ -28,10 +30,10 @@ class VoucherWellKnownSecretTest {
 
         Secret parsed = SecretUtil.toSecret(json);
 
-        // Assert: Parsed secret should be VoucherWellKnownSecret with same data
-        assertThat(parsed).isInstanceOf(VoucherWellKnownSecret.class);
-        VoucherWellKnownSecret parsedVoucher = (VoucherWellKnownSecret) parsed;
-        assertThat(parsedVoucher.getVoucherData()).isEqualTo(voucherData);
+        // Assert: Parsed secret should be VoucherSecret with same data
+        assertThat(parsed).isInstanceOf(VoucherSecret.class);
+        VoucherSecret parsedVoucher = (VoucherSecret) parsed;
+        assertThat(parsedVoucher.getData()).isEqualTo(voucherData);
     }
 
     /**
@@ -44,8 +46,13 @@ class VoucherWellKnownSecretTest {
         String nonce = "fixed-nonce-for-testing";
 
         // Act
-        VoucherWellKnownSecret secret1 = new VoucherWellKnownSecret(voucherData, nonce);
-        VoucherWellKnownSecret secret2 = new VoucherWellKnownSecret(voucherData, nonce);
+        VoucherSecret secret1 = new VoucherSecret();
+        secret1.setData(voucherData);
+        secret1.setNonce(nonce);
+
+        VoucherSecret secret2 = new VoucherSecret();
+        secret2.setData(voucherData);
+        secret2.setNonce(nonce);
 
         // Assert
         assertThat(secret1.toString()).isEqualTo(secret2.toString());

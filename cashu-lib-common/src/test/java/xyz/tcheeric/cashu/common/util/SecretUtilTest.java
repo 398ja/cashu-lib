@@ -4,7 +4,7 @@ import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Test;
 import xyz.tcheeric.cashu.common.PublicKey;
 import xyz.tcheeric.cashu.common.RandomStringSecret;
-import xyz.tcheeric.cashu.common.VoucherWellKnownSecret;
+import xyz.tcheeric.cashu.common.VoucherSecret;
 import xyz.tcheeric.cashu.crypto.BDHKEUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,10 +35,9 @@ class SecretUtilTest {
      */
     @Test
     void shouldComputeYFromNut10SecretUsingUtf8Encoding() {
-        VoucherWellKnownSecret secret = new VoucherWellKnownSecret(
-                Hex.decode("deadbeef"),
-                "nonce-123"
-        );
+        VoucherSecret secret = new VoucherSecret();
+        secret.setData(Hex.decode("deadbeef"));
+        secret.setNonce("nonce-123");
 
         String secretString = secret.toString();
         String expectedY = PublicKey.fromBytes(BDHKEUtils.hashToCurve(secretString)).toString();

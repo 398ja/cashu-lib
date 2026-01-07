@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Hex;
 import xyz.tcheeric.cashu.common.P2PKSecret;
-import xyz.tcheeric.cashu.common.VoucherWellKnownSecret;
+import xyz.tcheeric.cashu.common.VoucherSecret;
 import xyz.tcheeric.cashu.common.WellKnownSecret;
 
 import java.io.IOException;
@@ -160,7 +160,7 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
     private WellKnownSecret createSecret(WellKnownSecret.Kind kind) {
         return switch (kind) {
             case P2PK -> new P2PKSecret();
-            case VOUCHER -> new VoucherWellKnownSecret();
+            case VOUCHER -> new VoucherSecret();
             default -> throw new IllegalArgumentException("Invalid kind: " + kind);
         };
     }

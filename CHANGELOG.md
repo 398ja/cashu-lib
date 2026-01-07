@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.10.0] - 2025-01-07
+
+### Added
+
+- **VoucherSecret**: NUT-10 compliant tag-based voucher secret storage with builder pattern for creating Model B gift card voucher tokens.
+- **VoucherTags**: Standard tag keys interface for VOUCHER secrets (issuer, unit, face_value, expires_at, memo, face_decimals, backing_strategy, issuance_ratio, issuer_sig, issuer_pubkey, merchant_metadata).
+- **VoucherSecretTest**: Comprehensive unit tests for VoucherSecret serialization and tag-based storage.
+
+### Changed
+
+- **SecretUtil**: Updated to use `VoucherSecret` instead of deprecated `VoucherWellKnownSecret`.
+- **WellKnownSecretDeserializer**: Updated to support tag-based voucher secret deserialization.
+
+### Deprecated
+
+- **VoucherWellKnownSecret**: Deprecated in favor of `VoucherSecret`. Marked for removal in a future version.
+
+---
+
 ## [0.9.1] - 2025-12-22
 
 ### Added
