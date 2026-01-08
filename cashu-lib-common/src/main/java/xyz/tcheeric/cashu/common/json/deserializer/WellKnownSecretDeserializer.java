@@ -79,8 +79,10 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
         String dataHex = node.get(1).asText();
         byte[] data = Hex.decode(dataHex);
 
-        // Element 2: nonce (string)
-        String nonce = node.get(2).asText();
+        // Element 2: nonce (string or null)
+        // Note: JsonNode.asText() returns "null" (string) for null nodes, so we must check explicitly
+        JsonNode nonceNode = node.get(2);
+        String nonce = nonceNode.isNull() ? null : nonceNode.asText();
 
         // Create the appropriate secret type
         WellKnownSecret secret = createSecret(kind);
@@ -119,9 +121,9 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
     private WellKnownSecret deserializeLegacyFormat(WellKnownSecret.Kind kind, JsonNode objectNode) {
         WellKnownSecret secret = createSecret(kind);
 
-        // Extract nonce
+        // Extract nonce (check for both missing and null nodes)
         JsonNode nonceNode = objectNode.get("nonce");
-        if (nonceNode != null) {
+        if (nonceNode != null && !nonceNode.isNull()) {
             secret.setNonce(nonceNode.asText());
         }
 

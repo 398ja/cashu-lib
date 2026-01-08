@@ -26,8 +26,13 @@ public class WellKnownSecretSerializer extends JsonSerializer<WellKnownSecret> {
         // Element 1: data (hex-encoded bytes)
         gen.writeString(Hex.toHexString(value.getData()));
 
-        // Element 2: nonce (string)
-        gen.writeString(value.getNonce());
+        // Element 2: nonce (string or null)
+        // Note: writeString(null) outputs "null" (string), so we must explicitly write JSON null
+        if (value.getNonce() == null) {
+            gen.writeNull();
+        } else {
+            gen.writeString(value.getNonce());
+        }
 
         // Element 3: tags (array of tag arrays)
         gen.writeStartArray();
