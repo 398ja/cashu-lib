@@ -27,6 +27,8 @@ public class VoucherWellKnownSecret extends VoucherSecret {
     public VoucherWellKnownSecret(@NonNull byte[] voucherData) {
         super();
         this.setData(voucherData);
+        // Generate unique nonce for BDHKE
+        this.setNonce(PrivateKey.generateRandom().toString());
     }
 
     /**
