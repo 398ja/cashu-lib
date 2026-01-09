@@ -368,4 +368,30 @@ class VoucherSecretTest {
         assertThat(secret.getFaceDecimals()).isEqualTo(0);
         assertThat(secret.getIssuanceRatio()).isEqualTo(1.0);
     }
+
+    /**
+     * Tests that getVoucherId returns null for invalid UUID data.
+     */
+    @Test
+    void shouldReturnNullForInvalidVoucherId() {
+        // Arrange: Create voucher and set invalid data that's not a valid UUID
+        VoucherSecret secret = new VoucherSecret();
+        secret.setData("not-a-valid-uuid".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+        // Act & Assert: Should return null instead of throwing exception
+        assertThat(secret.getVoucherId()).isNull();
+    }
+
+    /**
+     * Tests that getVoucherId returns null for empty data.
+     */
+    @Test
+    void shouldReturnNullForEmptyVoucherIdData() {
+        // Arrange: Create voucher with empty data
+        VoucherSecret secret = new VoucherSecret();
+        secret.setData("".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+        // Act & Assert: Should return null instead of throwing exception
+        assertThat(secret.getVoucherId()).isNull();
+    }
 }

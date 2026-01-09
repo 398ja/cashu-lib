@@ -62,14 +62,19 @@ public class VoucherSecret extends WellKnownSecret {
     /**
      * Gets the voucher ID.
      *
-     * @return the voucher UUID
+     * @return the voucher UUID, or null if not set or data is not a valid UUID
      */
     public UUID getVoucherId() {
         byte[] data = getData();
         if (data == null) {
             return null;
         }
-        return UUID.fromString(new String(data, StandardCharsets.UTF_8));
+        try {
+            return UUID.fromString(new String(data, StandardCharsets.UTF_8));
+        } catch (IllegalArgumentException e) {
+            log.warn("voucher_secret get_voucher_id invalid_uuid data_length={}", data.length);
+            return null;
+        }
     }
 
     /**
@@ -413,6 +418,23 @@ public class VoucherSecret extends WellKnownSecret {
 
     /**
      * Builder for VoucherSecret with fluent API.
+     *
+     * <p><b>Field Requirements:</b>
+     * <ul>
+     *   <li>{@code voucherId} - Optional. Auto-generated UUID if not provided.</li>
+     *   <li>{@code nonce} - Optional. Auto-generated if not provided.</li>
+     *   <li>{@code issuerId} - Recommended for identifying the voucher issuer.</li>
+     *   <li>{@code unit} - Recommended for specifying the currency unit.</li>
+     *   <li>{@code faceValue} - Recommended for specifying the voucher value.</li>
+     *   <li>{@code expiresAt} - Optional. Unix timestamp for expiration.</li>
+     *   <li>{@code memo} - Optional. Human-readable description.</li>
+     *   <li>{@code faceDecimals} - Optional. Defaults to 0.</li>
+     *   <li>{@code backingStrategy} - Optional. Defaults to "FIXED".</li>
+     *   <li>{@code issuanceRatio} - Optional. Defaults to 1.0.</li>
+     *   <li>{@code issuerSignature} - Optional. Required for signed vouchers.</li>
+     *   <li>{@code issuerPublicKey} - Optional. Required for signed vouchers.</li>
+     *   <li>{@code merchantMetadata} - Optional. Custom JSON metadata.</li>
+     * </ul>
      */
     public static class Builder {
         private UUID voucherId;
