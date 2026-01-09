@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Hex;
 import xyz.tcheeric.cashu.common.P2PKSecret;
-import xyz.tcheeric.cashu.common.VoucherWellKnownSecret;
+import xyz.tcheeric.cashu.common.VoucherSecret;
 import xyz.tcheeric.cashu.common.WellKnownSecret;
 
 import java.io.IOException;
@@ -79,8 +79,10 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
         String dataHex = node.get(1).asText();
         byte[] data = Hex.decode(dataHex);
 
-        // Element 2: nonce (string)
-        String nonce = node.get(2).asText();
+        // Element 2: nonce (string or null)
+        // Note: JsonNode.asText() returns "null" (string) for null nodes, so we must check explicitly
+        JsonNode nonceNode = node.get(2);
+        String nonce = nonceNode.isNull() ? null : nonceNode.asText();
 
         // Create the appropriate secret type
         WellKnownSecret secret = createSecret(kind);
@@ -97,7 +99,12 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
                     for (int i = 1; i < tagNode.size(); i++) {
                         JsonNode valueNode = tagNode.get(i);
                         if (valueNode.isNumber()) {
-                            tag.addValue(valueNode.longValue());
+                            // Preserve fractional values
+                            if (valueNode.isFloatingPointNumber()) {
+                                tag.addValue(valueNode.doubleValue());
+                            } else {
+                                tag.addValue(valueNode.longValue());
+                            }
                         } else {
                             tag.addValue(valueNode.asText());
                         }
@@ -119,9 +126,9 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
     private WellKnownSecret deserializeLegacyFormat(WellKnownSecret.Kind kind, JsonNode objectNode) {
         WellKnownSecret secret = createSecret(kind);
 
-        // Extract nonce
+        // Extract nonce (check for both missing and null nodes)
         JsonNode nonceNode = objectNode.get("nonce");
-        if (nonceNode != null) {
+        if (nonceNode != null && !nonceNode.isNull()) {
             secret.setNonce(nonceNode.asText());
         }
 
@@ -141,7 +148,12 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
                     for (int i = 1; i < tagNode.size(); i++) {
                         JsonNode valueNode = tagNode.get(i);
                         if (valueNode.isNumber()) {
-                            tag.addValue(valueNode.longValue());
+                            // Preserve fractional values
+                            if (valueNode.isFloatingPointNumber()) {
+                                tag.addValue(valueNode.doubleValue());
+                            } else {
+                                tag.addValue(valueNode.longValue());
+                            }
                         } else {
                             tag.addValue(valueNode.asText());
                         }
@@ -160,7 +172,7 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
     private WellKnownSecret createSecret(WellKnownSecret.Kind kind) {
         return switch (kind) {
             case P2PK -> new P2PKSecret();
-            case VOUCHER -> new VoucherWellKnownSecret();
+            case VOUCHER -> new VoucherSecret();
             default -> throw new IllegalArgumentException("Invalid kind: " + kind);
         };
     }

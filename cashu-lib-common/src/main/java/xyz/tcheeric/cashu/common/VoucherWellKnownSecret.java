@@ -4,54 +4,54 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * NUT-10 well-known secret for voucher tokens.
- *
- * <p>Each proof in a voucher token uses this secret type with:
- * <ul>
- *   <li>kind: VOUCHER</li>
- *   <li>nonce: unique per proof (ensures unique Y values)</li>
- *   <li>data: serialized SignedVoucher bytes</li>
- * </ul>
- *
- * <p>The unique nonce per proof ensures each proof has a unique Y value
- * (Y = hash_to_curve(secret)), preventing "already redeemed" errors
- * when swapping multiple proofs from the same voucher.
+ * @deprecated Use {@link VoucherSecret} instead.
+ * This class is kept for backward compatibility with existing code.
+ * VoucherSecret uses NUT-10 compliant tag-based storage for voucher metadata.
  */
 @Slf4j
-public class VoucherWellKnownSecret extends WellKnownSecret {
+@Deprecated(since = "0.10.0", forRemoval = true)
+public class VoucherWellKnownSecret extends VoucherSecret {
 
     public VoucherWellKnownSecret() {
-        super(Kind.VOUCHER);
+        super();
     }
 
     /**
      * Creates a voucher secret with the given voucher data.
      * A unique nonce is automatically generated.
      *
-     * @param voucherData serialized SignedVoucher bytes
+     * @param voucherData serialized voucher bytes
+     * @deprecated Use {@link VoucherSecret#VoucherSecret(java.util.UUID)} instead
      */
+    @Deprecated
     public VoucherWellKnownSecret(@NonNull byte[] voucherData) {
-        super(Kind.VOUCHER, voucherData);
+        super();
+        this.setData(voucherData);
+        // Generate unique nonce for BDHKE
+        this.setNonce(PrivateKey.generateRandom().toString());
     }
 
     /**
      * Creates a voucher secret with explicit nonce.
-     * Use this when you need deterministic secrets (e.g., for testing).
      *
-     * @param voucherData serialized SignedVoucher bytes
+     * @param voucherData serialized voucher bytes
      * @param nonce unique nonce for this proof
+     * @deprecated Use {@link VoucherSecret} builder or setters instead
      */
+    @Deprecated
     public VoucherWellKnownSecret(@NonNull byte[] voucherData, @NonNull String nonce) {
-        super(Kind.VOUCHER);
+        super();
         this.setData(voucherData);
         this.setNonce(nonce);
     }
 
     /**
-     * Gets the voucher data (serialized SignedVoucher).
+     * Gets the voucher data.
      *
      * @return voucher bytes
+     * @deprecated Use {@link VoucherSecret#getData()} instead
      */
+    @Deprecated
     public byte[] getVoucherData() {
         return getData();
     }
