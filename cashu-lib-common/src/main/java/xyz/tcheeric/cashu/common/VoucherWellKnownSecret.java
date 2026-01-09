@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
  * VoucherSecret uses NUT-10 compliant tag-based storage for voucher metadata.
  */
 @Slf4j
-@Deprecated(since = "0.8.0", forRemoval = true)
+@Deprecated(since = "0.10.0", forRemoval = true)
 public class VoucherWellKnownSecret extends VoucherSecret {
 
     public VoucherWellKnownSecret() {

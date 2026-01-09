@@ -104,21 +104,37 @@ public class VoucherSecret extends WellKnownSecret {
     /**
      * Gets the face value in the smallest unit.
      *
-     * @return the face value, or null if not set
+     * @return the face value, or null if not set or invalid
      */
     public Long getFaceValue() {
         String val = getTagValue(VoucherTags.FACE_VALUE);
-        return val != null ? Long.parseLong(val) : null;
+        if (val == null) {
+            return null;
+        }
+        try {
+            return Long.parseLong(val);
+        } catch (NumberFormatException e) {
+            log.warn("voucher_secret get_face_value invalid_format value={}", val);
+            return null;
+        }
     }
 
     /**
      * Gets the expiry timestamp.
      *
-     * @return the Unix epoch seconds, or null if not set
+     * @return the Unix epoch seconds, or null if not set or invalid
      */
     public Long getExpiresAt() {
         String val = getTagValue(VoucherTags.EXPIRES_AT);
-        return val != null ? Long.parseLong(val) : null;
+        if (val == null) {
+            return null;
+        }
+        try {
+            return Long.parseLong(val);
+        } catch (NumberFormatException e) {
+            log.warn("voucher_secret get_expires_at invalid_format value={}", val);
+            return null;
+        }
     }
 
     /**
@@ -133,11 +149,19 @@ public class VoucherSecret extends WellKnownSecret {
     /**
      * Gets the face value decimal places.
      *
-     * @return the decimals (default 0), or 0 if not set
+     * @return the decimals, or 0 if not set or invalid
      */
     public int getFaceDecimals() {
         String val = getTagValue(VoucherTags.FACE_DECIMALS);
-        return val != null ? Integer.parseInt(val) : 0;
+        if (val == null) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(val);
+        } catch (NumberFormatException e) {
+            log.warn("voucher_secret get_face_decimals invalid_format value={}", val);
+            return 0;
+        }
     }
 
     /**
@@ -153,11 +177,19 @@ public class VoucherSecret extends WellKnownSecret {
     /**
      * Gets the issuance ratio.
      *
-     * @return the ratio (default 1.0), or 1.0 if not set
+     * @return the ratio, or 1.0 if not set or invalid
      */
     public double getIssuanceRatio() {
         String val = getTagValue(VoucherTags.ISSUANCE_RATIO);
-        return val != null ? Double.parseDouble(val) : 1.0;
+        if (val == null) {
+            return 1.0;
+        }
+        try {
+            return Double.parseDouble(val);
+        } catch (NumberFormatException e) {
+            log.warn("voucher_secret get_issuance_ratio invalid_format value={}", val);
+            return 1.0;
+        }
     }
 
     /**

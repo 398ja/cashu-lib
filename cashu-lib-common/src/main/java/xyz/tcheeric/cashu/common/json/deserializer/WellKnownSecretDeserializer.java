@@ -99,7 +99,12 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
                     for (int i = 1; i < tagNode.size(); i++) {
                         JsonNode valueNode = tagNode.get(i);
                         if (valueNode.isNumber()) {
-                            tag.addValue(valueNode.longValue());
+                            // Preserve fractional values
+                            if (valueNode.isFloatingPointNumber()) {
+                                tag.addValue(valueNode.doubleValue());
+                            } else {
+                                tag.addValue(valueNode.longValue());
+                            }
                         } else {
                             tag.addValue(valueNode.asText());
                         }
@@ -143,7 +148,12 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
                     for (int i = 1; i < tagNode.size(); i++) {
                         JsonNode valueNode = tagNode.get(i);
                         if (valueNode.isNumber()) {
-                            tag.addValue(valueNode.longValue());
+                            // Preserve fractional values
+                            if (valueNode.isFloatingPointNumber()) {
+                                tag.addValue(valueNode.doubleValue());
+                            } else {
+                                tag.addValue(valueNode.longValue());
+                            }
                         } else {
                             tag.addValue(valueNode.asText());
                         }

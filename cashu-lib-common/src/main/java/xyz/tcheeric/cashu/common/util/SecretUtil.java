@@ -9,7 +9,6 @@ import xyz.tcheeric.cashu.common.PublicKey;
 import xyz.tcheeric.cashu.common.RandomStringSecret;
 import xyz.tcheeric.cashu.common.Secret;
 import xyz.tcheeric.cashu.common.VoucherSecret;
-import xyz.tcheeric.cashu.common.VoucherWellKnownSecret;
 import xyz.tcheeric.cashu.common.WellKnownSecret;
 import xyz.tcheeric.cashu.crypto.BDHKEUtils;
 
@@ -161,12 +160,10 @@ public final class SecretUtil<T extends Secret> {
     /**
      * Creates the appropriate WellKnownSecret subclass.
      */
-    @SuppressWarnings("deprecation")
     private static WellKnownSecret createSecret(WellKnownSecret.Kind kind, byte[] data, String nonce) {
         return switch (kind) {
             case VOUCHER -> {
-                // Use VoucherWellKnownSecret for backward compatibility
-                VoucherWellKnownSecret voucher = new VoucherWellKnownSecret();
+                VoucherSecret voucher = new VoucherSecret();
                 voucher.setData(data);
                 voucher.setNonce(nonce);
                 yield voucher;
@@ -192,7 +189,17 @@ public final class SecretUtil<T extends Secret> {
                 for (int i = 1; i < tagList.size(); i++) {
                     Object value = tagList.get(i);
                     if (value instanceof Number n) {
-                        tag.addValue(n.longValue());
+                        // Preserve fractional values for doubles/floats
+                        if (value instanceof Double || value instanceof Float) {
+                            double d = n.doubleValue();
+                            if (d != Math.floor(d)) {
+                                tag.addValue(d);
+                            } else {
+                                tag.addValue(n.longValue());
+                            }
+                        } else {
+                            tag.addValue(n.longValue());
+                        }
                     } else {
                         tag.addValue(String.valueOf(value));
                     }

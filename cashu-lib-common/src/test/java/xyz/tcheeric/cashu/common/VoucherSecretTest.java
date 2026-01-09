@@ -23,8 +23,6 @@ class VoucherSecretTest {
 
         // Act: Serialize to JSON and parse back
         String json = original.toString();
-        System.out.println("Serialized JSON: " + json);
-
         Secret parsed = SecretUtil.toSecret(json);
 
         // Assert: Parsed secret should be VoucherSecret with same voucherId
@@ -102,7 +100,6 @@ class VoucherSecretTest {
 
         // Act: Serialize and parse
         String json = original.toString();
-        System.out.println("Serialized with tags: " + json);
         Secret parsed = SecretUtil.toSecret(json);
 
         // Assert
@@ -223,5 +220,152 @@ class VoucherSecretTest {
 
         // Assert: Default should be 0
         assertThat(secret.getFaceDecimals()).isEqualTo(0);
+    }
+
+    /**
+     * Tests that fractional issuance_ratio values are preserved through serialization.
+     */
+    @Test
+    void shouldPreserveFractionalIssuanceRatio() {
+        // Arrange: Create voucher with fractional issuance ratio
+        UUID voucherId = UUID.fromString("550e8400-e29b-41d4-a716-446655440001");
+        VoucherSecret original = VoucherSecret.builder()
+                .voucherId(voucherId)
+                .nonce("ratio-test-nonce")
+                .issuerId("merchant")
+                .unit("sat")
+                .faceValue(1000L)
+                .issuanceRatio(0.5)  // Fractional ratio
+                .build();
+
+        // Act: Serialize and parse
+        String json = original.toString();
+        Secret parsed = SecretUtil.toSecret(json);
+
+        // Assert: Fractional ratio should be preserved
+        assertThat(parsed).isInstanceOf(VoucherSecret.class);
+        VoucherSecret parsedVoucher = (VoucherSecret) parsed;
+        assertThat(parsedVoucher.getIssuanceRatio()).isEqualTo(0.5);
+    }
+
+    /**
+     * Tests that various fractional issuance ratios are preserved.
+     */
+    @Test
+    void shouldPreserveVariousFractionalRatios() {
+        double[] testRatios = {0.1, 0.25, 0.333, 0.5, 0.75, 1.5, 2.5, 0.001};
+
+        for (double ratio : testRatios) {
+            // Arrange
+            VoucherSecret original = VoucherSecret.builder()
+                    .issuerId("test")
+                    .issuanceRatio(ratio)
+                    .build();
+
+            // Act
+            String json = original.toString();
+            Secret parsed = SecretUtil.toSecret(json);
+
+            // Assert
+            assertThat(parsed).isInstanceOf(VoucherSecret.class);
+            VoucherSecret parsedVoucher = (VoucherSecret) parsed;
+            assertThat(parsedVoucher.getIssuanceRatio())
+                    .as("Ratio %s should be preserved", ratio)
+                    .isEqualTo(ratio);
+        }
+    }
+
+    /**
+     * Tests that integer issuance ratios are also preserved correctly.
+     */
+    @Test
+    void shouldPreserveIntegerIssuanceRatio() {
+        // Arrange: Create voucher with integer ratio (as double)
+        VoucherSecret original = VoucherSecret.builder()
+                .issuerId("merchant")
+                .issuanceRatio(2.0)  // Integer value as double
+                .build();
+
+        // Act
+        String json = original.toString();
+        Secret parsed = SecretUtil.toSecret(json);
+
+        // Assert: Should still be 2.0
+        assertThat(parsed).isInstanceOf(VoucherSecret.class);
+        VoucherSecret parsedVoucher = (VoucherSecret) parsed;
+        assertThat(parsedVoucher.getIssuanceRatio()).isEqualTo(2.0);
+    }
+
+    // ===== Negative test cases for error handling =====
+
+    /**
+     * Tests that getFaceValue returns null for invalid numeric data.
+     */
+    @Test
+    void shouldReturnNullForInvalidFaceValue() {
+        // Arrange: Create voucher and set invalid face_value tag
+        VoucherSecret secret = new VoucherSecret(UUID.randomUUID());
+        secret.setTag(VoucherTags.FACE_VALUE, java.util.List.of("not-a-number"));
+
+        // Act & Assert: Should return null instead of throwing exception
+        assertThat(secret.getFaceValue()).isNull();
+    }
+
+    /**
+     * Tests that getExpiresAt returns null for invalid numeric data.
+     */
+    @Test
+    void shouldReturnNullForInvalidExpiresAt() {
+        // Arrange: Create voucher and set invalid expires_at tag
+        VoucherSecret secret = new VoucherSecret(UUID.randomUUID());
+        secret.setTag(VoucherTags.EXPIRES_AT, java.util.List.of("invalid-timestamp"));
+
+        // Act & Assert: Should return null instead of throwing exception
+        assertThat(secret.getExpiresAt()).isNull();
+    }
+
+    /**
+     * Tests that getFaceDecimals returns 0 for invalid numeric data.
+     */
+    @Test
+    void shouldReturnZeroForInvalidFaceDecimals() {
+        // Arrange: Create voucher and set invalid face_decimals tag
+        VoucherSecret secret = new VoucherSecret(UUID.randomUUID());
+        secret.setTag(VoucherTags.FACE_DECIMALS, java.util.List.of("abc"));
+
+        // Act & Assert: Should return 0 instead of throwing exception
+        assertThat(secret.getFaceDecimals()).isEqualTo(0);
+    }
+
+    /**
+     * Tests that getIssuanceRatio returns 1.0 for invalid numeric data.
+     */
+    @Test
+    void shouldReturnDefaultForInvalidIssuanceRatio() {
+        // Arrange: Create voucher and set invalid issuance_ratio tag
+        VoucherSecret secret = new VoucherSecret(UUID.randomUUID());
+        secret.setTag(VoucherTags.ISSUANCE_RATIO, java.util.List.of("invalid"));
+
+        // Act & Assert: Should return 1.0 instead of throwing exception
+        assertThat(secret.getIssuanceRatio()).isEqualTo(1.0);
+    }
+
+    /**
+     * Tests that all numeric getters handle empty string values gracefully.
+     */
+    @Test
+    void shouldHandleEmptyStringValuesGracefully() {
+        // Arrange: Create voucher and set empty string values
+        VoucherSecret secret = new VoucherSecret(UUID.randomUUID());
+        secret.setTag(VoucherTags.FACE_VALUE, java.util.List.of(""));
+        secret.setTag(VoucherTags.EXPIRES_AT, java.util.List.of(""));
+        secret.setTag(VoucherTags.FACE_DECIMALS, java.util.List.of(""));
+        secret.setTag(VoucherTags.ISSUANCE_RATIO, java.util.List.of(""));
+
+        // Act & Assert: Should return default values instead of throwing exception
+        assertThat(secret.getFaceValue()).isNull();
+        assertThat(secret.getExpiresAt()).isNull();
+        assertThat(secret.getFaceDecimals()).isEqualTo(0);
+        assertThat(secret.getIssuanceRatio()).isEqualTo(1.0);
     }
 }
