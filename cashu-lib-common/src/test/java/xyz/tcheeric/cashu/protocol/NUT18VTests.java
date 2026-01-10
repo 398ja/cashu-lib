@@ -357,6 +357,66 @@ class NUT18VTests {
         }
 
         @Test
+        void shouldFailValidationWithDLEQButNoBlindingFactor() {
+            // DLEQ with only e and s, but missing r (blinding factor)
+            // This is valid for basic DLEQ but NOT sufficient for offline verification
+            List<PaymentPayloadProof> proofsWithIncompleteeDLEQ = List.of(
+                    PaymentPayloadProof.builder()
+                            .amount(100)
+                            .keysetId("keyset1")
+                            .secret("secret1")
+                            .signature("sig1")
+                            .dleq(PaymentPayloadProof.PaymentPayloadDLEQ.builder()
+                                    .e(SAMPLE_E).s(SAMPLE_S).build()) // No r!
+                            .build()
+            );
+
+            VoucherPaymentPayload payload = VoucherPaymentPayload.builder()
+                    .id("offline-test-no-r")
+                    .issuerId(SAMPLE_ISSUER_ID)
+                    .mint("https://mint.example.com")
+                    .unit("sat")
+                    .proofs(proofsWithIncompleteeDLEQ)
+                    .build();
+
+            // hasDLEQ returns true (DLEQ object exists)
+            assertThat(payload.allProofsHaveDLEQ()).isTrue();
+            // But hasDLEQWithBlindingFactor returns false (r is missing)
+            assertThat(payload.allProofsHaveDLEQWithBlindingFactor()).isFalse();
+            // Validation for offline verification should fail
+            IllegalStateException ex = assertThrows(IllegalStateException.class,
+                    payload::validateForOfflineVerification);
+            assertThat(ex.getMessage()).contains("blinding factor");
+        }
+
+        @Test
+        void shouldCheckAllProofsHaveDLEQWithBlindingFactor() {
+            List<PaymentPayloadProof> proofsWithFullDLEQ = List.of(
+                    PaymentPayloadProof.builder()
+                            .amount(100)
+                            .keysetId("keyset1")
+                            .secret("secret1")
+                            .signature("sig1")
+                            .dleq(PaymentPayloadProof.PaymentPayloadDLEQ.builder()
+                                    .e(SAMPLE_E).s(SAMPLE_S).r(SAMPLE_R).build())
+                            .build()
+            );
+
+            VoucherPaymentPayload payload = VoucherPaymentPayload.builder()
+                    .id("offline-test-full")
+                    .issuerId(SAMPLE_ISSUER_ID)
+                    .mint("https://mint.example.com")
+                    .unit("sat")
+                    .proofs(proofsWithFullDLEQ)
+                    .build();
+
+            assertThat(payload.allProofsHaveDLEQ()).isTrue();
+            assertThat(payload.allProofsHaveDLEQWithBlindingFactor()).isTrue();
+            // Should not throw
+            payload.validateForOfflineVerification();
+        }
+
+        @Test
         void shouldFailValidationWithoutIssuerId() {
             List<PaymentPayloadProof> proofsWithDLEQ = List.of(
                     PaymentPayloadProof.builder()

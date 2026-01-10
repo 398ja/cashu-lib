@@ -195,7 +195,6 @@ public class VoucherPaymentPayload {
 
     /**
      * Checks if all proofs have DLEQ proofs attached.
-     * Required for offline verification.
      *
      * @return true if all proofs have DLEQ
      */
@@ -208,7 +207,24 @@ public class VoucherPaymentPayload {
     }
 
     /**
+     * Checks if all proofs have DLEQ proofs with blinding factor (r) attached.
+     * Required for offline verification - the blinding factor allows recipients
+     * to reconstruct blinded points and verify the DLEQ proof.
+     *
+     * @return true if all proofs have DLEQ with blinding factor
+     */
+    @JsonIgnore
+    public boolean allProofsHaveDLEQWithBlindingFactor() {
+        if (proofs == null || proofs.isEmpty()) {
+            return false;
+        }
+        return proofs.stream().allMatch(PaymentPayloadProof::hasDLEQWithBlindingFactor);
+    }
+
+    /**
      * Validates this payload for offline verification requirements.
+     * Offline verification requires DLEQ proofs with the blinding factor (r)
+     * so the recipient can reconstruct blinded points.
      *
      * @throws IllegalStateException if the payload cannot be verified offline
      */
@@ -216,8 +232,9 @@ public class VoucherPaymentPayload {
         if (issuerId == null || issuerId.isBlank()) {
             throw new IllegalStateException("Issuer ID is required for offline verification");
         }
-        if (!allProofsHaveDLEQ()) {
-            throw new IllegalStateException("All proofs must have DLEQ for offline verification");
+        if (!allProofsHaveDLEQWithBlindingFactor()) {
+            throw new IllegalStateException(
+                    "All proofs must have DLEQ with blinding factor (r) for offline verification");
         }
     }
 }
