@@ -390,6 +390,7 @@ class VoucherPaymentRequestTest {
                     .unit("sat")
                     .singleUse(true)
                     .offlineVerification(true)
+                    .expiresAt(1736553600L)
                     .mints(List.of("https://mint1.com", "https://mint2.com"))
                     .description("Complete voucher payment test")
                     .transports(List.of(
@@ -409,6 +410,7 @@ class VoucherPaymentRequestTest {
             assertThat(restored.getUnit()).isEqualTo(original.getUnit());
             assertThat(restored.getSingleUse()).isEqualTo(original.getSingleUse());
             assertThat(restored.getOfflineVerification()).isEqualTo(original.getOfflineVerification());
+            assertThat(restored.getExpiresAt()).isEqualTo(original.getExpiresAt());
             assertThat(restored.getMints()).isEqualTo(original.getMints());
             assertThat(restored.getDescription()).isEqualTo(original.getDescription());
             assertThat(restored.getTransports()).hasSize(3);
@@ -448,6 +450,80 @@ class VoucherPaymentRequestTest {
             assertThat(transport.isMerchant()).isTrue();
             assertThat(transport.getTarget()).isEqualTo("https://merchant.com/redeem");
             assertThat(transport.getTagValue("merchant_id")).isEqualTo("m456");
+        }
+
+        @Test
+        void shouldRoundTripWithExpiresAt() {
+            long expiryTimestamp = 1736380800L; // Unix timestamp
+
+            VoucherPaymentRequest original = VoucherPaymentRequest.builder()
+                    .issuerId("expiring-issuer")
+                    .amount(1000)
+                    .unit("sat")
+                    .expiresAt(expiryTimestamp)
+                    .description("Request with expiry")
+                    .build();
+
+            String encoded = original.serialize();
+            VoucherPaymentRequest restored = VoucherPaymentRequest.deserialize(encoded);
+
+            assertThat(restored.getExpiresAt()).isEqualTo(expiryTimestamp);
+            assertThat(restored.getIssuerId()).isEqualTo("expiring-issuer");
+            assertThat(restored.getDescription()).isEqualTo("Request with expiry");
+        }
+
+        @Test
+        void shouldExcludeExpiresAtWhenNull() {
+            VoucherPaymentRequest original = VoucherPaymentRequest.builder()
+                    .issuerId("no-expiry-issuer")
+                    .amount(500)
+                    .unit("sat")
+                    .build();
+
+            String encoded = original.serialize();
+            VoucherPaymentRequest restored = VoucherPaymentRequest.deserialize(encoded);
+
+            assertThat(restored.getExpiresAt()).isNull();
+            // Verify the encoded string is shorter (no expiresAt field)
+            VoucherPaymentRequest withExpiry = VoucherPaymentRequest.builder()
+                    .issuerId("no-expiry-issuer")
+                    .amount(500)
+                    .unit("sat")
+                    .expiresAt(1736380800L)
+                    .build();
+            String encodedWithExpiry = withExpiry.serialize();
+            assertThat(encoded.length()).isLessThan(encodedWithExpiry.length());
+        }
+
+        @Test
+        void shouldRoundTripWithAllFieldsIncludingExpiresAt() {
+            long expiryTimestamp = 1736467200L;
+
+            VoucherPaymentRequest original = VoucherPaymentRequest.builder()
+                    .paymentId("full-test-002")
+                    .issuerId("complete-issuer")
+                    .amount(10000)
+                    .unit("sat")
+                    .singleUse(true)
+                    .offlineVerification(true)
+                    .expiresAt(expiryTimestamp)
+                    .mints(List.of("https://mint.example.com"))
+                    .description("Complete test with expiry")
+                    .transports(List.of(VoucherTransport.merchant("https://merchant.example.com")))
+                    .build();
+
+            String encoded = original.serialize();
+            VoucherPaymentRequest restored = VoucherPaymentRequest.deserialize(encoded);
+
+            assertThat(restored.getPaymentId()).isEqualTo("full-test-002");
+            assertThat(restored.getIssuerId()).isEqualTo("complete-issuer");
+            assertThat(restored.getAmount()).isEqualTo(10000);
+            assertThat(restored.getUnit()).isEqualTo("sat");
+            assertThat(restored.getSingleUse()).isTrue();
+            assertThat(restored.getOfflineVerification()).isTrue();
+            assertThat(restored.getExpiresAt()).isEqualTo(expiryTimestamp);
+            assertThat(restored.getMints()).containsExactly("https://mint.example.com");
+            assertThat(restored.getDescription()).isEqualTo("Complete test with expiry");
         }
     }
 
