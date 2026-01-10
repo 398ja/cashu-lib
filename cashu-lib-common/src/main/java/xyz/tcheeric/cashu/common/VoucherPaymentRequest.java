@@ -35,7 +35,7 @@ import java.util.List;
 @Slf4j
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"i", "r", "a", "u", "s", "o", "m", "d", "t", "nut10"})
+@JsonPropertyOrder({"i", "r", "a", "u", "s", "o", "m", "d", "e", "t", "nut10"})
 public class VoucherPaymentRequest {
 
     /** Prefix for encoded voucher payment requests. */
@@ -98,6 +98,13 @@ public class VoucherPaymentRequest {
      */
     @JsonProperty("d")
     private String description;
+
+    /**
+     * Request expiry time as Unix timestamp (seconds since epoch).
+     * If null, the request does not expire.
+     */
+    @JsonProperty("e")
+    private Long expiresAt;
 
     /**
      * Transport methods in order of preference (first = most preferred).
