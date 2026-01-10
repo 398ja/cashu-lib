@@ -7,7 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.11.0] - 2026-01-10
+## [0.11.1] - 2026-01-10
+
+### Added
+
+- **NUT-18V Voucher Payment Requests**: Extension for Model B gift card vouchers.
+  - `VoucherPaymentRequest`: CBOR-encoded request with `vreqA` prefix and required `issuerId` field
+  - `VoucherTransport`: Transport with MERCHANT type for direct merchant API integration
+  - `VoucherTransportType`: Enum with NOSTR, POST, and MERCHANT types
+  - `VoucherPaymentPayload`: Payment fulfillment with issuer ID and DLEQ for offline verification
+  - Offline verification support with `offlineVerification` flag
+  - `expiresAt` field for request expiration
+  - `allProofsHaveDLEQWithBlindingFactor()` for proper offline verification validation
+- **NUT-18V Tests**: Comprehensive test coverage for voucher payment requests
+
+### Fixed
+
+- **VoucherPaymentPayload**: `validateForOfflineVerification()` now requires DLEQ with blinding factor (r), not just any DLEQ
+
+---
+
+## [0.11.0] - 2026-01-09
 
 ### Added
 
@@ -18,21 +38,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `PaymentPayload`: Payment fulfillment structure with proofs and DLEQ
   - `PaymentPayloadProof`: Proof structure for offline verification
   - `Nut10Option`: NUT-10 locking conditions (P2PK, HTLC, VOUCHER)
-- **NUT-18V Voucher Payment Requests**: Extension for Model B gift card vouchers.
-  - `VoucherPaymentRequest`: CBOR-encoded request with `vreqA` prefix and required `issuerId` field
-  - `VoucherTransport`: Transport with MERCHANT type for direct merchant API integration
-  - `VoucherTransportType`: Enum with NOSTR, POST, and MERCHANT types
-  - `VoucherPaymentPayload`: Payment fulfillment with issuer ID and DLEQ for offline verification
-  - Offline verification support with `offlineVerification` flag
-  - `allProofsHaveDLEQWithBlindingFactor()` for proper offline verification validation
-- **NUT-18/18V Tests**: Comprehensive test coverage including official test vectors
+- **NUT-18 Tests**: Comprehensive test coverage including official test vectors
 
 ### Fixed
 
 - **VoucherSecret**: Improved error handling for invalid UUID in Builder
 - **WellKnownSecret**: Fixed null nonce serialization and deserialization
 - **VoucherWellKnownSecret**: Backward compatibility and nonce handling
-- **VoucherPaymentPayload**: `validateForOfflineVerification()` now requires DLEQ with blinding factor (r), not just any DLEQ
 
 ---
 
