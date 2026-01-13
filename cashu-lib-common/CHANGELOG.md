@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.11.0] - 2026-01-10
+
+### Added
+
+- **NUT-18 Payment Requests**: Complete implementation of receiver-initiated payment requests
+  - `PaymentRequest`: CBOR-serialized payment request with `creqA` prefix encoding
+  - `Transport`: Transport method supporting NOSTR and HTTP POST with optional tags
+  - `TransportType`: Enum for transport types (NOSTR, POST) with JSON serialization
+  - `PaymentPayload`: Payment fulfillment with proofs, mint URL, and unit
+  - `PaymentPayloadProof`: Proof structure with DLEQ for offline verification
+  - `Nut10Option`: NUT-10 locking conditions (P2PK, HTLC, VOUCHER)
+- **NUT-18 Tests**: Comprehensive test coverage including official test vectors from NUT-18 spec
+
+### Fixed
+
+- **VoucherSecret**: Improved error handling for invalid UUID and documented Builder fields
+- **WellKnownSecret**: Fixed null nonce serialization and deserialization
+- **VoucherWellKnownSecret**: Backward compatibility and nonce handling
+
+---
+
 ## [0.8.1] - 2025-12-20
 
 ### Added

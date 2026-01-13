@@ -4,7 +4,9 @@ import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Test;
 import xyz.tcheeric.cashu.common.PublicKey;
 import xyz.tcheeric.cashu.common.RandomStringSecret;
-import xyz.tcheeric.cashu.common.VoucherWellKnownSecret;
+import xyz.tcheeric.cashu.common.Secret;
+import xyz.tcheeric.cashu.common.VoucherSecret;
+import xyz.tcheeric.cashu.common.WellKnownSecret;
 import xyz.tcheeric.cashu.crypto.BDHKEUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,10 +37,9 @@ class SecretUtilTest {
      */
     @Test
     void shouldComputeYFromNut10SecretUsingUtf8Encoding() {
-        VoucherWellKnownSecret secret = new VoucherWellKnownSecret(
-                Hex.decode("deadbeef"),
-                "nonce-123"
-        );
+        VoucherSecret secret = new VoucherSecret();
+        secret.setData(Hex.decode("deadbeef"));
+        secret.setNonce("nonce-123");
 
         String secretString = secret.toString();
         String expectedY = PublicKey.fromBytes(BDHKEUtils.hashToCurve(secretString)).toString();
@@ -57,5 +58,51 @@ class SecretUtilTest {
         String fromString = SecretUtil.toYFromString(secret.toString());
 
         assertThat(fromString).isEqualTo(fromSecret);
+    }
+
+    /**
+     * Regression test: ensures SecretUtil.toSecret() preserves null nonce from NUT-10 JSON.
+     * This is critical for BDHKE verification to work correctly.
+     */
+    @Test
+    void shouldPreserveNullNonceFromNut10JsonArray() {
+        // Given: NUT-10 JSON with null nonce
+        String json = "[\"VOUCHER\",\"746573742d64617461\",null,[]]";
+
+        // When: Parse to Secret
+        Secret secret = SecretUtil.toSecret(json);
+
+        // Then: Nonce should be Java null, not the string "null"
+        assertThat(secret).isInstanceOf(WellKnownSecret.class);
+        WellKnownSecret wks = (WellKnownSecret) secret;
+        assertThat(wks.getNonce())
+                .withFailMessage("Nonce should be Java null, not string 'null'")
+                .isNull();
+
+        // And: Re-serialized JSON should contain JSON null, not string "null"
+        String output = secret.toString();
+        assertThat(output)
+                .withFailMessage("Output should contain JSON null: %s", output)
+                .contains(",null,");
+        assertThat(output)
+                .withFailMessage("Output should NOT contain string 'null': %s", output)
+                .doesNotContain(",\"null\",");
+    }
+
+    /**
+     * Ensures that a string nonce is preserved correctly.
+     */
+    @Test
+    void shouldPreserveStringNonceFromNut10JsonArray() {
+        // Given: NUT-10 JSON with string nonce
+        String json = "[\"VOUCHER\",\"746573742d64617461\",\"my-nonce-123\",[]]";
+
+        // When: Parse to Secret
+        Secret secret = SecretUtil.toSecret(json);
+
+        // Then: Nonce should be preserved
+        assertThat(secret).isInstanceOf(WellKnownSecret.class);
+        WellKnownSecret wks = (WellKnownSecret) secret;
+        assertThat(wks.getNonce()).isEqualTo("my-nonce-123");
     }
 }

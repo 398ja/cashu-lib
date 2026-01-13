@@ -8,7 +8,7 @@ import xyz.tcheeric.cashu.common.P2PKSecret;
 import xyz.tcheeric.cashu.common.PublicKey;
 import xyz.tcheeric.cashu.common.RandomStringSecret;
 import xyz.tcheeric.cashu.common.Secret;
-import xyz.tcheeric.cashu.common.VoucherWellKnownSecret;
+import xyz.tcheeric.cashu.common.VoucherSecret;
 import xyz.tcheeric.cashu.common.WellKnownSecret;
 import xyz.tcheeric.cashu.crypto.BDHKEUtils;
 
@@ -136,7 +136,9 @@ public final class SecretUtil<T extends Secret> {
         // NUT-10 format: ["KIND", "hexdata", "nonce", [tags]]
         // Element 1 is hex-encoded data string
         String hexData = second != null ? String.valueOf(second) : "";
-        String nonce = list.size() > 2 ? String.valueOf(list.get(2)) : "";
+        // Note: String.valueOf(null) returns "null" (string), so we must check explicitly
+        Object nonceObj = list.size() > 2 ? list.get(2) : null;
+        String nonce = nonceObj != null ? String.valueOf(nonceObj) : null;
         List<?> tags = list.size() > 3 && list.get(3) instanceof List<?> ? (List<?>) list.get(3) : List.of();
 
         // Hex-decode the data
@@ -160,7 +162,12 @@ public final class SecretUtil<T extends Secret> {
      */
     private static WellKnownSecret createSecret(WellKnownSecret.Kind kind, byte[] data, String nonce) {
         return switch (kind) {
-            case VOUCHER -> new VoucherWellKnownSecret(data, nonce);
+            case VOUCHER -> {
+                VoucherSecret voucher = new VoucherSecret();
+                voucher.setData(data);
+                voucher.setNonce(nonce);
+                yield voucher;
+            }
             case P2PK -> {
                 P2PKSecret p2pk = new P2PKSecret();
                 p2pk.setData(data);
@@ -182,7 +189,17 @@ public final class SecretUtil<T extends Secret> {
                 for (int i = 1; i < tagList.size(); i++) {
                     Object value = tagList.get(i);
                     if (value instanceof Number n) {
-                        tag.addValue(n.longValue());
+                        // Preserve fractional values for doubles/floats
+                        if (value instanceof Double || value instanceof Float) {
+                            double d = n.doubleValue();
+                            if (d != Math.floor(d)) {
+                                tag.addValue(d);
+                            } else {
+                                tag.addValue(n.longValue());
+                            }
+                        } else {
+                            tag.addValue(n.longValue());
+                        }
                     } else {
                         tag.addValue(String.valueOf(value));
                     }
@@ -231,7 +248,9 @@ public final class SecretUtil<T extends Secret> {
      */
     @SuppressWarnings("unchecked")
     private static <T extends Secret> T legacyMapToSecret(WellKnownSecret.Kind kind, Map<?, ?> data) {
-        String nonce = data.get("nonce") != null ? String.valueOf(data.get("nonce")) : "";
+        // Note: Use null instead of empty string to preserve JSON null nonce
+        Object nonceObj = data.get("nonce");
+        String nonce = nonceObj != null ? String.valueOf(nonceObj) : null;
         Object dataObj = data.get("data");
         byte[] dataBytes;
         if (dataObj instanceof byte[]) {
