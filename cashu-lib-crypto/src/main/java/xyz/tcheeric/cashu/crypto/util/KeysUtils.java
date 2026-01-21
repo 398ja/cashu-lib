@@ -1,5 +1,6 @@
 package xyz.tcheeric.cashu.crypto.util;
 
+import net.jcip.annotations.ThreadSafe;
 import org.bouncycastle.crypto.params.ECDomainParameters;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.jce.ECNamedCurveTable;
@@ -17,6 +18,13 @@ import java.security.Security;
 import java.security.interfaces.ECPrivateKey;
 import java.security.spec.ECGenParameterSpec;
 
+/**
+ * Key generation and derivation utilities for secp256k1.
+ *
+ * <p>This class is thread-safe. All methods use per-call {@code SecureRandom}
+ * instances and operate on local variables without shared mutable state.
+ */
+@ThreadSafe
 public class KeysUtils {
 
     /**
