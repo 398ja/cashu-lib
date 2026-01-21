@@ -26,7 +26,7 @@ All cashu-lib modules are compatible with Java 21+ Virtual Threads (Project Loom
 See [Virtual Thread Compatibility](docs/explanation/virtual-thread-compatibility.md) for the full audit report and recommendations.
 
 ## Use in your project
-Add the releases repository and depend on the modules you need (replace `0.6.2` with the latest tag):
+Add the releases repository and depend on the modules you need (replace `0.12.0` with the latest tag):
 
 ```xml
 <repositories>
@@ -39,17 +39,17 @@ Add the releases repository and depend on the modules you need (replace `0.6.2` 
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-common</artifactId>
-    <version>0.6.2</version>
+    <version>0.12.0</version>
 </dependency>
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-crypto</artifactId>
-    <version>0.6.2</version>
+    <version>0.12.0</version>
 </dependency>
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-entities</artifactId>
-    <version>0.6.2</version>
+    <version>0.12.0</version>
 </dependency>
 ```
 

@@ -104,4 +104,5 @@ Add this to your test configuration to detect any future regressions:
 
 | Version | Status | Notes |
 |---------|--------|-------|
+| 0.12.0+ | VT Compatible | @ThreadSafe annotations, CI pinning detection |
 | 0.11.1+ | VT Compatible | Initial VT compatibility audit completed |

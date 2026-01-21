@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.12.0] - 2026-01-21
+
+### Added
+
+- **Virtual Thread Compatibility**: Full audit and documentation for Java 21+ Virtual Thread support.
+  - `@ThreadSafe` annotations on `BDHKEUtils`, `DLEQUtils`, `Schnorr`, and `KeysUtils`
+  - `VirtualThreadConcurrencyTest` with 100+ concurrent Virtual Thread tests
+  - `jcip-annotations` dependency for thread-safety documentation
+
+---
+
 ## [0.11.0] - 2026-01-10
 
 ### Changed
