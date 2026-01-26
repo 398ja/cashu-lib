@@ -11,6 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.13.0] - 2026-01-26
+
+### Added
+
+- **Token Fingerprinting Utilities**: Security utilities for collision-resistant token duplicate detection.
+  - `ProofFingerprint`: Computes SHA-256 fingerprints from sorted proof secrets with mint URL
+  - `TokenFingerprint`: Parses cashuA (V3/JSON) and cashuB (V4/CBOR) tokens to compute fingerprints
+  - Deterministic output regardless of proof ordering (secrets are sorted lexicographically)
+  - Fallback to string hashing when token parsing fails
+  - Thread-safe implementation with `@ThreadSafe` annotation
+  - Comprehensive unit tests for both utilities (24 tests)
+
+---
+
 ## [0.12.0] - 2026-01-21
 
 ### Added
