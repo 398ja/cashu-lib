@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.13.1] - 2026-01-26
+
+### Fixed
+
+- **TokenFingerprint**: V3 multi-mint token fingerprints are now deterministic
+  - `TokenV3.mintProofs` is a `HashSet`, causing non-deterministic iteration order
+  - Each secret is now qualified with its mint URL (`mintUrl:secret`) and sorted
+  - Different mint compositions no longer collide when sharing the same secrets
+
+### Changed
+
+- **TokenFingerprint**: V3 fingerprint format changed (breaking change for stored fingerprints)
+
+---
+
 ## [0.12.0] - 2026-01-21
 
 ### Added
