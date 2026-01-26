@@ -90,24 +90,36 @@ class TokenFingerprintTest {
         }
 
         /**
-         * Ensures V3 fingerprint matches ProofFingerprint computation.
+         * Ensures V3 fingerprint incorporates mint URL - same secrets with different mints
+         * should produce different fingerprints.
          */
         @Test
-        void shouldMatchProofFingerprintForV3Token() {
-            // Arrange
-            TokenV3<RandomStringSecret> token = createV3Token();
-            String serializedToken = token.serialize(false);
+        void shouldProduceDifferentFingerprintsForDifferentMints() {
+            // Arrange - create two tokens with same proofs but different mint URLs
+            Set<Proof<RandomStringSecret>> proofs = new LinkedHashSet<>();
+            proofs.add(createProof(SECRET_1, 2));
+            proofs.add(createProof(SECRET_2, 8));
 
-            // Get proofs directly
-            Set<Proof<RandomStringSecret>> proofs = token.getMintProofs().iterator().next().getProofs();
-            String mintUrl = token.getMintProofs().iterator().next().getMint();
+            TokenV3<RandomStringSecret> tokenA = new TokenV3<>();
+            TokenV3.MintProof<RandomStringSecret> mintProofA = new TokenV3.MintProof<>();
+            mintProofA.setMint("https://mint-a.example.com");
+            mintProofA.setProofs(proofs);
+            tokenA.setMintProofs(Set.of(mintProofA));
+
+            TokenV3<RandomStringSecret> tokenB = new TokenV3<>();
+            TokenV3.MintProof<RandomStringSecret> mintProofB = new TokenV3.MintProof<>();
+            mintProofB.setMint("https://mint-b.example.com");
+            mintProofB.setProofs(proofs);
+            tokenB.setMintProofs(Set.of(mintProofB));
 
             // Act
-            String tokenFingerprint = TokenFingerprint.compute(serializedToken);
-            String proofFingerprint = ProofFingerprint.compute(proofs, mintUrl);
+            String fingerprintA = TokenFingerprint.compute(tokenA.serialize(false));
+            String fingerprintB = TokenFingerprint.compute(tokenB.serialize(false));
 
-            // Assert
-            assertThat(tokenFingerprint).isEqualTo(proofFingerprint);
+            // Assert - different mints should produce different fingerprints
+            assertThat(fingerprintA).isNotEqualTo(fingerprintB);
+            assertThat(fingerprintA).hasSize(64);
+            assertThat(fingerprintB).hasSize(64);
         }
     }
 
