@@ -59,7 +59,7 @@
 
         <!-- Test Dependency Versions -->
         <junit.version>5.13.4</junit.version>
-        <assertj.version>3.27.4</assertj.version>
+        <assertj.version>3.27.7</assertj.version>
         <assertj-test.version>3.27.4</assertj-test.version>
         <junit4.version>4.13.2</junit4.version>
         <junit-jupiter.version>5.13.4</junit-jupiter.version>
