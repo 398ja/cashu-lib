@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+---
+
+## [0.12.0] - 2026-01-21
+
+### Added
+
+- **Virtual Thread Compatibility**: Full audit and documentation for Java 21+ Virtual Thread support.
+  - `@ThreadSafe` annotations on `BDHKEUtils`, `DLEQUtils`, `Schnorr`, and `KeysUtils`
+  - VT compatibility documentation in `docs/explanation/virtual-thread-compatibility.md`
+  - Concurrent crypto tests with 100+ Virtual Threads (`VirtualThreadConcurrencyTest`)
+  - CI pinning detection with `-Djdk.tracePinnedThreads=short`
+  - README section on Virtual Thread compatibility
+- Test coverage for `expiresAt` field in `VoucherPaymentRequest`
+
+---
+
 ## [0.11.1] - 2026-01-10
 
 ### Added

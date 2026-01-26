@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.12.0] - 2026-01-21
+
+### Changed
+
+- Updated cashu-lib-crypto dependency to 0.12.0
+- Updated cashu-lib-common dependency to 0.12.0
+
+---
+
 ## [0.11.0] - 2026-01-10
 
 ### Changed

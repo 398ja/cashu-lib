@@ -3,7 +3,7 @@
 
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib</artifactId>
-    <version>0.11.1</version>
+    <version>0.12.0</version>
     <packaging>pom</packaging>
 
     <name>cashu-lib</name>
@@ -57,6 +57,9 @@
         <!-- Logging Dependency Versions -->
         <slf4j.version>2.0.17</slf4j.version>
 
+        <!-- Annotation Dependency Versions -->
+        <jcip-annotations.version>1.0</jcip-annotations.version>
+
         <!-- Test Dependency Versions -->
         <junit.version>5.13.4</junit.version>
         <assertj.version>3.27.4</assertj.version>
@@ -98,6 +101,11 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.jcip</groupId>
+                <artifactId>jcip-annotations</artifactId>
+                <version>${jcip-annotations.version}</version>
             </dependency>
 
             <!-- Test Dependencies -->
@@ -171,6 +179,10 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven-surefire-plugin.version}</version>
+                    <configuration>
+                        <!-- Enable Virtual Thread pinning detection during tests -->
+                        <argLine>-Djdk.tracePinnedThreads=short</argLine>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>

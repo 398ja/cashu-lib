@@ -2,11 +2,11 @@ package xyz.tcheeric.cashu.crypto;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import net.jcip.annotations.ThreadSafe;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
 import xyz.tcheeric.cashu.crypto.util.Utils;
-import xyz.tcheeric.cashu.crypto.BDHKEUtils;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -20,8 +20,12 @@ import java.security.SecureRandom;
  * <p>Provides methods for generating and verifying DLEQ proofs that demonstrate
  * the mint used the same private key for creating its public key and signing
  * blinded messages.
+ *
+ * <p>This class is thread-safe. The static {@code SecureRandom} instance is
+ * internally synchronized and safe for concurrent access.
  */
 @Slf4j
+@ThreadSafe
 public final class DLEQUtils {
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();

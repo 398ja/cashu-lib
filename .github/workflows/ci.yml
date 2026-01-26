@@ -21,6 +21,14 @@ jobs:
           cache: 'maven'
       - name: Build with Maven
         run: ./mvnw -q verify |& tee build.log
+      - name: Check for Virtual Thread pinning
+        run: |
+          if grep -q "VirtualThread.*pinned" build.log; then
+            echo "::error::Virtual Thread pinning detected during tests!"
+            grep "VirtualThread.*pinned" build.log
+            exit 1
+          fi
+          echo "No Virtual Thread pinning detected"
       - name: Show build log
         if: failure()
         run: |
