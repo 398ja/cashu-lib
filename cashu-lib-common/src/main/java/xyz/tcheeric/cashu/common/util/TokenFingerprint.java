@@ -97,6 +97,10 @@ public final class TokenFingerprint {
 
     /**
      * Computes fingerprint from a V3 (JSON) token.
+     * <p>
+     * For multi-mint tokens, each secret is paired with its mint URL to ensure
+     * deterministic fingerprints regardless of HashSet iteration order.
+     * </p>
      */
     @SuppressWarnings("unchecked")
     private static String computeFromV3(String tokenPayload) {
@@ -107,33 +111,37 @@ public final class TokenFingerprint {
             throw new IllegalArgumentException("Token contains no mint proofs");
         }
 
-        // Collect all secrets and mint URLs
-        List<String> allSecrets = new ArrayList<>();
-        String mintUrl = "";
+        // Collect mint-qualified secrets: "mintUrl:secret" for deterministic ordering
+        List<String> mintQualifiedSecrets = new ArrayList<>();
 
         for (TokenV3.MintProof<Secret> mintProof : mintProofs) {
-            if (mintUrl.isEmpty() && mintProof.getMint() != null) {
-                mintUrl = mintProof.getMint();
-            }
+            String mint = mintProof.getMint() != null ? mintProof.getMint() : "";
 
             Set<Proof<Secret>> proofs = mintProof.getProofs();
             if (proofs != null) {
                 for (Proof<Secret> proof : proofs) {
                     if (proof.getSecret() != null) {
-                        allSecrets.add(proof.getSecret().toString());
+                        // Qualify each secret with its mint URL
+                        mintQualifiedSecrets.add(mint + ":" + proof.getSecret().toString());
                     }
                 }
             }
         }
 
-        if (allSecrets.isEmpty()) {
+        if (mintQualifiedSecrets.isEmpty()) {
             throw new IllegalArgumentException("No secrets found in V3 token");
         }
 
-        String fingerprint = ProofFingerprint.computeFromSecrets(allSecrets, mintUrl);
-        log.debug("token_fingerprint v3 secrets_count={} mint={} fingerprint={}",
-                allSecrets.size(),
-                mintUrl.length() > 30 ? mintUrl.substring(0, 30) + "..." : mintUrl,
+        // Sort to ensure deterministic ordering regardless of HashSet iteration
+        mintQualifiedSecrets.sort(String::compareTo);
+
+        // Compute fingerprint from the sorted mint-qualified secrets
+        String canonicalInput = String.join("|", mintQualifiedSecrets);
+        String fingerprint = ProofFingerprint.computeFromString(canonicalInput);
+
+        log.debug("token_fingerprint v3 secrets_count={} mints_count={} fingerprint={}",
+                mintQualifiedSecrets.size(),
+                mintProofs.size(),
                 fingerprint.substring(0, 16) + "...");
 
         return fingerprint;
