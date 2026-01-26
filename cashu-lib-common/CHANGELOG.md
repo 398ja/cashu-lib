@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.12.0] - 2026-01-21
+
+### Added
+
+- Test coverage for `expiresAt` field in `VoucherPaymentRequest`
+
+### Changed
+
+- Updated cashu-lib-crypto dependency to 0.12.0
+
+---
+
 ## [0.11.0] - 2026-01-10
 
 ### Added

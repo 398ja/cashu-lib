@@ -1,6 +1,5 @@
 [![CI](https://github.com/398ja/cashu-lib/actions/workflows/ci.yml/badge.svg)](https://github.com/398ja/cashu-lib/actions/workflows/ci.yml)
 [![Qodana](https://github.com/398ja/cashu-lib/actions/workflows/code_quality.yml/badge.svg)](https://github.com/398ja/cashu-lib/actions/workflows/code_quality.yml)
-[![codecov](https://codecov.io/gh/398ja/cashu-lib/graph/badge.svg?token=BV77LKDNGE)](https://codecov.io/gh/398ja/cashu-lib)
 # cashu-lib
 
 cashu-lib is a Java library implementing the Cashu protocol. It provides common entities, cryptographic primitives, and data structures for building Cashu mints and wallets.
@@ -18,8 +17,16 @@ See the [installation tutorial](docs/tutorials/installation.md) to build the pro
 - Build and test all modules with `./mvnw -q verify` (coverage: `target/site/jacoco-aggregate`)
 - Build a specific module with dependencies via `./mvnw -q -pl <module> -am verify`
 
+## Virtual Thread Compatibility
+All cashu-lib modules are compatible with Java 21+ Virtual Threads (Project Loom):
+- No `synchronized` blocks that could cause carrier thread pinning
+- No `ThreadLocal` usage that could cause state inheritance issues
+- Thread-safe crypto operations using per-call `MessageDigest` instances
+
+See [Virtual Thread Compatibility](docs/explanation/virtual-thread-compatibility.md) for the full audit report and recommendations.
+
 ## Use in your project
-Add the releases repository and depend on the modules you need (replace `0.6.2` with the latest tag):
+Add the releases repository and depend on the modules you need (replace `0.12.0` with the latest tag):
 
 ```xml
 <repositories>
@@ -32,17 +39,17 @@ Add the releases repository and depend on the modules you need (replace `0.6.2` 
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-common</artifactId>
-    <version>0.6.2</version>
+    <version>0.12.0</version>
 </dependency>
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-crypto</artifactId>
-    <version>0.6.2</version>
+    <version>0.12.0</version>
 </dependency>
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-entities</artifactId>
-    <version>0.6.2</version>
+    <version>0.12.0</version>
 </dependency>
 ```
 

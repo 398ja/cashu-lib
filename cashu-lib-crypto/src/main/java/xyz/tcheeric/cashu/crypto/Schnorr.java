@@ -1,5 +1,6 @@
 package xyz.tcheeric.cashu.crypto;
 
+import net.jcip.annotations.ThreadSafe;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import xyz.tcheeric.cashu.crypto.util.Point;
 import xyz.tcheeric.cashu.crypto.util.Utils;
@@ -18,6 +19,13 @@ import java.util.Arrays;
 
 import static xyz.tcheeric.cashu.crypto.util.Utils.bigIntFromBytes;
 
+/**
+ * BIP-340 Schnorr signature utilities.
+ *
+ * <p>This class is thread-safe. All methods use per-call {@code SecureRandom}
+ * instances and operate on local variables without shared mutable state.
+ */
+@ThreadSafe
 public class Schnorr {
 
     static {

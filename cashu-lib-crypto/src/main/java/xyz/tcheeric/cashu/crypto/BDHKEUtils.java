@@ -2,6 +2,7 @@ package xyz.tcheeric.cashu.crypto;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import net.jcip.annotations.ThreadSafe;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
@@ -21,7 +22,15 @@ import java.util.Arrays;
 
 
 
+/**
+ * Blind Diffie-Hellman Key Exchange utilities for Cashu protocol.
+ *
+ * <p>This class is thread-safe. All methods operate solely on local variables
+ * and method parameters without accessing shared mutable state. The static
+ * {@code CURVE} field is immutable and safe for concurrent access.
+ */
 @Slf4j
+@ThreadSafe
 public class BDHKEUtils {
 
     private static final byte[] DOMAIN_SEPARATOR = "Secp256k1_HashToCurve_Cashu_".getBytes(StandardCharsets.UTF_8);
