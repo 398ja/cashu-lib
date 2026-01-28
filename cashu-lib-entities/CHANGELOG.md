@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.15.0] - 2026-01-28
+
+### Changed
+
+- **Package Reorganization**: REST entities reorganized into NUT-specific packages.
+  - `rest/nut03/`: PostSwapRequest, PostSwapResponse
+  - `rest/nut04/`: PostMintQuoteRequest, PostMintQuoteResponse, PostMintQuoteBolt11Request, PostMintQuoteFiatRequest, PostMintRequest, PostMintResponse
+  - `rest/nut05/`: PostMeltQuoteRequest, PostMeltQuoteResponse, PostMeltQuoteBolt11Request, PostMeltQuoteBolt11Response, PostMeltRequest, PostMeltResponse, PostMeltBolt11Request, PostMeltBolt11Response, PostMeltQuoteMockRequest, PostMeltQuoteMockResponse, PostMeltQuoteTestRequest, PostMeltQuoteTestResponse
+  - `rest/nut07/`: PostCheckStateRequest, PostCheckStateResponse
+  - `rest/nut09/`: PostRestoreRequest, PostRestoreResponse
+- Updated cashu-lib-common dependency to 0.15.0
+
+**Migration Note**: Update import statements to use new package paths.
+
+---
+
 ## [0.14.0] - 2026-01-28
 
 ### Changed

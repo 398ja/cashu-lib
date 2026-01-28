@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import xyz.tcheeric.cashu.common.nut18.Transport;
+import xyz.tcheeric.cashu.common.nut18.TransportType;
 import xyz.tcheeric.cashu.common.util.JsonUtils;
 
 import java.util.List;

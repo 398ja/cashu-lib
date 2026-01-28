@@ -4,8 +4,8 @@ import org.bitcoinj.crypto.DeterministicKey;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import xyz.tcheeric.bips.bip39.Bip39;
-import xyz.tcheeric.cashu.common.DeterministicSecret;
 import xyz.tcheeric.cashu.common.KeysetId;
+import xyz.tcheeric.cashu.common.nut13.DeterministicSecret;
 
 import java.util.Arrays;
 import java.util.List;

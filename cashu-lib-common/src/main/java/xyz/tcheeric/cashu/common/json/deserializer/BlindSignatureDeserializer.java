@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import xyz.tcheeric.cashu.common.BlindSignature;
-import xyz.tcheeric.cashu.common.DLEQProof;
 import xyz.tcheeric.cashu.common.KeysetId;
 import xyz.tcheeric.cashu.common.Signature;
+import xyz.tcheeric.cashu.common.nut12.DLEQProof;
 
 import java.io.IOException;
 
