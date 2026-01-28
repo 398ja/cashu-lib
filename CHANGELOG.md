@@ -11,6 +11,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.14.0] - 2026-01-28
+
+### Added
+
+- **NUT-17 WebSocket Subscriptions**: Complete implementation of real-time subscription protocol per [NUT-17 specification](https://github.com/cashubtc/nuts/blob/main/17.md).
+  - `SubscriptionKind`: Enum for subscription types (bolt11_mint_quote, bolt11_melt_quote, proof_state)
+  - `SubscriptionFilter`: Filter for subscription requests
+  - `SubscriptionParams`: Parameters for JSON-RPC subscription requests
+  - `SubscriptionResult`: Result payload for subscription responses
+  - `JsonRpcRequest`: Generic JSON-RPC 2.0 request wrapper
+  - `JsonRpcResponse`: Generic JSON-RPC 2.0 response wrapper
+  - `JsonRpcNotification`: Server-to-client notification for state changes
+  - `JsonRpcError`: Error response structure
+  - `NotificationParams`: Parameters for subscription notifications
+  - `ProofStatePayload`: Proof state change notification payload
+  - `QuoteStatePayload`: Quote state change notification payload
+
+---
+
 ## [0.13.1] - 2026-01-26
 
 ### Fixed
