@@ -40,3 +40,4 @@ build/
 /.qodana/
 /.claude/
 /project/
+docs/SECURITY_ARCHITECTURE.md
