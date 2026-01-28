@@ -3,8 +3,8 @@ package xyz.tcheeric.cashu.entities;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Test;
-import xyz.tcheeric.cashu.common.P2PKSecret;
-import xyz.tcheeric.cashu.common.WellKnownSecret;
+import xyz.tcheeric.cashu.common.nut10.WellKnownSecret;
+import xyz.tcheeric.cashu.common.nut11.P2PKSecret;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

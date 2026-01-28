@@ -6,11 +6,11 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.bitcoinj.crypto.DeterministicKey;
 import xyz.tcheeric.bips.bip32.nut.Nut13Derivation;
-import xyz.tcheeric.cashu.common.DeterministicSecret;
 import xyz.tcheeric.cashu.common.KeysetId;
-import xyz.tcheeric.cashu.common.P2PKSecret;
 import xyz.tcheeric.cashu.common.RandomStringSecret;
 import xyz.tcheeric.cashu.common.Secret;
+import xyz.tcheeric.cashu.common.nut11.P2PKSecret;
+import xyz.tcheeric.cashu.common.nut13.DeterministicSecret;
 
 import java.util.ArrayList;
 import java.util.List;

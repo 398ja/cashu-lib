@@ -11,6 +11,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.15.0] - 2026-01-28
+
+### Changed
+
+- **Package Reorganization**: Classes reorganized into NUT-specific packages for better organization.
+  - `nut10/`: Spending conditions (WellKnownSecret, Nut10Option, serializers)
+  - `nut11/`: Pay-to-Pubkey (P2PKSecret)
+  - `nut12/`: DLEQ Proofs (DLEQProof, DLEQProofDeserializer)
+  - `nut13/`: Deterministic Secrets (DeterministicSecret, DeterministicSecretDeserializer)
+  - `nut18/`: Payment Requests (PaymentRequest, Transport, Voucher* classes)
+  - REST entities in cashu-lib-entities reorganized to `rest/nut03/`, `rest/nut04/`, `rest/nut05/`, `rest/nut07/`, `rest/nut09/`
+
+**Migration Note**: Import paths have changed. Update imports from:
+- `xyz.tcheeric.cashu.common.WellKnownSecret` → `xyz.tcheeric.cashu.common.nut10.WellKnownSecret`
+- `xyz.tcheeric.cashu.common.P2PKSecret` → `xyz.tcheeric.cashu.common.nut11.P2PKSecret`
+- `xyz.tcheeric.cashu.common.DLEQProof` → `xyz.tcheeric.cashu.common.nut12.DLEQProof`
+- `xyz.tcheeric.cashu.common.DeterministicSecret` → `xyz.tcheeric.cashu.common.nut13.DeterministicSecret`
+- `xyz.tcheeric.cashu.common.PaymentRequest` → `xyz.tcheeric.cashu.common.nut18.PaymentRequest`
+- `xyz.tcheeric.cashu.entities.rest.PostSwapRequest` → `xyz.tcheeric.cashu.entities.rest.nut03.PostSwapRequest`
+- (and similar for other REST entities)
+
+---
+
 ## [0.14.0] - 2026-01-28
 
 ### Added

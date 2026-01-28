@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import xyz.tcheeric.bips.bip32.nut.Nut13Derivation;
 import xyz.tcheeric.bips.bip39.Bip39;
 import xyz.tcheeric.cashu.common.*;
+import xyz.tcheeric.cashu.common.nut13.DeterministicSecret;
 import xyz.tcheeric.cashu.common.util.SecretFactory;
 
 import java.util.Arrays;

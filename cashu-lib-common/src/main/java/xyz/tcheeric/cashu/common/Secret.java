@@ -1,6 +1,8 @@
 package xyz.tcheeric.cashu.common;
 
 import lombok.NonNull;
+import xyz.tcheeric.cashu.common.nut11.P2PKSecret;
+import xyz.tcheeric.cashu.common.nut13.DeterministicSecret;
 
 public interface Secret {
 

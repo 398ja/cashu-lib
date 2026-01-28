@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import xyz.tcheeric.cashu.common.Secret;
-import xyz.tcheeric.cashu.common.WellKnownSecret;
+import xyz.tcheeric.cashu.common.nut10.WellKnownSecret;
 import xyz.tcheeric.cashu.common.util.SecretUtil;
 
 import java.io.IOException;

@@ -1,6 +1,7 @@
 package xyz.tcheeric.cashu.common;
 
 import org.junit.jupiter.api.Test;
+import xyz.tcheeric.cashu.common.nut18.VoucherSecret;
 import xyz.tcheeric.cashu.common.util.SecretUtil;
 
 import java.nio.charset.StandardCharsets;

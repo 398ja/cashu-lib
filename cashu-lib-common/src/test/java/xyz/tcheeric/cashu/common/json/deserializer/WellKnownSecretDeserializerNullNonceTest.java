@@ -2,8 +2,8 @@ package xyz.tcheeric.cashu.common.json.deserializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import xyz.tcheeric.cashu.common.WellKnownSecret;
-import xyz.tcheeric.cashu.common.VoucherWellKnownSecret;
+import xyz.tcheeric.cashu.common.nut10.WellKnownSecret;
+import xyz.tcheeric.cashu.common.nut18.VoucherWellKnownSecret;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

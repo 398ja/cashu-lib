@@ -8,6 +8,8 @@ import xyz.tcheeric.cashu.common.KeysetId;
 import xyz.tcheeric.cashu.common.PublicKey;
 import xyz.tcheeric.cashu.common.Signature;
 import xyz.tcheeric.cashu.common.util.JsonUtils;
+import xyz.tcheeric.cashu.entities.rest.nut09.PostRestoreRequest;
+import xyz.tcheeric.cashu.entities.rest.nut09.PostRestoreResponse;
 
 import java.util.List;
 

@@ -3,6 +3,10 @@ package xyz.tcheeric.cashu.common;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import xyz.tcheeric.cashu.common.nut10.Nut10Option;
+import xyz.tcheeric.cashu.common.nut10.WellKnownSecret;
+import xyz.tcheeric.cashu.common.nut18.PaymentRequest;
+import xyz.tcheeric.cashu.common.nut18.Transport;
 
 import java.util.List;
 

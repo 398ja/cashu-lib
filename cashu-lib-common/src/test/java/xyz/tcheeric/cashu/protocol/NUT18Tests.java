@@ -3,13 +3,13 @@ package xyz.tcheeric.cashu.protocol;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import xyz.tcheeric.cashu.common.Nut10Option;
-import xyz.tcheeric.cashu.common.PaymentPayload;
-import xyz.tcheeric.cashu.common.PaymentPayloadProof;
-import xyz.tcheeric.cashu.common.PaymentRequest;
-import xyz.tcheeric.cashu.common.Transport;
-import xyz.tcheeric.cashu.common.TransportType;
-import xyz.tcheeric.cashu.common.WellKnownSecret;
+import xyz.tcheeric.cashu.common.nut10.Nut10Option;
+import xyz.tcheeric.cashu.common.nut10.WellKnownSecret;
+import xyz.tcheeric.cashu.common.nut18.PaymentPayload;
+import xyz.tcheeric.cashu.common.nut18.PaymentPayloadProof;
+import xyz.tcheeric.cashu.common.nut18.PaymentRequest;
+import xyz.tcheeric.cashu.common.nut18.Transport;
+import xyz.tcheeric.cashu.common.nut18.TransportType;
 
 import java.util.List;
 

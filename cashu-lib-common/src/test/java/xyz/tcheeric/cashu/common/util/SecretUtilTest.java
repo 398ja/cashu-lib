@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 import xyz.tcheeric.cashu.common.PublicKey;
 import xyz.tcheeric.cashu.common.RandomStringSecret;
 import xyz.tcheeric.cashu.common.Secret;
-import xyz.tcheeric.cashu.common.VoucherSecret;
-import xyz.tcheeric.cashu.common.WellKnownSecret;
+import xyz.tcheeric.cashu.common.nut10.WellKnownSecret;
+import xyz.tcheeric.cashu.common.nut18.VoucherSecret;
 import xyz.tcheeric.cashu.crypto.BDHKEUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

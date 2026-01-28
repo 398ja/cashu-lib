@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import xyz.tcheeric.cashu.common.json.deserializer.BlindSignatureDeserializer;
+import xyz.tcheeric.cashu.common.nut12.DLEQProof;
 
 @Data
 @Builder

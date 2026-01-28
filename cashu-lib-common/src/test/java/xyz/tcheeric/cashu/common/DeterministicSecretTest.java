@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import xyz.tcheeric.cashu.common.nut13.DeterministicSecret;
 
 import java.util.Arrays;
 

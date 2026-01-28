@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.15.0] - 2026-01-28
+
+### Changed
+
+- **Package Reorganization**: Classes reorganized into NUT-specific packages following the existing `nut17/` pattern.
+  - `nut10/`: WellKnownSecret, Nut10Option, WellKnownSecretDTO, serializers and deserializers
+  - `nut11/`: P2PKSecret
+  - `nut12/`: DLEQProof, DLEQProofDeserializer
+  - `nut13/`: DeterministicSecret, DeterministicSecretDeserializer
+  - `nut18/`: PaymentRequest, PaymentPayload, PaymentPayloadProof, PaymentMethod, Transport, TransportType, VoucherPaymentRequest, VoucherPaymentPayload, VoucherTransport, VoucherTransportType, VoucherTags, VoucherSecret, VoucherWellKnownSecret
+
+**Migration Note**: Update import statements to use new package paths.
+
+---
+
 ## [0.14.0] - 2026-01-28
 
 ### Added
