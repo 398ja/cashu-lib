@@ -3,6 +3,7 @@ package xyz.tcheeric.cashu.common;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Test;
+import xyz.tcheeric.cashu.common.nut11.P2PKSecret;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;

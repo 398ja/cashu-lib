@@ -45,6 +45,92 @@ cashu-lib is a Java 21 multi-module library that implements the core data struct
 - `release-please-config.json` / `.release-please-manifest.json`: release automation inputs; do not hand-edit generated sections.
 - `mvnw` / `mvnw.cmd`: wrapper scripts that ensure a consistent Maven environment.
 
+## NUT-Based Package Organization
+
+Classes are organized by their corresponding NUT (Notation, Usage, and Terminology) specification. When adding new classes, place them in the appropriate `nutXX/` package.
+
+### cashu-lib-common Package Structure
+
+```
+xyz.tcheeric.cashu.common/
+├── nut10/    # NUT-10: Spending Conditions
+│             #   WellKnownSecret, Nut10Option, WellKnownSecretSerializer,
+│             #   WellKnownSecretDeserializer, TagSerializer, TagDeserializer
+├── nut11/    # NUT-11: Pay-to-Pubkey (P2PK)
+│             #   P2PKSecret
+├── nut12/    # NUT-12: DLEQ Proofs
+│             #   DLEQProof, DLEQProofDeserializer
+├── nut13/    # NUT-13: Deterministic Secrets
+│             #   DeterministicSecret, DeterministicSecretDeserializer
+├── nut17/    # NUT-17: WebSocket Subscriptions
+│             #   SubscriptionKind, SubscriptionFilter, JsonRpcRequest, etc.
+├── nut18/    # NUT-18: Payment Requests
+│             #   PaymentRequest, PaymentPayload, Transport, TransportType,
+│             #   VoucherPaymentRequest, VoucherSecret, VoucherTransport, etc.
+└── (root)    # Core classes (Token, Proof, KeySet, PublicKey, Secret, etc.)
+```
+
+### cashu-lib-entities Package Structure
+
+```
+xyz.tcheeric.cashu.entities.rest/
+├── nut03/    # NUT-03: Swap Operations
+│             #   PostSwapRequest, PostSwapResponse
+├── nut04/    # NUT-04: Mint Quote Operations
+│             #   PostMintQuoteRequest, PostMintQuoteResponse, PostMintRequest, etc.
+├── nut05/    # NUT-05: Melt Quote Operations
+│             #   PostMeltQuoteRequest, PostMeltQuoteResponse, PostMeltRequest, etc.
+├── nut07/    # NUT-07: Token State Check
+│             #   PostCheckStateRequest, PostCheckStateResponse
+├── nut09/    # NUT-09: Restore Signatures
+│             #   PostRestoreRequest, PostRestoreResponse
+└── (root)    # Keyset responses (ActiveKeySetResponse, KeySetResponse, etc.)
+```
+
+### Adding New Classes
+
+When implementing a new NUT specification or adding classes to an existing NUT:
+
+1. **Identify the NUT**: Determine which specification the class implements
+2. **Use the correct package**: Place in the corresponding `nutXX/` package
+3. **Create new package if needed**: For new NUTs, create `nutXX/` under the appropriate module
+4. **Update imports**: Ensure all references use the new package path
+
+**Example: Adding a NUT-14 class**
+```java
+// File: cashu-lib-common/src/main/java/xyz/tcheeric/cashu/common/nut14/HTLCSecret.java
+package xyz.tcheeric.cashu.common.nut14;
+
+public class HTLCSecret extends WellKnownSecret {
+    // Implementation following NUT-14 specification
+}
+```
+
+### Core Classes (Root Package)
+
+These fundamental classes remain in the root package as they span multiple NUTs:
+- **Token classes**: `Token`, `TokenV3`, `TokenV4`, `AbstractBaseToken`
+- **Cryptographic**: `PublicKey`, `PrivateKey`, `Signature`, `BlindSignature`
+- **Keyset**: `KeySet`, `Keys`, `KeysetId`, `ActiveKeySet`
+- **Proofs**: `Proof`, `BlindedMessage`, `Witness`
+- **Base secrets**: `Secret`, `RandomStringSecret`, `HashToCurveSecret`
+- **Derivation**: `DerivationPath`, `SecretDerivationPath`
+
+### Import Guidelines
+
+Always use the NUT-specific package paths in imports:
+```java
+// Correct
+import xyz.tcheeric.cashu.common.nut10.WellKnownSecret;
+import xyz.tcheeric.cashu.common.nut11.P2PKSecret;
+import xyz.tcheeric.cashu.common.nut18.PaymentRequest;
+import xyz.tcheeric.cashu.entities.rest.nut03.PostSwapRequest;
+
+// Incorrect (classes moved to NUT packages)
+import xyz.tcheeric.cashu.common.WellKnownSecret;  // Now in nut10
+import xyz.tcheeric.cashu.entities.rest.PostSwapRequest;  // Now in nut03
+```
+
 ## Tooling & Build
 - Target **Java 21** (Temurin). The compiler settings live in the parent POM (`maven.compiler.release=21`).
 - Use the Maven wrapper for all builds: `./mvnw -q verify` from the repository root runs unit tests, integration tests (if present), and aggregates JaCoCo coverage.

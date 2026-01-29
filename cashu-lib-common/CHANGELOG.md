@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.15.0] - 2026-01-28
+
+### Changed
+
+- **Package Reorganization**: Classes reorganized into NUT-specific packages following the existing `nut17/` pattern.
+  - `nut10/`: WellKnownSecret, Nut10Option, WellKnownSecretDTO, serializers and deserializers
+  - `nut11/`: P2PKSecret
+  - `nut12/`: DLEQProof, DLEQProofDeserializer
+  - `nut13/`: DeterministicSecret, DeterministicSecretDeserializer
+  - `nut18/`: PaymentRequest, PaymentPayload, PaymentPayloadProof, PaymentMethod, Transport, TransportType, VoucherPaymentRequest, VoucherPaymentPayload, VoucherTransport, VoucherTransportType, VoucherTags, VoucherSecret, VoucherWellKnownSecret
+
+**Migration Note**: Update import statements to use new package paths.
+
+---
+
+## [0.14.0] - 2026-01-28
+
+### Added
+
+- **NUT-17 WebSocket Subscriptions**: JSON-RPC 2.0 protocol entities for real-time mint subscriptions
+  - `SubscriptionKind`: Enum for bolt11_mint_quote, bolt11_melt_quote, proof_state
+  - `SubscriptionFilter`, `SubscriptionParams`, `SubscriptionResult`: Subscription request/response structures
+  - `JsonRpcRequest`, `JsonRpcResponse`, `JsonRpcNotification`, `JsonRpcError`: JSON-RPC 2.0 wrappers
+  - `NotificationParams`, `ProofStatePayload`, `QuoteStatePayload`: Notification payloads
+
+---
+
 ## [0.13.1] - 2026-01-26
 
 ### Fixed

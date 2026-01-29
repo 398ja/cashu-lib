@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import xyz.tcheeric.cashu.common.nut18.PaymentPayload;
+import xyz.tcheeric.cashu.common.nut18.PaymentPayloadProof;
+import xyz.tcheeric.cashu.common.nut18.PaymentRequest;
 import xyz.tcheeric.cashu.common.util.JsonUtils;
 
 import java.util.List;

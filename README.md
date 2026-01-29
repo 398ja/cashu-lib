@@ -26,7 +26,7 @@ All cashu-lib modules are compatible with Java 21+ Virtual Threads (Project Loom
 See [Virtual Thread Compatibility](docs/explanation/virtual-thread-compatibility.md) for the full audit report and recommendations.
 
 ## Use in your project
-Add the releases repository and depend on the modules you need (replace `0.12.0` with the latest tag):
+Add the releases repository and depend on the modules you need (replace `0.15.0` with the latest tag):
 
 ```xml
 <repositories>
@@ -39,17 +39,17 @@ Add the releases repository and depend on the modules you need (replace `0.12.0`
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-common</artifactId>
-    <version>0.12.0</version>
+    <version>0.15.0</version>
 </dependency>
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-crypto</artifactId>
-    <version>0.12.0</version>
+    <version>0.15.0</version>
 </dependency>
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-entities</artifactId>
-    <version>0.12.0</version>
+    <version>0.15.0</version>
 </dependency>
 ```
 
@@ -57,6 +57,25 @@ Add the releases repository and depend on the modules you need (replace `0.12.0`
 - `cashu-lib-common`: Token codecs (V3/V4), keysets, deterministic secrets (NUT-13), and JSON/CBOR utilities.
 - `cashu-lib-crypto`: BIP-340 Schnorr helpers, BDHKE utilities, and key derivation primitives.
 - `cashu-lib-entities`: REST DTOs for mint APIs (quotes, swaps, melts, restores) with Jackson annotations.
+
+## Supported NUTs
+
+| NUT | Name | Status | Package |
+|-----|------|--------|---------|
+| [NUT-00](https://github.com/cashubtc/nuts/blob/main/00.md) | Token Formats | ✅ | `common` (Token, TokenV3, TokenV4) |
+| [NUT-01](https://github.com/cashubtc/nuts/blob/main/01.md) | Mint Public Keys | ✅ | `common` (KeySet, Keys) |
+| [NUT-02](https://github.com/cashubtc/nuts/blob/main/02.md) | Keysets | ✅ | `common` (KeysetId, ActiveKeySet) |
+| [NUT-03](https://github.com/cashubtc/nuts/blob/main/03.md) | Swap | ✅ | `entities/rest/nut03` |
+| [NUT-04](https://github.com/cashubtc/nuts/blob/main/04.md) | Mint Tokens | ✅ | `entities/rest/nut04` |
+| [NUT-05](https://github.com/cashubtc/nuts/blob/main/05.md) | Melt Tokens | ✅ | `entities/rest/nut05` |
+| [NUT-07](https://github.com/cashubtc/nuts/blob/main/07.md) | Token State Check | ✅ | `entities/rest/nut07` |
+| [NUT-09](https://github.com/cashubtc/nuts/blob/main/09.md) | Restore Signatures | ✅ | `entities/rest/nut09` |
+| [NUT-10](https://github.com/cashubtc/nuts/blob/main/10.md) | Spending Conditions | ✅ | `common/nut10` |
+| [NUT-11](https://github.com/cashubtc/nuts/blob/main/11.md) | Pay-to-Pubkey (P2PK) | ✅ | `common/nut11` |
+| [NUT-12](https://github.com/cashubtc/nuts/blob/main/12.md) | DLEQ Proofs | ✅ | `common/nut12` |
+| [NUT-13](https://github.com/cashubtc/nuts/blob/main/13.md) | Deterministic Secrets | ✅ | `common/nut13` |
+| [NUT-17](https://github.com/cashubtc/nuts/blob/main/17.md) | WebSocket Subscriptions | ✅ | `common/nut17` |
+| [NUT-18](https://github.com/cashubtc/nuts/blob/main/18.md) | Payment Requests | ✅ | `common/nut18` |
 
 ## Protocol alignment
 

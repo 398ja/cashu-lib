@@ -6,6 +6,7 @@ import xyz.tcheeric.cashu.common.BaseKey;
 import xyz.tcheeric.cashu.common.CompressedPublicKey;
 import xyz.tcheeric.cashu.common.HashToCurveSecret;
 import xyz.tcheeric.cashu.common.PublicKey;
+import xyz.tcheeric.cashu.entities.rest.nut07.PostCheckStateRequest;
 
 import java.util.List;
 

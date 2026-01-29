@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import xyz.tcheeric.cashu.common.nut12.DLEQProof;
 import xyz.tcheeric.cashu.common.util.JsonUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

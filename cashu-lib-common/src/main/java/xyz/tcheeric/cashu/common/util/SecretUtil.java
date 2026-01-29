@@ -4,12 +4,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import xyz.tcheeric.cashu.common.P2PKSecret;
 import xyz.tcheeric.cashu.common.PublicKey;
 import xyz.tcheeric.cashu.common.RandomStringSecret;
 import xyz.tcheeric.cashu.common.Secret;
-import xyz.tcheeric.cashu.common.VoucherSecret;
-import xyz.tcheeric.cashu.common.WellKnownSecret;
+import xyz.tcheeric.cashu.common.nut10.WellKnownSecret;
+import xyz.tcheeric.cashu.common.nut11.P2PKSecret;
+import xyz.tcheeric.cashu.common.nut18.VoucherSecret;
 import xyz.tcheeric.cashu.crypto.BDHKEUtils;
 
 import java.util.HashMap;
