@@ -10,7 +10,7 @@ import org.bouncycastle.util.encoders.Hex;
  */
 @Deprecated(forRemoval = true)
 @SuppressWarnings("deprecation")
-public class CompressedPublicKey extends PublicKey {
+public final class CompressedPublicKey extends PublicKey {
 
     CompressedPublicKey(@NonNull String s) {
         super();

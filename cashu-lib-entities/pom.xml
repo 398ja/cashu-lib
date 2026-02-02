@@ -3,7 +3,7 @@
     <parent>
         <groupId>xyz.tcheeric</groupId>
         <artifactId>cashu-lib</artifactId>
-        <version>0.15.0</version>
+        <version>0.16.0</version>
     </parent>
 
     <artifactId>cashu-lib-entities</artifactId>
@@ -44,6 +44,12 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+        </dependency>
+        <!-- Jakarta Bean Validation API for input validation -->
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>3.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

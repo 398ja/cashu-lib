@@ -62,10 +62,18 @@ public class Utils {
         return digest.digest(b);
     }
 
+    /**
+     * XORs two byte arrays of equal length.
+     *
+     * @param b0 first byte array
+     * @param b1 second byte array
+     * @return XOR result
+     * @throws IllegalArgumentException if arrays have different lengths
+     */
     public static byte[] xor(byte[] b0, byte[] b1) {
-
         if (b0.length != b1.length) {
-            return null;
+            throw new IllegalArgumentException(
+                    "Arrays must have equal length for XOR operation. Got " + b0.length + " and " + b1.length);
         }
 
         byte[] ret = new byte[b0.length];

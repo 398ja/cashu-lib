@@ -20,13 +20,41 @@ import java.util.Arrays;
 import static xyz.tcheeric.cashu.crypto.util.Utils.bigIntFromBytes;
 
 /**
- * BIP-340 Schnorr signature utilities.
+ * BIP-340 Schnorr signature utilities for NUT-11 P2PK signatures.
  *
+ * <p>This class provides methods for creating and verifying BIP-340 Schnorr
+ * signatures on the secp256k1 curve, as used in the Cashu protocol for
+ * Pay-to-Pubkey (P2PK) spending conditions.
+ *
+ * <h2>Thread Safety</h2>
  * <p>This class is thread-safe. All methods use per-call {@code SecureRandom}
  * instances and operate on local variables without shared mutable state.
+ *
+ * <h2>Security Considerations</h2>
+ * <ul>
+ *   <li><b>Private Key Handling:</b> Private keys passed to {@link #sign} are
+ *       not zeroed after use. Callers should use {@link xyz.tcheeric.cashu.common.PrivateKey}
+ *       with try-with-resources for automatic key zeroing.</li>
+ *   <li><b>Nonce Generation:</b> Signing uses RFC 6979-style deterministic
+ *       nonces derived from the private key and message, preventing nonce reuse
+ *       attacks.</li>
+ *   <li><b>Verification:</b> The {@link #verify} method returns {@code false}
+ *       for invalid signatures without revealing which part of verification
+ *       failed, preventing oracle attacks.</li>
+ *   <li><b>Timing:</b> This implementation does not provide constant-time
+ *       guarantees. For high-security applications, consider additional
+ *       countermeasures.</li>
+ * </ul>
+ *
+ * @see <a href="https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki">BIP-340</a>
+ * @see <a href="https://github.com/cashubtc/nuts/blob/main/11.md">NUT-11: P2PK</a>
  */
 @ThreadSafe
-public class Schnorr {
+public final class Schnorr {
+
+    private Schnorr() {
+        // Utility class - prevent instantiation
+    }
 
     static {
         if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {

@@ -11,6 +11,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.16.0] - 2026-02-02
+
+### Added
+
+- **Key Zeroing Support**: `PrivateKey` now implements `AutoCloseable` for secure key disposal.
+  - Use try-with-resources for automatic zeroing: `try (PrivateKey key = ...) { ... }`
+  - Added `close()` method that zeros internal byte arrays
+  - Added `isClosed()` method to check key state
+  - Added `zeroBytes()` protected method in `BaseKey` for subclass use
+  - Documented JVM memory limitations in Javadoc
+- **Custom Crypto Exceptions**: New `xyz.tcheeric.cashu.crypto.exception` package.
+  - `CashuCryptoException`: Base exception for all crypto errors
+  - `InvalidKeyException`: For invalid or malformed keys (with `KeyType` enum)
+  - `SignatureException`: For signature operation failures (with `OperationType` enum)
+  - Factory methods for common error scenarios
+- **REST DTO Validation**: Jakarta Bean Validation (JSR-380) annotations on all REST DTOs.
+  - `@NotNull`, `@NotEmpty`, `@Size(max=1000)`, `@Valid` on collection fields
+  - `@NotBlank` on required string fields (quoteId)
+  - Resource limits prevent DoS attacks via unbounded collections
+  - Added `jakarta.validation-api` dependency to cashu-lib-entities
+
+### Changed
+
+- **Utils.xor()**: Now throws `IllegalArgumentException` on length mismatch instead of returning null
+- **DLEQUtils**: `dleqHash()` and `pointToUncompressedHex()` reduced to package-private visibility
+- **Schnorr**: Class now `final` with private constructor (utility class pattern)
+- **BDHKEUtils**: Class now `final` with private constructor (utility class pattern)
+
+### Security
+
+- **PrivateKey Serialization Blocked**: Added `@JsonIgnoreType` annotation to prevent accidental JSON serialization
+- **NaN/Infinity Validation**: `SecretUtil` now rejects NaN and Infinity floating-point values in tags
+- **Exception Safety**: Private key values are never included in exception messages
+- **Security Documentation**: Added comprehensive security Javadoc to `BaseKey`, `PrivateKey`, `Schnorr`, `BDHKEUtils`, and `DLEQUtils`
+
+---
+
 ## [0.15.0] - 2026-01-28
 
 ### Changed
