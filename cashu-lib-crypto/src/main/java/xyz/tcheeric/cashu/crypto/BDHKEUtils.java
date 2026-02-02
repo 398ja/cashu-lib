@@ -8,6 +8,7 @@ import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.math.ec.custom.sec.SecP256K1Curve;
 import org.bouncycastle.util.encoders.Hex;
+import xyz.tcheeric.cashu.crypto.exception.CashuCryptoException;
 import xyz.tcheeric.cashu.crypto.util.KeysUtils;
 import xyz.tcheeric.cashu.crypto.util.Utils;
 
@@ -97,7 +98,7 @@ public final class BDHKEUtils {
         try {
             sha256 = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            throw new CashuCryptoException("SHA-256 not available", e);
         }
         byte[] secretToHash = sha256.digest(concat(DOMAIN_SEPARATOR, secret));
         long counter = 0;
@@ -120,7 +121,7 @@ public final class BDHKEUtils {
             }
             counter++;
         }
-        throw new RuntimeException("No valid point found");
+        throw new CashuCryptoException("hash_to_curve: no valid point found after exhausting counter");
     }
 
     public static byte[][] blindMessage(byte[] secret) {
