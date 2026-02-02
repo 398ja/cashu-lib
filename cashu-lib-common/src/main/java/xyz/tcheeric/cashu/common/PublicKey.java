@@ -277,7 +277,9 @@ public sealed class PublicKey extends BaseKey permits CompressedPublicKey, UnCom
      * @return the corresponding public key
      */
     public static PublicKey derivePublicKey(@NonNull String privateKey) {
-        return derivePublicKey(PrivateKey.fromString(privateKey));
+        try (PrivateKey key = PrivateKey.fromString(privateKey)) {
+            return derivePublicKey(key);
+        }
     }
 
     /**
