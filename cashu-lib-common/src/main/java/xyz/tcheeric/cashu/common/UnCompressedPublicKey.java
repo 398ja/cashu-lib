@@ -11,7 +11,7 @@ import org.bouncycastle.util.encoders.Hex;
  */
 @Deprecated(forRemoval = true)
 @SuppressWarnings("deprecation")
-public class UnCompressedPublicKey extends PublicKey {
+public final class UnCompressedPublicKey extends PublicKey {
 
     /**
      * Expected byte length for uncompressed coordinates (x || y without prefix).

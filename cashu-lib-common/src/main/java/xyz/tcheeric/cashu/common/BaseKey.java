@@ -9,13 +9,16 @@ import lombok.NonNull;
 import lombok.Setter;
 import org.bouncycastle.util.encoders.Hex;
 
+import java.util.Arrays;
+
 /**
  * Base class for cryptographic keys in the Cashu protocol.
  *
  * <p>Provides common functionality for private keys, public keys, and secrets.
  * Keys are stored as raw byte arrays and serialized as lowercase hex strings.
  *
- * <p>Key length constants (in hex characters):
+ * <h2>Key Length Constants</h2>
+ * <p>All lengths are in hex characters:
  * <ul>
  *   <li>{@link #PRIVATE_KEY_HEX_LENGTH}: 64 chars (32 bytes)</li>
  *   <li>{@link #X_COORDINATE_HEX_LENGTH}: 64 chars (32 bytes) - just the x-coordinate</li>
@@ -23,6 +26,25 @@ import org.bouncycastle.util.encoders.Hex;
  *   <li>{@link #UNCOMPRESSED_XY_HEX_LENGTH}: 128 chars (64 bytes) - x || y coordinates</li>
  *   <li>{@link #SECRET_HEX_LENGTH}: 64 chars (32 bytes)</li>
  * </ul>
+ *
+ * <h2>Security Considerations</h2>
+ * <ul>
+ *   <li><b>Immutability:</b> This class uses defensive copying in constructors
+ *       and getters to prevent external modification of key bytes. However,
+ *       the internal state can be modified by subclasses via {@link #setBytes}.</li>
+ *   <li><b>Memory Zeroing:</b> Subclasses handling sensitive data (like
+ *       {@link PrivateKey}) should implement {@link AutoCloseable} and call
+ *       {@link #zeroBytes()} to clear key material when no longer needed.</li>
+ *   <li><b>Serialization:</b> The {@code @JsonValue} annotation on {@link #toString()}
+ *       means key bytes will be serialized to JSON. Sensitive subclasses should
+ *       use {@code @JsonIgnoreType} to prevent accidental serialization.</li>
+ *   <li><b>Equality:</b> Key equality is based on byte content, not identity.
+ *       Two key objects with the same bytes are considered equal.</li>
+ * </ul>
+ *
+ * @see PrivateKey
+ * @see PublicKey
+ * @see Signature
  */
 @Getter
 @Setter(AccessLevel.PROTECTED)
@@ -86,6 +108,8 @@ public abstract class BaseKey {
     /**
      * The raw key bytes.
      */
+    @Getter(AccessLevel.NONE)  // Explicit getBytes() provides defensive copy
+    @Setter(AccessLevel.NONE)  // Explicit setBytes() provides defensive copy
     @EqualsAndHashCode.Include
     private byte[] bytes;
 
@@ -98,16 +122,62 @@ public abstract class BaseKey {
      */
     @Deprecated(forRemoval = true)
     protected BaseKey(@NonNull String hexStr) {
-        this.bytes = Hex.decode(hexStr.substring(2));
+        byte[] decoded = Hex.decode(hexStr.substring(2));
+        this.bytes = Arrays.copyOf(decoded, decoded.length);
     }
 
     /**
      * Creates a BaseKey from raw bytes.
      *
+     * <p>The input array is defensively copied to prevent external modification.
+     *
      * @param bytes the key bytes
      */
     protected BaseKey(byte[] bytes) {
-        this.bytes = bytes;
+        this.bytes = bytes != null ? Arrays.copyOf(bytes, bytes.length) : null;
+    }
+
+    /**
+     * Returns a copy of the key bytes.
+     *
+     * <p>A defensive copy is returned to prevent external modification of internal state.
+     *
+     * @return copy of the key bytes
+     */
+    public byte[] getBytes() {
+        return bytes != null ? Arrays.copyOf(bytes, bytes.length) : null;
+    }
+
+    /**
+     * Sets the key bytes with defensive copying.
+     *
+     * <p>The input array is defensively copied to prevent external modification.
+     *
+     * @param bytes the key bytes to set
+     */
+    protected void setBytes(byte[] bytes) {
+        this.bytes = bytes != null ? Arrays.copyOf(bytes, bytes.length) : null;
+    }
+
+    /**
+     * Zeros out the internal key bytes for security purposes.
+     *
+     * <p>This method attempts to clear sensitive key material from memory.
+     * While this provides defense-in-depth, be aware of the following limitations:
+     * <ul>
+     *   <li>The JVM may have created copies of the key bytes during operations</li>
+     *   <li>The garbage collector may retain copies in freed memory</li>
+     *   <li>JIT compilation may optimize away the zeroing operation</li>
+     *   <li>The key bytes may have been logged or serialized elsewhere</li>
+     * </ul>
+     *
+     * <p>For highest security, consider using hardware security modules (HSMs)
+     * or secure enclaves for key storage.
+     */
+    protected void zeroBytes() {
+        if (bytes != null) {
+            Arrays.fill(bytes, (byte) 0);
+        }
     }
 
     /**
@@ -139,6 +209,6 @@ public abstract class BaseKey {
      */
     @Deprecated(forRemoval = true)
     public byte[] toBytes() {
-        return bytes;
+        return getBytes();
     }
 }

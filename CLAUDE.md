@@ -86,8 +86,87 @@ Use the `/bumpup` command to automatically bump versions, update changelogs, and
 - Run tests with `mvn test`
 - Ensure tests pass before committing changes
 
+## Security Guidelines
+
+This project follows the [Oracle Java Secure Coding Guidelines](https://www.oracle.com/java/technologies/javase/seccodeguide.html). See `SECURITY_REVIEW.md` for the full security audit.
+
+### Key Handling
+
+- **PrivateKey** is `final` and uses `@JsonIgnoreType` to prevent accidental serialization
+- Never include key values in exception messages or logs
+
+#### When to Use Key Zeroing
+
+Use try-with-resources for **short-lived keys** that should be cleared after use:
+
+```java
+// Signing operations (NUT-11 P2PK)
+try (PrivateKey signingKey = PrivateKey.fromString(keyHex)) {
+    Signature sig = Signature.sign(message, signingKey);
+} // Key is zeroed here
+
+// One-time key generation
+try (PrivateKey ephemeralKey = PrivateKey.generateRandom()) {
+    PublicKey pubKey = PrivateKey.derivePublicKey(ephemeralKey);
+} // Ephemeral key is zeroed
+
+// Processing key material from external sources
+try (PrivateKey importedKey = PrivateKey.fromBytes(decryptedKeyBytes)) {
+    // Perform operations with imported key
+} // Clear imported key when done
+```
+
+#### When NOT to Use Key Zeroing
+
+- **Long-lived mint keys**: Keyset private keys that persist for the application lifetime
+- **Keys stored in configuration**: Keys loaded at startup and reused throughout
+
+#### Zeroing Limitations
+
+Due to JVM behavior, zeroing has limitations:
+- GC may retain copies in freed memory
+- JIT may optimize away zeroing operations
+- String representations may be interned
+- Copies made during crypto operations persist
+
+For highest security, consider hardware security modules (HSMs).
+
+### Defensive Copying
+
+- `BaseKey.getBytes()` returns a defensive copy - callers cannot modify internal state
+- When accepting byte arrays, always copy: `this.bytes = Arrays.copyOf(bytes, bytes.length)`
+- When returning byte arrays, always copy: `return Arrays.copyOf(bytes, bytes.length)`
+
+### Input Validation
+
+- REST DTOs use Jakarta Validation annotations (`@NotNull`, `@NotEmpty`, `@Size`, `@Valid`)
+- Collection fields are limited to 1000 elements to prevent DoS attacks
+- Validate floating-point values for `NaN` and `Infinity` before processing
+
+### Exception Handling
+
+- Use exceptions from `xyz.tcheeric.cashu.crypto.exception`:
+  - `CashuCryptoException` - base class for all crypto errors
+  - `InvalidKeyException` - invalid or malformed keys
+  - `SignatureException` - signature operation failures
+- Never return `null` to indicate errors - throw descriptive exceptions
+- Exception messages must not contain sensitive data (keys, secrets)
+
+### Class Design
+
+- Cryptographic classes should be `final` or `sealed` to prevent unsafe subclassing
+- Utility classes should have private constructors and be `final`
+- Internal helper methods should be package-private, not public
+
+### Serialization
+
+- `PrivateKey` uses `@JsonIgnoreType` to block JSON serialization
+- `PublicKey` and `Signature` serialize to compressed hex format (66 chars)
+- Verify DLEQ proofs (NUT-12) when receiving blind signatures
+
 ## References
 
 - [Cashu NUT Specifications](https://github.com/cashubtc/nuts)
+- [Oracle Java Secure Coding Guidelines](https://www.oracle.com/java/technologies/javase/seccodeguide.html)
 - [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - [Semantic Versioning](https://semver.org/)

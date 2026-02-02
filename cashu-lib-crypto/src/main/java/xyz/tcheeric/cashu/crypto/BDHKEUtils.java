@@ -8,6 +8,7 @@ import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.math.ec.custom.sec.SecP256K1Curve;
 import org.bouncycastle.util.encoders.Hex;
+import xyz.tcheeric.cashu.crypto.exception.CashuCryptoException;
 import xyz.tcheeric.cashu.crypto.util.KeysUtils;
 import xyz.tcheeric.cashu.crypto.util.Utils;
 
@@ -23,15 +24,48 @@ import java.util.Arrays;
 
 
 /**
- * Blind Diffie-Hellman Key Exchange utilities for Cashu protocol.
+ * Blind Diffie-Hellman Key Exchange (BDHKE) utilities for the Cashu protocol.
  *
+ * <p>This class implements the core cryptographic operations for Cashu ecash:
+ * <ul>
+ *   <li>{@link #hashToCurve} - Deterministically maps secrets to curve points (Y)</li>
+ *   <li>{@link #blindMessage} - Creates blinded messages (B') for blind signing</li>
+ *   <li>{@link #signBlindedMessage} - Mint signs blinded messages (C')</li>
+ *   <li>{@link #unblindSignature} - Wallet unblinds signatures to get proofs (C)</li>
+ *   <li>{@link #verify} - Verifies that C = k*Y for a given secret</li>
+ * </ul>
+ *
+ * <h2>Thread Safety</h2>
  * <p>This class is thread-safe. All methods operate solely on local variables
  * and method parameters without accessing shared mutable state. The static
  * {@code CURVE} field is immutable and safe for concurrent access.
+ *
+ * <h2>Security Considerations</h2>
+ * <ul>
+ *   <li><b>Blinding Factor Secrecy:</b> The blinding factor {@code r} must be
+ *       kept secret by the wallet and never revealed to the mint. Disclosure
+ *       allows the mint to identify which blinded message corresponds to which
+ *       unblinded proof, breaking unlinkability.</li>
+ *   <li><b>Secret Uniqueness:</b> Each secret should be used only once. Reusing
+ *       secrets allows double-spend detection by the mint.</li>
+ *   <li><b>Hash-to-Curve Security:</b> The {@link #hashToCurve} implementation
+ *       uses the domain-separated hash function specified in NUT-00 to prevent
+ *       cross-protocol attacks.</li>
+ *   <li><b>DLEQ Verification:</b> Wallets should verify DLEQ proofs (NUT-12)
+ *       when receiving blind signatures to ensure the mint used the correct
+ *       private key.</li>
+ * </ul>
+ *
+ * @see <a href="https://github.com/cashubtc/nuts/blob/main/00.md">NUT-00: BDHKE</a>
+ * @see DLEQUtils
  */
 @Slf4j
 @ThreadSafe
-public class BDHKEUtils {
+public final class BDHKEUtils {
+
+    private BDHKEUtils() {
+        // Utility class - prevent instantiation
+    }
 
     private static final byte[] DOMAIN_SEPARATOR = "Secp256k1_HashToCurve_Cashu_".getBytes(StandardCharsets.UTF_8);
 
@@ -64,7 +98,7 @@ public class BDHKEUtils {
         try {
             sha256 = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            throw new CashuCryptoException("SHA-256 not available", e);
         }
         byte[] secretToHash = sha256.digest(concat(DOMAIN_SEPARATOR, secret));
         long counter = 0;
@@ -87,7 +121,7 @@ public class BDHKEUtils {
             }
             counter++;
         }
-        throw new RuntimeException("No valid point found");
+        throw new CashuCryptoException("hash_to_curve: no valid point found after exhausting counter");
     }
 
     public static byte[][] blindMessage(byte[] secret) {

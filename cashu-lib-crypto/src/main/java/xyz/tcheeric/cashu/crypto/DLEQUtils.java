@@ -6,6 +6,8 @@ import net.jcip.annotations.ThreadSafe;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
+import xyz.tcheeric.cashu.crypto.exception.CashuCryptoException;
+import xyz.tcheeric.cashu.crypto.exception.InvalidKeyException;
 import xyz.tcheeric.cashu.crypto.util.Utils;
 
 import java.math.BigInteger;
@@ -17,12 +19,37 @@ import java.security.SecureRandom;
 /**
  * Discrete Log Equality (DLEQ) proof utilities for NUT-12.
  *
- * <p>Provides methods for generating and verifying DLEQ proofs that demonstrate
- * the mint used the same private key for creating its public key and signing
- * blinded messages.
+ * <p>DLEQ proofs demonstrate that the mint used the same private key for creating
+ * its public key and signing blinded messages. This prevents the mint from using
+ * different keys for different users, which could enable tracking.
  *
+ * <h2>Protocol Flow</h2>
+ * <ol>
+ *   <li>Mint generates proof: {@link #generateProof} creates (e, s) scalars</li>
+ *   <li>Alice verifies: {@link #verifyProof} checks the proof against B', C', A</li>
+ *   <li>Carol verifies with r: {@link #verifyProofWithBlindingFactor} reconstructs
+ *       B' and C' from the unblinded signature and blinding factor</li>
+ * </ol>
+ *
+ * <h2>Thread Safety</h2>
  * <p>This class is thread-safe. The static {@code SecureRandom} instance is
  * internally synchronized and safe for concurrent access.
+ *
+ * <h2>Security Considerations</h2>
+ * <ul>
+ *   <li><b>Proof Verification:</b> Wallets MUST verify DLEQ proofs before accepting
+ *       blind signatures. Accepting unverified signatures allows a malicious mint
+ *       to provide invalid proofs that could compromise privacy.</li>
+ *   <li><b>Nonce Security:</b> Proof generation uses cryptographically secure random
+ *       nonces. Nonce reuse would leak the private key.</li>
+ *   <li><b>Exception Safety:</b> Invalid private key ranges are rejected with
+ *       exceptions that do not reveal the key value.</li>
+ *   <li><b>Timing Attacks:</b> Verification timing may vary based on inputs.
+ *       For high-security applications, consider additional countermeasures.</li>
+ * </ul>
+ *
+ * @see <a href="https://github.com/cashubtc/nuts/blob/main/12.md">NUT-12: DLEQ Proofs</a>
+ * @see BDHKEUtils
  */
 @Slf4j
 @ThreadSafe
@@ -54,7 +81,7 @@ public final class DLEQUtils {
         BigInteger n = spec.getN();
 
         if (privateKey.signum() <= 0 || privateKey.compareTo(n) >= 0) {
-            throw new IllegalArgumentException("Private key must be in range [1, n-1]. Got: " + privateKey);
+            throw InvalidKeyException.privateKeyOutOfRange();
         }
 
         ECPoint publicKey = generator.multiply(privateKey).normalize();
@@ -162,8 +189,10 @@ public final class DLEQUtils {
      *
      * <p>Points are serialized in uncompressed format (04 || X || Y) and
      * concatenated as UTF-8 text before hashing.
+     *
+     * <p>Package-private: internal implementation detail.
      */
-    public static byte[] dleqHash(
+    static byte[] dleqHash(
             @NonNull ECPoint R1,
             @NonNull ECPoint R2,
             @NonNull ECPoint publicKey,
@@ -179,14 +208,16 @@ public final class DLEQUtils {
             MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
             return sha256.digest(concatenated.getBytes(StandardCharsets.UTF_8));
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("SHA-256 not available", e);
+            throw new CashuCryptoException("SHA-256 not available", e);
         }
     }
 
     /**
      * Converts an EC point to uncompressed hex format (04 || X || Y).
+     *
+     * <p>Package-private: internal implementation detail.
      */
-    public static String pointToUncompressedHex(@NonNull ECPoint point) {
+    static String pointToUncompressedHex(@NonNull ECPoint point) {
         return Utils.bytesToHexString(point.normalize().getEncoded(false));
     }
 

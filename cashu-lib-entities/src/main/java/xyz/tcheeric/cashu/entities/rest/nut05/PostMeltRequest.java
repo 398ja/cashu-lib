@@ -1,6 +1,7 @@
 package xyz.tcheeric.cashu.entities.rest.nut05;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,7 @@ public class PostMeltRequest<T extends Secret> extends PostInputRequest<T> {
     }
 
     @JsonProperty("quote")
+    @NotBlank(message = "Quote ID is required")
     private String quoteId;
 
 }

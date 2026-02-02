@@ -192,6 +192,11 @@ public final class SecretUtil<T extends Secret> {
                         // Preserve fractional values for doubles/floats
                         if (value instanceof Double || value instanceof Float) {
                             double d = n.doubleValue();
+                            // Validate: reject NaN and Infinity values
+                            if (Double.isNaN(d) || Double.isInfinite(d)) {
+                                throw new IllegalArgumentException(
+                                        "Invalid floating-point value in tag: NaN or Infinity not allowed");
+                            }
                             if (d != Math.floor(d)) {
                                 tag.addValue(d);
                             } else {

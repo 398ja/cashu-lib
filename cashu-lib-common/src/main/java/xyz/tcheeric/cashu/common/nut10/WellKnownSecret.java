@@ -40,7 +40,9 @@ public abstract class WellKnownSecret implements Secret {
     public WellKnownSecret(@NonNull Kind kind, byte[] data) {
         this.kind = kind;
         this.data = data;
-        this.nonce = PrivateKey.generateRandom().toString();
+        try (PrivateKey randomKey = PrivateKey.generateRandom()) {
+            this.nonce = randomKey.toString();
+        }
         this.tags = new ArrayList<>();
     }
 

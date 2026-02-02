@@ -39,7 +39,7 @@ import java.util.Arrays;
  */
 @JsonSerialize(using = SignatureJsonSerializer.class)
 @JsonDeserialize(using = SignatureJsonDeserializer.class)
-public class Signature {
+public final class Signature {
 
     /**
      * Length of a compressed EC point in bytes (1-byte prefix + 32-byte x-coordinate).
