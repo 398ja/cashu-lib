@@ -6,6 +6,8 @@ import net.jcip.annotations.ThreadSafe;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
+import xyz.tcheeric.cashu.crypto.exception.CashuCryptoException;
+import xyz.tcheeric.cashu.crypto.exception.InvalidKeyException;
 import xyz.tcheeric.cashu.crypto.util.Utils;
 
 import java.math.BigInteger;
@@ -79,7 +81,7 @@ public final class DLEQUtils {
         BigInteger n = spec.getN();
 
         if (privateKey.signum() <= 0 || privateKey.compareTo(n) >= 0) {
-            throw new IllegalArgumentException("Private key must be in range [1, n-1]");
+            throw InvalidKeyException.privateKeyOutOfRange();
         }
 
         ECPoint publicKey = generator.multiply(privateKey).normalize();
@@ -206,7 +208,7 @@ public final class DLEQUtils {
             MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
             return sha256.digest(concatenated.getBytes(StandardCharsets.UTF_8));
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("SHA-256 not available", e);
+            throw new CashuCryptoException("SHA-256 not available", e);
         }
     }
 
