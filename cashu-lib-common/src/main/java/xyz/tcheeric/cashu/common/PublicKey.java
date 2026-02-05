@@ -34,7 +34,7 @@ import java.util.Arrays;
  *
  * @see <a href="https://github.com/cashubtc/nuts/blob/main/00.md">NUT-00</a>
  */
-public class PublicKey extends BaseKey {
+public sealed class PublicKey extends BaseKey permits CompressedPublicKey, UnCompressedPublicKey {
 
     /**
      * Length of compressed public key in bytes (prefix + x-coordinate).
@@ -277,7 +277,9 @@ public class PublicKey extends BaseKey {
      * @return the corresponding public key
      */
     public static PublicKey derivePublicKey(@NonNull String privateKey) {
-        return derivePublicKey(PrivateKey.fromString(privateKey));
+        try (PrivateKey key = PrivateKey.fromString(privateKey)) {
+            return derivePublicKey(key);
+        }
     }
 
     /**

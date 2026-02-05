@@ -29,7 +29,9 @@ public class VoucherWellKnownSecret extends VoucherSecret {
         super();
         this.setData(voucherData);
         // Generate unique nonce for BDHKE
-        this.setNonce(PrivateKey.generateRandom().toString());
+        try (PrivateKey randomKey = PrivateKey.generateRandom()) {
+            this.setNonce(randomKey.toString());
+        }
     }
 
     /**
