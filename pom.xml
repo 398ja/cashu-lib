@@ -61,7 +61,7 @@
         <jcip-annotations.version>1.0</jcip-annotations.version>
 
         <!-- Test Dependency Versions -->
-        <junit.version>5.13.4</junit.version>
+        <junit.version>6.0.3</junit.version>
         <assertj.version>3.27.4</assertj.version>
         <assertj-test.version>3.27.4</assertj-test.version>
         <junit4.version>4.13.2</junit4.version>
