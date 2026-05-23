@@ -3,7 +3,7 @@
     <parent>
         <groupId>xyz.tcheeric</groupId>
         <artifactId>cashu-lib</artifactId>
-        <version>0.16.0</version>
+        <version>0.17.0</version>
     </parent>
 
     <artifactId>cashu-lib-common</artifactId>
@@ -62,6 +62,15 @@
             <groupId>xyz.tcheeric</groupId>
             <artifactId>bip-utils</artifactId>
             <version>2.0.0</version>
+            <exclusions>
+                <!-- bip-utils declares slf4j-simple as a runtime binding for its own
+                     standalone use; excluding here lets downstream consumers (logback)
+                     own the SLF4J binding without a conflicting SimpleLoggerFactory. -->
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
