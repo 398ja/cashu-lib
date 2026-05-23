@@ -11,6 +11,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.17.0] - 2026-05-23
+
+### Added
+
+- **NUT-08 (Lightning fee return) wire fields on the melt DTOs** —
+  required by cashu-mint spec 002 (`002-melt-burn-ordering`, FR-013)
+  overpaid-melt change return implementation.
+  - `PostMeltRequest.outputs` (`List<BlindedMessage>`,
+    `@JsonProperty("outputs")`, `@JsonInclude(NON_NULL)`,
+    `@Size(max = MAX_OUTPUTS = 1000)`) — wallet-supplied blinded
+    messages the mint signs with the overpayment difference when
+    `sum(proofs) > invoice + exactFeeReserve`.
+  - `PostMeltResponse.change` (`List<BlindSignature>`,
+    `@JsonProperty("change")`, `@JsonInclude(NON_NULL)`) — the
+    signed change outputs; omitted from JSON when null so legacy
+    melt responses serialise unchanged.
+  - New 3-arg `PostMeltRequest(quoteId, proofs, outputs)`
+    constructor. New 2-arg back-compat
+    `PostMeltResponse(paid, paymentPreimage)` constructor.
+
+### Changed
+
+- `bip-utils` dependency: excluded `slf4j-simple` transitive binding
+  so downstream consumers using logback own the SLF4J binding
+  without a conflicting `SimpleLoggerFactory`.
+
+---
+
 ## [0.16.0] - 2026-02-02
 
 ### Added
