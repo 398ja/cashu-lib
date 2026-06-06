@@ -11,6 +11,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.18.0] - 2026-06-06
+
+### Added
+
+- **NUT-04 v1 wire fields on `PostMintQuoteResponse`** — required by
+  modern Cashu wallets (cashu-ts `>= 4.x`), which normalize the
+  mint-quote response and reject one that lacks `amount`.
+  - `amount` (`int`, `@JsonProperty`) — the amount the quote was
+    created for. Its absence caused cashu-ts to throw
+    `AmountError: Unsupported amount input type`, blocking every
+    client-side mint (imani spec 041).
+  - `unit` (`String`, `@JsonProperty`) — the unit the quote
+    transacts in (e.g. `"sat"`).
+  - `state` (`String`, `@JsonProperty`) — NUT-04 v1 lifecycle state
+    (`UNPAID` / `PAID` / `ISSUED`), superseding the boolean `paid`.
+
+### Changed
+
+- `PostMintQuoteResponse.expiry` widened from `int` to `long` to
+  hold absolute Unix-second timestamps. Serialises identically.
+
+### Deprecated
+
+- `PostMintQuoteResponse.paid` (boolean) — retained on the wire for
+  NUT-04 v0 consumers; new clients should read `state` instead.
+
+---
+
 ## [0.17.0] - 2026-05-23
 
 ### Added
