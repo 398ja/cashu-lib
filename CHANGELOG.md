@@ -11,7 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.18.0] - 2026-06-06
+## [0.18.1] - 2026-06-06
+
+Backward-compatible release (no source/binary breaks for existing
+consumers; addresses PR #237 review).
 
 ### Added
 
@@ -26,16 +29,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     transacts in (e.g. `"sat"`).
   - `state` (`String`, `@JsonProperty`) — NUT-04 v1 lifecycle state
     (`UNPAID` / `PAID` / `ISSUED`), superseding the boolean `paid`.
-
-### Changed
-
-- `PostMintQuoteResponse.expiry` widened from `int` to `long` to
-  hold absolute Unix-second timestamps. Serialises identically.
+- Explicit `@Deprecated` `PostMintQuoteResponse(String, String, boolean, int)`
+  constructor preserving the pre-0.18 Lombok all-args descriptor, so
+  consumers compiled against 0.16/0.17 don't hit `NoSuchMethodError`
+  after the new fields widened the generated all-args constructor.
 
 ### Deprecated
 
 - `PostMintQuoteResponse.paid` (boolean) — retained on the wire for
   NUT-04 v0 consumers; new clients should read `state` instead.
+
+> `expiry` stays `int` (Unix seconds fit until 2038) to keep this a
+> non-breaking release — the earlier int→long widening was reverted
+> per review.
 
 ---
 

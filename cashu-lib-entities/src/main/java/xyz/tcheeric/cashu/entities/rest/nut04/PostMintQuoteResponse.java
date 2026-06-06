@@ -48,5 +48,24 @@ public class PostMintQuoteResponse {
     private boolean paid = false;
 
     @JsonProperty
-    private long expiry;
+    private int expiry;
+
+    /**
+     * Binary-compatibility constructor matching the pre-0.18 all-args
+     * descriptor {@code (String, String, boolean, int)}. Lombok's
+     * {@code @AllArgsConstructor} now generates a wider signature because of
+     * the new NUT-04 v1 fields; this explicit constructor preserves the old
+     * one so consumers compiled against 0.16/0.17 do not hit
+     * {@code NoSuchMethodError} after swapping in the new jar. New code should
+     * use the builder (which sets {@code amount}/{@code unit}/{@code state}).
+     *
+     * @deprecated construct via {@link #builder()} so the v1 fields are set.
+     */
+    @Deprecated
+    public PostMintQuoteResponse(String quoteId, String request, boolean paid, int expiry) {
+        this.quoteId = quoteId;
+        this.request = request;
+        this.paid = paid;
+        this.expiry = expiry;
+    }
 }
