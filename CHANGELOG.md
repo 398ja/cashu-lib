@@ -11,6 +11,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.18.1] - 2026-06-06
+
+Backward-compatible release (no source/binary breaks for existing
+consumers; addresses PR #237 review).
+
+### Added
+
+- **NUT-04 v1 wire fields on `PostMintQuoteResponse`** — required by
+  modern Cashu wallets (cashu-ts `>= 4.x`), which normalize the
+  mint-quote response and reject one that lacks `amount`.
+  - `amount` (`int`, `@JsonProperty`) — the amount the quote was
+    created for. Its absence caused cashu-ts to throw
+    `AmountError: Unsupported amount input type`, blocking every
+    client-side mint (imani spec 041).
+  - `unit` (`String`, `@JsonProperty`) — the unit the quote
+    transacts in (e.g. `"sat"`).
+  - `state` (`String`, `@JsonProperty`) — NUT-04 v1 lifecycle state
+    (`UNPAID` / `PAID` / `ISSUED`), superseding the boolean `paid`.
+- Explicit `@Deprecated` `PostMintQuoteResponse(String, String, boolean, int)`
+  constructor preserving the pre-0.18 Lombok all-args descriptor, so
+  consumers compiled against 0.16/0.17 don't hit `NoSuchMethodError`
+  after the new fields widened the generated all-args constructor.
+
+### Deprecated
+
+- `PostMintQuoteResponse.paid` (boolean) — retained on the wire for
+  NUT-04 v0 consumers; new clients should read `state` instead.
+
+> `expiry` stays `int` (Unix seconds fit until 2038) to keep this a
+> non-breaking release — the earlier int→long widening was reverted
+> per review.
+
+---
+
+## [0.17.0] - 2026-05-23
+
+### Added
+
+- **NUT-08 (Lightning fee return) wire fields on the melt DTOs** —
+  required by cashu-mint spec 002 (`002-melt-burn-ordering`, FR-013)
+  overpaid-melt change return implementation.
+  - `PostMeltRequest.outputs` (`List<BlindedMessage>`,
+    `@JsonProperty("outputs")`, `@JsonInclude(NON_NULL)`,
+    `@Size(max = MAX_OUTPUTS = 1000)`) — wallet-supplied blinded
+    messages the mint signs with the overpayment difference when
+    `sum(proofs) > invoice + exactFeeReserve`.
+  - `PostMeltResponse.change` (`List<BlindSignature>`,
+    `@JsonProperty("change")`, `@JsonInclude(NON_NULL)`) — the
+    signed change outputs; omitted from JSON when null so legacy
+    melt responses serialise unchanged.
+  - New 3-arg `PostMeltRequest(quoteId, proofs, outputs)`
+    constructor. New 2-arg back-compat
+    `PostMeltResponse(paid, paymentPreimage)` constructor.
+
+### Changed
+
+- `bip-utils` dependency: excluded `slf4j-simple` transitive binding
+  so downstream consumers using logback own the SLF4J binding
+  without a conflicting `SimpleLoggerFactory`.
+
+---
+
 ## [0.16.0] - 2026-02-02
 
 ### Added
