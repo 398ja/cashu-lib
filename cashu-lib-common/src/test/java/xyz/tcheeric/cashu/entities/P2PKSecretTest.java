@@ -33,11 +33,11 @@ class P2PKSecretTest {
         assertThat(deserialized).isEqualTo(secret);
     }
 
-    @Test
     /**
      * NUT-11 refund-path signature threshold defaults to 1 when the n_sigs_refund
      * tag is absent, preserving current 1-of-N refund behavior for existing escrows.
      */
+    @Test
     void shouldDefaultNSigsRefundToOneWhenUnset() {
         // Arrange
         byte[] secretData = Hex.decode("deadbeef");
@@ -50,11 +50,11 @@ class P2PKSecretTest {
         assertThat(nSigsRefund).isEqualTo(1);
     }
 
-    @Test
     /**
      * Ensures setNSigsRefund persists the refund-path threshold and getNSigsRefund
      * reads it back once explicitly set.
      */
+    @Test
     void shouldSetAndGetNSigsRefund() {
         // Arrange
         byte[] secretData = Hex.decode("deadbeef");
@@ -67,11 +67,11 @@ class P2PKSecretTest {
         assertThat(secret.getNSigsRefund()).isEqualTo(2);
     }
 
-    @Test
     /**
      * Ensures the n_sigs_refund tag round-trips through JSON serialization the
      * same way the existing n_sigs tag does.
      */
+    @Test
     void shouldRoundTripSerializeNSigsRefund() throws Exception {
         // Arrange
         byte[] secretData = Hex.decode("deadbeef");

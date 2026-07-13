@@ -234,7 +234,7 @@ public final class SecretUtil<T extends Secret> {
                 }
                 tag.setValues(values);
             }
-            case "n_sigs", "locktime" -> {
+            case "n_sigs", "n_sigs_refund", "locktime" -> {
                 java.util.List<Object> values = new java.util.ArrayList<>();
                 for (Object v : tag.getValues()) {
                     if (v instanceof Number n) {
