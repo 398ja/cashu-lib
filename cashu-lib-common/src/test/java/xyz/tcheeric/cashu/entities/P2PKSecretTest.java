@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import xyz.tcheeric.cashu.common.nut10.WellKnownSecret;
 import xyz.tcheeric.cashu.common.nut11.P2PKSecret;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class P2PKSecretTest {
@@ -65,6 +67,22 @@ class P2PKSecretTest {
 
         // Assert
         assertThat(secret.getNSigsRefund()).isEqualTo(2);
+    }
+
+    /**
+     * A malformed secret whose {@code n_sigs_refund} tag carries no value (a key-only tag array,
+     * which the deserializers accept) must fall back to the default of 1 rather than throwing
+     * {@link IndexOutOfBoundsException} — otherwise a crafted secret could DoS verification.
+     */
+    @Test
+    void shouldDefaultNSigsRefundToOneWhenTagHasNoValue() {
+        // Arrange
+        byte[] secretData = Hex.decode("deadbeef");
+        P2PKSecret secret = new P2PKSecret(secretData);
+        secret.setTag(P2PKSecret.P2PKTag.n_sigs_refund.name(), List.of()); // present but empty
+
+        // Act / Assert
+        assertThat(secret.getNSigsRefund()).isEqualTo(1);
     }
 
     /**
