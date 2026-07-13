@@ -23,7 +23,7 @@ public class TagDeserializer extends JsonDeserializer<WellKnownSecret.Tag> {
                     tag.addValue(node.get(i).textValue());
                 }
             }
-            case P2PKSecret.P2PKTag.n_sigs, P2PKSecret.P2PKTag.locktime -> tag.addValue(node.get(1).intValue());
+            case P2PKSecret.P2PKTag.n_sigs, P2PKSecret.P2PKTag.n_sigs_refund, P2PKSecret.P2PKTag.locktime -> tag.addValue(node.get(1).intValue());
             default -> throw new IllegalArgumentException("Invalid tag");
         }
 

@@ -11,6 +11,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.19.0] - 2026-07-13
+
+Backward-compatible release (additive only; no source/binary breaks for
+existing consumers).
+
+### Added
+
+- **NUT-11 refund-path signature threshold (`n_sigs_refund`) on `P2PKSecret`**
+  — a new optional tag mirroring the existing `n_sigs` tag, but scoped to the
+  refund (locktime) path instead of the primary spend path.
+  - `P2PKTag.n_sigs_refund` — new enum constant.
+  - `setNSigsRefund(Integer)` — sets the tag, mirroring `setNSigs`.
+  - `getNSigsRefund()` — reads the tag; **defaults to `1`** (not `-1`) when
+    the tag is absent, since NUT-11 specifies the refund path requires a
+    single signature by default and existing escrows minted before this tag
+    existed must keep their current 1-of-N refund behavior unchanged.
+  - `WellKnownSecretDeserializer`/`TagDeserializer` updated to coerce
+    `n_sigs_refund` values to `int`, matching `n_sigs`/`locktime` handling.
+
+---
+
 ## [0.18.1] - 2026-06-06
 
 Backward-compatible release (no source/binary breaks for existing
