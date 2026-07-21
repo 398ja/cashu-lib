@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.20.0] - 2026-07-21
+
+### Fixed
+- **V4 token CBOR is now definite-length** (`TokenV4CborEncoder`). `TokenV4.serialize()`
+  previously used Jackson's CBOR `ObjectMapper`, which emits indefinite-length maps
+  (`0xbf … 0xff`). cashu-ts and other standard wallets only decode definite-length CBOR
+  and threw `Unsupported length: 31`, making every issued token un-redeemable by
+  browser/JS wallets. A hand-rolled definite-length encoder replaces the Jackson encode
+  path (decode via Jackson is unchanged — it reads both). Proven: cashu-ts 4.7.2
+  `getDecodedToken()` decodes the Java output. No token-content/format change.
+
+---
+
 ## [0.19.0] - 2026-07-13
 
 Backward-compatible release (additive only; no source/binary breaks for
