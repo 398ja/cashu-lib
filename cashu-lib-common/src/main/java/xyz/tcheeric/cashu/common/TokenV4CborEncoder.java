@@ -22,4 +22,43 @@ public final class TokenV4CborEncoder {
     public static void writeTextString(ByteArrayOutputStream o, String s) { byte[] b = s.getBytes(StandardCharsets.UTF_8); writeHead(o, 3, b.length); o.writeBytes(b); }
     public static void writeMapHeader(ByteArrayOutputStream o, int n) { writeHead(o, 5, n); }
     public static void writeArrayHeader(ByteArrayOutputStream o, int n) { writeHead(o, 4, n); }
+
+    /** Encodes a full V4 token tree as definite-length RFC-8949 CBOR (optional keys omitted when null). */
+    public static byte[] encode(TokenV4 token) {
+        var o = new ByteArrayOutputStream();
+        // top map: t, m, u, and d only if memo != null
+        int keys = 3 + (token.getMemo() != null ? 1 : 0);
+        writeMapHeader(o, keys);
+        // "t" -> array of TokenData
+        writeTextString(o, "t");
+        var tds = token.getTokenDataList();
+        writeArrayHeader(o, tds.size());
+        for (var td : tds) {
+            writeMapHeader(o, 2);                 // i, p
+            writeTextString(o, "i"); writeByteString(o, td.getKeySetId());
+            writeTextString(o, "p");
+            var ps = td.getProofs();
+            writeArrayHeader(o, ps.size());
+            for (var p : ps) {
+                int pk = 3 + (p.getDleqProof() != null ? 1 : 0) + (p.getWitness() != null ? 1 : 0);
+                writeMapHeader(o, pk);            // a, s, c [, d][, w]
+                writeTextString(o, "a"); writeUint(o, p.getAmount());
+                writeTextString(o, "s"); writeTextString(o, p.getSecret());
+                writeTextString(o, "c"); writeByteString(o, p.getSignature());
+                if (p.getDleqProof() != null) {
+                    var dq = p.getDleqProof();
+                    writeTextString(o, "d");
+                    writeMapHeader(o, 3);         // e, s, r
+                    writeTextString(o, "e"); writeByteString(o, dq.getE());
+                    writeTextString(o, "s"); writeByteString(o, dq.getS());
+                    writeTextString(o, "r"); writeByteString(o, dq.getR());
+                }
+                if (p.getWitness() != null) { writeTextString(o, "w"); writeTextString(o, p.getWitness()); }
+            }
+        }
+        writeTextString(o, "m"); writeTextString(o, token.getMintUrl());
+        writeTextString(o, "u"); writeTextString(o, token.getUnit());
+        if (token.getMemo() != null) { writeTextString(o, "d"); writeTextString(o, token.getMemo()); }
+        return o.toByteArray();
+    }
 }
