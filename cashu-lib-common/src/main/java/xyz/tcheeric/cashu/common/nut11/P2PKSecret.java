@@ -87,12 +87,7 @@ public class P2PKSecret extends WellKnownSecret {
     }
 
     public int getNSigs() {
-        Tag tag = super.getTag(P2PKTag.n_sigs.name());
-        if (tag == null) {
-            return -1;
-        }
-        List<?> values = super.getTag(P2PKTag.n_sigs.name()).getValues();
-        return values != null ? (int) values.get(0) : -1;
+        return intValue(P2PKTag.n_sigs, -1);
     }
 
     /**
@@ -105,48 +100,34 @@ public class P2PKSecret extends WellKnownSecret {
      * {@link IndexOutOfBoundsException} here.
      */
     public int getNSigsRefund() {
-        Tag tag = super.getTag(P2PKTag.n_sigs_refund.name());
-        if (tag == null) {
-            return 1;
-        }
-        List<?> values = tag.getValues();
-        return (values != null && !values.isEmpty()) ? (int) values.get(0) : 1;
+        return intValue(P2PKTag.n_sigs_refund, 1);
     }
 
+    /**
+     * The signature flag, or {@code null} when unset.
+     *
+     * <p>Tolerates a raw string value: a hand-built or partially-coerced secret can hold one, and
+     * rejecting an unrecognised flag is {@link #validate()}'s job — the getter must not crash
+     * first.
+     */
     public String getSigFlag() {
-        Tag tag = super.getTag(P2PKTag.sigflag.name());
-        if (tag == null) {
+        Object raw = firstValue(P2PKTag.sigflag);
+        if (raw == null) {
             return null;
         }
-        List<?> values = super.getTag(P2PKTag.sigflag.name()).getValues();
-        return values != null ? ((SignatureFlag) values.get(0)).name() : null;
+        return raw instanceof SignatureFlag ? ((SignatureFlag) raw).name() : String.valueOf(raw);
     }
 
     public List<String> getPubKeys() {
-        Tag tag = super.getTag(P2PKTag.pubkeys.name());
-        if (tag == null) {
-            return new ArrayList<>();
-        }
-        List<?> values = tag.getValues();
-        return values != null ? (List<String>) values : new ArrayList<>();
+        return stringValues(P2PKTag.pubkeys);
     }
 
     public int getLockTime() {
-        Tag tag = super.getTag(P2PKTag.locktime.name());
-        if (tag == null) {
-            return 0;
-        }
-        List<?> values = super.getTag(P2PKTag.locktime.name()).getValues();
-        return values != null ? (int) values.get(0) : 0;
+        return intValue(P2PKTag.locktime, 0);
     }
 
     public List<String> getRefund() {
-        Tag tag = super.getTag(P2PKTag.refund.name());
-        if (tag == null) {
-            return new ArrayList<>();
-        }
-        List<?> values = super.getTag(P2PKTag.refund.name()).getValues();
-        return values != null ? (List<String>) values : new ArrayList<>();
+        return stringValues(P2PKTag.refund);
     }
 
     /**
@@ -253,6 +234,29 @@ public class P2PKSecret extends WellKnownSecret {
             SignatureFlag.valueOf(String.valueOf(raw));
         } catch (IllegalArgumentException e) {
             throw new MalformedP2PKSecretException("unrecognised sigflag value", e);
+        }
+    }
+
+    /**
+     * First tag value as an int, falling back to {@code defaultValue}.
+     *
+     * <p>Accepts any {@link Number}, not just {@code Integer}: {@code deserializeNut10Format}
+     * stores integral JSON as {@code longValue()}, so a wire secret carrying {@code n_sigs} or
+     * {@code locktime} would otherwise fail the cast.
+     */
+    private int intValue(P2PKTag tag, int defaultValue) {
+        Object raw = firstValue(tag);
+        if (raw == null) {
+            return defaultValue;
+        }
+        if (raw instanceof Number) {
+            return ((Number) raw).intValue();
+        }
+        try {
+            return Integer.parseInt(String.valueOf(raw).trim());
+        } catch (NumberFormatException e) {
+            // Non-numeric is malformed; validate() rejects it. A getter must not throw.
+            return defaultValue;
         }
     }
 
