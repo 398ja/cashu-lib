@@ -18,7 +18,8 @@ public class P2PKSecret extends WellKnownSecret {
         n_sigs,
         pubkeys,
         locktime,
-        refund
+        refund,
+        n_sigs_refund
     }
 
     public enum SignatureFlag { // IMPORTANT: Do not change the order!!!
@@ -54,6 +55,10 @@ public class P2PKSecret extends WellKnownSecret {
         super.setTag(P2PKTag.n_sigs.name(), List.of(nSigs));
     }
 
+    public void setNSigsRefund(@NonNull Integer nSigsRefund) {
+        super.setTag(P2PKTag.n_sigs_refund.name(), List.of(nSigsRefund));
+    }
+
     public void setPubKeys(@NonNull List<String> pubKeys) {
         super.setTag(P2PKTag.pubkeys.name(), new ArrayList<>(pubKeys.stream().toList()));
     }
@@ -85,6 +90,24 @@ public class P2PKSecret extends WellKnownSecret {
         }
         List<?> values = super.getTag(P2PKTag.n_sigs.name()).getValues();
         return values != null ? (int) values.get(0) : -1;
+    }
+
+    /**
+     * NUT-11 refund-path signature threshold. Defaults to {@code 1} when the
+     * {@code n_sigs_refund} tag is absent <em>or carries no value</em> — per
+     * NUT-11 the refund path requires a single signature by default, and
+     * existing escrows minted before this tag existed must keep their current
+     * 1-of-N refund behavior unchanged. Guarding the empty-values case also
+     * stops a malformed secret (key-only tag array) from throwing
+     * {@link IndexOutOfBoundsException} here.
+     */
+    public int getNSigsRefund() {
+        Tag tag = super.getTag(P2PKTag.n_sigs_refund.name());
+        if (tag == null) {
+            return 1;
+        }
+        List<?> values = tag.getValues();
+        return (values != null && !values.isEmpty()) ? (int) values.get(0) : 1;
     }
 
     public String getSigFlag() {

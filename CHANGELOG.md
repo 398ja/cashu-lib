@@ -11,6 +11,74 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.20.0] - 2026-07-21
+
+### Fixed
+- **V4 token CBOR is now definite-length** (`TokenV4CborEncoder`). `TokenV4.serialize()`
+  previously used Jackson's CBOR `ObjectMapper`, which emits indefinite-length maps
+  (`0xbf … 0xff`). cashu-ts and other standard wallets only decode definite-length CBOR
+  and threw `Unsupported length: 31`, making every issued token un-redeemable by
+  browser/JS wallets. A hand-rolled definite-length encoder replaces the Jackson encode
+  path (decode via Jackson is unchanged — it reads both). Proven: cashu-ts 4.7.2
+  `getDecodedToken()` decodes the Java output. No token-content/format change.
+
+---
+
+## [0.19.0] - 2026-07-13
+
+Backward-compatible release (additive only; no source/binary breaks for
+existing consumers).
+
+### Added
+
+- **NUT-11 refund-path signature threshold (`n_sigs_refund`) on `P2PKSecret`**
+  — a new optional tag mirroring the existing `n_sigs` tag, but scoped to the
+  refund (locktime) path instead of the primary spend path.
+  - `P2PKTag.n_sigs_refund` — new enum constant.
+  - `setNSigsRefund(Integer)` — sets the tag, mirroring `setNSigs`.
+  - `getNSigsRefund()` — reads the tag; **defaults to `1`** (not `-1`) when
+    the tag is absent, since NUT-11 specifies the refund path requires a
+    single signature by default and existing escrows minted before this tag
+    existed must keep their current 1-of-N refund behavior unchanged.
+  - `WellKnownSecretDeserializer`/`TagDeserializer` updated to coerce
+    `n_sigs_refund` values to `int`, matching `n_sigs`/`locktime` handling.
+
+---
+
+## [0.18.1] - 2026-06-06
+
+Backward-compatible release (no source/binary breaks for existing
+consumers; addresses PR #237 review).
+
+### Added
+
+- **NUT-04 v1 wire fields on `PostMintQuoteResponse`** — required by
+  modern Cashu wallets (cashu-ts `>= 4.x`), which normalize the
+  mint-quote response and reject one that lacks `amount`.
+  - `amount` (`int`, `@JsonProperty`) — the amount the quote was
+    created for. Its absence caused cashu-ts to throw
+    `AmountError: Unsupported amount input type`, blocking every
+    client-side mint (imani spec 041).
+  - `unit` (`String`, `@JsonProperty`) — the unit the quote
+    transacts in (e.g. `"sat"`).
+  - `state` (`String`, `@JsonProperty`) — NUT-04 v1 lifecycle state
+    (`UNPAID` / `PAID` / `ISSUED`), superseding the boolean `paid`.
+- Explicit `@Deprecated` `PostMintQuoteResponse(String, String, boolean, int)`
+  constructor preserving the pre-0.18 Lombok all-args descriptor, so
+  consumers compiled against 0.16/0.17 don't hit `NoSuchMethodError`
+  after the new fields widened the generated all-args constructor.
+
+### Deprecated
+
+- `PostMintQuoteResponse.paid` (boolean) — retained on the wire for
+  NUT-04 v0 consumers; new clients should read `state` instead.
+
+> `expiry` stays `int` (Unix seconds fit until 2038) to keep this a
+> non-breaking release — the earlier int→long widening was reverted
+> per review.
+
+---
+
 ## [0.17.0] - 2026-05-23
 
 ### Added

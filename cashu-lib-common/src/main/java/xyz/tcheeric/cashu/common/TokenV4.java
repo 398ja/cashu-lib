@@ -101,16 +101,13 @@ public class TokenV4 implements Token {
 
     @Override
     public String serialize(boolean clickable) {
-        try {
-            log.debug("Serializing TokenV4 with {} token data entries", tokenDataList.size());
+        log.debug("Serializing TokenV4 with {} token data entries", tokenDataList.size());
 
-            // Use Jackson's built-in CBOR serialization instead of manual generation
-            // This ensures compatibility across Jackson versions and proper deserialization
-            byte[] cborToken = JsonUtils.CBOR_MAPPER.writeValueAsBytes(this);
-            return TokenUtil.serialize(cborToken, Version.V4, clickable);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        // Use the definite-length CBOR encoder so cashu-ts (and other definite-length-only
+        // decoders) can parse tokens we produce. Jackson's CBOR module emits indefinite-length
+        // maps/arrays by default, which cashu-ts rejects.
+        byte[] cborToken = TokenV4CborEncoder.encode(this);
+        return TokenUtil.serialize(cborToken, Version.V4, clickable);
     }
 
     public static TokenV4 deserialize(@NonNull String serializedToken) {

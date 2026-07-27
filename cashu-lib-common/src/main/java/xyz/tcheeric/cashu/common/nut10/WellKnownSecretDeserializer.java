@@ -189,7 +189,7 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
                 }
                 tag.setValues(values);
             }
-            case "n_sigs", "locktime" -> {
+            case "n_sigs", "n_sigs_refund", "locktime" -> {
                 List<Object> values = new ArrayList<>();
                 for (Object v : tag.getValues()) {
                     if (v instanceof Number n) {
