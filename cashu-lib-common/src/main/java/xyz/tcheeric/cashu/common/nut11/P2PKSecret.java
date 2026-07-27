@@ -35,13 +35,13 @@ public class P2PKSecret extends WellKnownSecret {
     }
 
     public P2PKSecret(@NonNull byte[] data) {
-        super(Kind.P2PK, data);
+        super(Kind.P2PK, P2PKPublicKeys.requireValid(data, "data").getBytes());
         this.setNSigs(1);
         this.setSigFlag(SignatureFlag.SIG_INPUTS);
     }
 
     public P2PKSecret(@NonNull byte[] data, int nSigs, @NonNull SignatureFlag sigFlag) {
-        super(Kind.P2PK, data);
+        super(Kind.P2PK, P2PKPublicKeys.requireValid(data, "data").getBytes());
         this.setNSigs(nSigs);
         this.setSigFlag(sigFlag);
     }
@@ -63,6 +63,7 @@ public class P2PKSecret extends WellKnownSecret {
     }
 
     public void setPubKeys(@NonNull List<String> pubKeys) {
+        requireValidKeys(pubKeys, P2PKTag.pubkeys.name());
         super.setTag(P2PKTag.pubkeys.name(), new ArrayList<>(pubKeys.stream().toList()));
     }
 
@@ -77,7 +78,19 @@ public class P2PKSecret extends WellKnownSecret {
     }
 
     public void setRefund(@NonNull List<String> refund) {
+        requireValidKeys(refund, P2PKTag.refund.name());
         super.setTag(P2PKTag.refund.name(), new ArrayList<>(refund.stream().toList()));
+    }
+
+    /**
+     * Validates every key a caller supplies, so a construction-side mistake surfaces where it is
+     * made rather than at serialization. {@code addPubKey} / {@code addRefund} inherit this by
+     * routing through their setters.
+     */
+    private static void requireValidKeys(List<String> keys, String tagName) {
+        for (int i = 0; i < keys.size(); i++) {
+            P2PKPublicKeys.requireValid(keys.get(i), tagName + "[" + i + "]");
+        }
     }
 
     public void addRefund(@NonNull String refund) {

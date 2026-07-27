@@ -83,6 +83,11 @@ class P2PKSecretValidateTest {
         }
     }
 
+    /**
+     * The constructors and key setters now reject bad keys up front, so these inject through the
+     * raw tag API instead — which is the shape a secret has when it arrives off the wire, before
+     * anything has validated it. That is exactly the state validate() exists to catch.
+     */
     @Nested
     @DisplayName("invalid public keys")
     class InvalidKeys {
@@ -90,7 +95,8 @@ class P2PKSecretValidateTest {
         @Test
         @DisplayName("rejects a data field that is not a public key")
         void rejectsBadData() {
-            P2PKSecret secret = new P2PKSecret(Hex.decode("deadbeef"));
+            P2PKSecret secret = lockedTo(KEY_A_02);
+            secret.setData(Hex.decode("deadbeef"));
             assertThatThrownBy(secret::validate)
                     .isInstanceOf(MalformedP2PKSecretException.class)
                     .hasMessageContaining("data");
@@ -100,8 +106,7 @@ class P2PKSecretValidateTest {
         @DisplayName("rejects a bad key in the pubkeys tag, naming its position")
         void rejectsBadPubkey() {
             P2PKSecret secret = lockedTo(KEY_A_02);
-            secret.addPubKey(KEY_B);
-            secret.addPubKey("pk1");
+            secret.setTag(P2PKSecret.P2PKTag.pubkeys.name(), List.of(KEY_B, "pk1"));
             assertThatThrownBy(secret::validate)
                     .isInstanceOf(MalformedP2PKSecretException.class)
                     .hasMessageContaining("pubkeys[1]");
@@ -111,7 +116,7 @@ class P2PKSecretValidateTest {
         @DisplayName("rejects a bad key in the refund tag")
         void rejectsBadRefund() {
             P2PKSecret secret = lockedTo(KEY_A_02);
-            secret.addRefund("refund1");
+            secret.setTag(P2PKSecret.P2PKTag.refund.name(), List.of("refund1"));
             assertThatThrownBy(secret::validate)
                     .isInstanceOf(MalformedP2PKSecretException.class)
                     .hasMessageContaining("refund[0]");
