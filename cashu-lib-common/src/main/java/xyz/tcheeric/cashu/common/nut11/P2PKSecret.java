@@ -3,11 +3,14 @@ package xyz.tcheeric.cashu.common.nut11;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.util.encoders.Hex;
 import xyz.tcheeric.cashu.common.nut10.WellKnownSecret;
 import xyz.tcheeric.cashu.common.util.JsonUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Slf4j
@@ -144,6 +147,139 @@ public class P2PKSecret extends WellKnownSecret {
         }
         List<?> values = super.getTag(P2PKTag.refund.name()).getValues();
         return values != null ? (List<String>) values : new ArrayList<>();
+    }
+
+    /**
+     * Checks this secret against NUT-11's malformed-secret rules.
+     *
+     * <p>NUT-11 names four conditions that make a secret malformed — a repeated tag, a signature
+     * threshold that is not a positive integer or exceeds its pathway's key count, an unrecognised
+     * sigflag, and a key duplicated within one pathway — each closing "the Proof MUST be rejected
+     * as unspendable". A fifth is enforced here and is <em>not</em> in the spec: that the public
+     * keys are valid compressed secp256k1 points. See the design note; an upstream clarification
+     * is pending.
+     *
+     * @throws MalformedP2PKSecretException if the Proof must be rejected as unspendable
+     */
+    public void validate() {
+        requireEachTagAtMostOnce();
+
+        P2PKPublicKeys.requireValid(getData(), "data");
+
+        List<String> pubKeys = stringValues(P2PKTag.pubkeys);
+        for (int i = 0; i < pubKeys.size(); i++) {
+            P2PKPublicKeys.requireValid(pubKeys.get(i), "pubkeys[" + i + "]");
+        }
+
+        List<String> refunds = stringValues(P2PKTag.refund);
+        for (int i = 0; i < refunds.size(); i++) {
+            P2PKPublicKeys.requireValid(refunds.get(i), "refund[" + i + "]");
+        }
+
+        // The main pathway is `data` plus the `pubkeys` tag; the refund pathway is the `refund`
+        // tag. A key may appear in both, but not twice within one.
+        List<String> mainPathway = new ArrayList<>();
+        mainPathway.add(Hex.toHexString(getData()));
+        mainPathway.addAll(pubKeys);
+        requireNoDuplicateKeys(mainPathway, "main");
+        requireNoDuplicateKeys(refunds, "refund");
+
+        requireThresholdInRange(P2PKTag.n_sigs, mainPathway.size());
+        if (!refunds.isEmpty()) {
+            // With no refund pathway there is nothing to threshold, and the default of 1 must not
+            // be read as "1 exceeds 0 keys" and condemn every ordinary secret.
+            requireThresholdInRange(P2PKTag.n_sigs_refund, refunds.size());
+        }
+
+        requireKnownSigFlag();
+    }
+
+    private void requireEachTagAtMostOnce() {
+        List<Tag> tags = getTags();
+        if (tags == null) {
+            return;
+        }
+        Set<String> seen = new HashSet<>();
+        for (Tag tag : tags) {
+            if (tag.getKey() != null && !seen.add(tag.getKey())) {
+                throw new MalformedP2PKSecretException(
+                        "tag '" + tag.getKey() + "' appears more than once");
+            }
+        }
+    }
+
+    /**
+     * NUT-11 compares keys on the lowercase x-coordinate with the parity prefix ignored, so
+     * {@code 02||x} and {@code 03||x} are the same key and duplicate each other.
+     */
+    private void requireNoDuplicateKeys(List<String> pathway, String pathwayName) {
+        Set<String> seen = new HashSet<>();
+        for (String key : pathway) {
+            if (!seen.add(P2PKPublicKeys.toComparisonForm(key))) {
+                throw new MalformedP2PKSecretException(
+                        pathwayName + " pathway contains a duplicate public key");
+            }
+        }
+    }
+
+    private void requireThresholdInRange(P2PKTag tag, int keyCount) {
+        Object raw = firstValue(tag);
+        if (raw == null) {
+            return; // absent, or present with no value: the NUT-11 default of 1 applies
+        }
+        if (!(raw instanceof Number)) {
+            throw new MalformedP2PKSecretException(tag.name() + " is not an integer");
+        }
+        long threshold = ((Number) raw).longValue();
+        if (threshold < 1) {
+            throw new MalformedP2PKSecretException(
+                    tag.name() + " must be a positive integer, got " + threshold);
+        }
+        if (threshold > keyCount) {
+            throw new MalformedP2PKSecretException(tag.name() + " of " + threshold
+                    + " exceeds the " + keyCount + " key(s) in its pathway");
+        }
+    }
+
+    private void requireKnownSigFlag() {
+        Object raw = firstValue(P2PKTag.sigflag);
+        if (raw == null) {
+            return; // absent: SIG_INPUTS applies
+        }
+        if (raw instanceof SignatureFlag) {
+            return;
+        }
+        try {
+            SignatureFlag.valueOf(String.valueOf(raw));
+        } catch (IllegalArgumentException e) {
+            throw new MalformedP2PKSecretException("unrecognised sigflag value", e);
+        }
+    }
+
+    private Object firstValue(P2PKTag tag) {
+        Tag t = super.getTag(tag.name());
+        if (t == null) {
+            return null;
+        }
+        List<Object> values = t.getValues();
+        return (values == null || values.isEmpty()) ? null : values.get(0);
+    }
+
+    /**
+     * Tag values as strings, without the unchecked cast that a raw {@code (List<String>)} would
+     * need — a numeric tag value degrades to a validation failure rather than a
+     * {@link ClassCastException} at an arbitrary call site.
+     */
+    private List<String> stringValues(P2PKTag tag) {
+        Tag t = super.getTag(tag.name());
+        if (t == null || t.getValues() == null) {
+            return new ArrayList<>();
+        }
+        List<String> result = new ArrayList<>(t.getValues().size());
+        for (Object value : t.getValues()) {
+            result.add(value == null ? null : String.valueOf(value));
+        }
+        return result;
     }
 
     @SneakyThrows
