@@ -11,6 +11,112 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.21.0] - 2026-07-27
+
+NUT-11 P2PK secrets are now validated. **This release rejects input that previously
+parsed** — that is the intent, but see *Changed* for the operational consequence.
+
+### Security
+
+- **A malformed P2PK lock could silently degrade into an unlocked bearer secret.**
+  `SecretUtil.toSecret` caught `Exception` around NUT-10 array parsing and fell through to
+  `RandomStringSecret` — a NUT-00 random-string secret, which carries **no spending
+  condition at all**. Any P2PK secret rejected during parsing therefore came back as a
+  proof spendable by anyone holding it: the lock was dropped rather than refused, which is
+  strictly worse than the malformed lock itself. `MalformedP2PKSecretException` now
+  propagates instead of being swallowed.
+
+  NUT-11 permits treating an *unsupported spending condition* as anyone-can-spend; it says
+  nothing about an *invalid key*. This code extended the former to the latter.
+
+### Added
+
+- **`P2PKPublicKeys`** — NUT-11 key validation and comparison.
+  - `requireValid(String|byte[], String position)` enforces compressed-only (33 bytes,
+    `02`/`03` prefix) and **eager** secp256k1 curve membership. Deliberately stricter than
+    `PublicKey`, which accepts 66 *or* 128 hex chars (33, 64 or 65 bytes) and stores bytes
+    without decompressing, so an off-curve key was accepted and only failed later on an
+    unrelated path.
+  - `toComparisonForm(String)` yields the lowercase x-coordinate. BIP-340 signs on the
+    x-coordinate alone, so `02||x` and `03||x` are one signing key — NUT-11 declares them
+    duplicates of each other, and comparing full compressed hex misses the spec's own
+    worked example.
+  - Uppercase and mixed-case hex are normalised, not rejected: NUT-11 lists them as valid
+    equivalent encodings.
+- **`MalformedP2PKSecretException`** — extends `IllegalArgumentException`, so existing
+  callers that handle bad input keep working. Carries the failing position (`data`,
+  `pubkeys[2]`, `refund[0]`) and reason, **never key material**.
+- **`P2PKSecret.validate()`** — enforces NUT-11's four malformed-secret rules: each tag at
+  most once; `n_sigs` / `n_sigs_refund` a positive integer not exceeding its pathway's key
+  count; a recognised sigflag; no duplicate key within a pathway. Cross-pathway key reuse
+  stays permitted, as the spec requires.
+
+### Changed
+
+- **Validation is enforced at both parse boundaries and at construction.** `SecretUtil` and
+  `WellKnownSecretDeserializer` are two *independent* P2PK ingress paths — `SecretUtil`
+  reimplements secret construction to avoid Jackson's double-hex-decode cycle — so both now
+  validate. `P2PKSecret`'s byte-array constructors and `setPubKeys` / `addPubKey` /
+  `setRefund` / `addRefund` validate their input at the point of the mistake.
+- **Operational note for mints:** an already-stored proof carrying a malformed P2PK lock
+  will now fail to deserialize where it previously loaded and silently misbehaved. Catch
+  `MalformedP2PKSecretException` and map it to the protocol's unspendable-proof error
+  rather than letting it surface as a server fault — NUT-11 frames these conditions as
+  rejection, not as a parse crash. Such proofs were already unspendable; the exception
+  surfaces a loss that had already happened rather than causing one.
+
+### Fixed
+
+- **`getNSigs`, `getSigFlag` and `getLockTime` threw out of a getter on a crafted secret.**
+  All three called `values.get(0)` after a null check only, so a tag present with an empty
+  value list threw `IndexOutOfBoundsException`. Both deserializers accept such a tag.
+  `getNSigsRefund` already guarded this and documented why; the guard had never been copied
+  to its three siblings.
+- **`getNSigs` and `getLockTime` threw `ClassCastException` on the wire path.** Both cast to
+  `Integer`, but `deserializeNut10Format` stores integral JSON as `longValue()`, so any wire
+  secret carrying `n_sigs` or `locktime` failed. They now accept any `Number`.
+- **`getSigFlag` threw `ClassCastException` on a raw string value.** Now tolerated; rejecting
+  an unrecognised flag is `validate()`'s job.
+- **`getPubKeys` and `getRefund` used an unchecked `(List<String>)` cast**, so a numeric tag
+  value surfaced as `ClassCastException` at an arbitrary call site. Now mapped element-wise,
+  degrading to a validation failure instead.
+
+### Removed
+
+- **Five dead deprecated members of `BaseKey`**, all verified zero-reference and all the same
+  failure class as the bugs above — a wrong key-length constant or a prefix-stripping
+  constructor is how a validation bypass gets written:
+  - `PUBLIC_KEY_LENGTH_UNCOMPRESSED` — value was **66, should have been 128** (its own
+    javadoc said so); any length check against it was wrong.
+  - `PUBLIC_KEY_LENGTH_COMPRESSED` — named "compressed" but held **64**, the x-only length;
+    a compressed key is 66.
+  - `PRIVATE_KEY_LENGTH`, `SECRET_LENGTH` — dead aliases.
+  - `BaseKey(String)` — `Hex.decode(hexStr.substring(2))`, stripping the first byte by
+    position with no check that it *is* a parity prefix.
+
+  Replacements already existed and were already in use: `PRIVATE_KEY_HEX_LENGTH`,
+  `X_COORDINATE_HEX_LENGTH`, `COMPRESSED_KEY_HEX_LENGTH`, `UNCOMPRESSED_XY_HEX_LENGTH`,
+  `SECRET_HEX_LENGTH`, and `BaseKey(byte[])`.
+
+  **Source-breaking** for an out-of-tree `BaseKey` subclass — all five are `protected` on a
+  public abstract class. `PublicKey` is `sealed` and the other subclasses ship here, so the
+  exposure is theoretical; hence a minor rather than a major bump.
+
+  The remaining deprecated API (`CompressedPublicKey`, `UnCompressedPublicKey`,
+  `VoucherWellKnownSecret`, `P2PKSecret.fromString`, `BaseKey.toBytes`) has real callers and
+  downstream consumers, and is deferred to its own change beginning with a cross-repo survey.
+
+### Upstream
+
+NUT-11 enumerates four malformed-secret conditions, each closing "the Proof **MUST** be
+rejected as unspendable" — none covers a structurally invalid public key. "Public keys MUST
+use the compressed Secp256k1 public key format" binds whoever *constructs* the secret and
+carries no paired rejection rule. That omission is why this library and cashu-ts diverged,
+cashu-ts rejecting hard where this library accepted anything. A clarification adding the
+fifth case is pending upstream.
+
+---
+
 ## [0.20.0] - 2026-07-21
 
 ### Fixed

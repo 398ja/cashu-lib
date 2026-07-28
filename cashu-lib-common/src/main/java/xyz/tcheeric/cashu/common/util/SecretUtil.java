@@ -8,6 +8,7 @@ import xyz.tcheeric.cashu.common.PublicKey;
 import xyz.tcheeric.cashu.common.RandomStringSecret;
 import xyz.tcheeric.cashu.common.Secret;
 import xyz.tcheeric.cashu.common.nut10.WellKnownSecret;
+import xyz.tcheeric.cashu.common.nut11.MalformedP2PKSecretException;
 import xyz.tcheeric.cashu.common.nut11.P2PKSecret;
 import xyz.tcheeric.cashu.common.nut18.VoucherSecret;
 import xyz.tcheeric.cashu.crypto.BDHKEUtils;
@@ -56,6 +57,13 @@ public final class SecretUtil<T extends Secret> {
                     // Parse as JSON array and convert to WellKnownSecret
                     List<?> list = MAPPER.readValue(trimmed, new TypeReference<List<?>>() {});
                     return listToSecret(list);
+                } catch (MalformedP2PKSecretException e) {
+                    // MUST NOT fall through. The fall-through treats the input as a NUT-00 random
+                    // string, which carries no spending condition at all - so a P2PK lock we just
+                    // rejected as malformed would come back as a bearer secret, spendable by
+                    // anyone holding the proof. Refusing to parse is the safe outcome; silently
+                    // dropping the lock is strictly worse than the malformed lock itself.
+                    throw e;
                 } catch (Exception e) {
                     log.debug("secret_util to_secret json_parse_failed secret_preview={} error={}",
                             trimmed.length() > 40 ? trimmed.substring(0, 40) + "..." : trimmed,
@@ -154,7 +162,23 @@ public final class SecretUtil<T extends Secret> {
         // serialization/deserialization cycle which causes double hex-decode
         WellKnownSecret secret = createSecret(kind, data, nonce);
         addTagsToSecret(secret, tags, kind);
-        return (T) secret;
+        return (T) validated(secret);
+    }
+
+    /**
+     * NUT-11 enforcement point for this parse path.
+     *
+     * <p>{@code SecretUtil} reimplements secret construction rather than delegating to
+     * {@code WellKnownSecretDeserializer} — see the comment above about avoiding Jackson's
+     * double-hex-decode cycle — so it is a second, independent ingress for P2PK secrets and needs
+     * its own validation. Validating in only one of the two would leave a malformed lock
+     * reachable through the other.
+     */
+    private static WellKnownSecret validated(WellKnownSecret secret) {
+        if (secret instanceof P2PKSecret p2pk) {
+            p2pk.validate();
+        }
+        return secret;
     }
 
     /**
@@ -277,7 +301,7 @@ public final class SecretUtil<T extends Secret> {
         if (tagsObj instanceof List<?> tags) {
             addTagsToSecret(secret, tags, kind);
         }
-        return (T) secret;
+        return (T) validated(secret);
     }
 
     @SuppressWarnings("unchecked")

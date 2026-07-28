@@ -116,7 +116,7 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
             }
         }
 
-        return secret;
+        return validated(secret);
     }
 
     /**
@@ -165,6 +165,22 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
             }
         }
 
+        return validated(secret);
+    }
+
+    /**
+     * Deserialization is the enforcement point for NUT-11: a malformed P2PK secret must never
+     * become a live object.
+     *
+     * <p>The thrown {@code MalformedP2PKSecretException} is an {@link IllegalArgumentException},
+     * so callers that already handle bad input keep working. A mint should catch it specifically
+     * and map it to the protocol's unspendable-proof error rather than let it surface as a server
+     * fault — NUT-11 frames these conditions as rejection, not as a parse crash.
+     */
+    private WellKnownSecret validated(WellKnownSecret secret) {
+        if (secret instanceof P2PKSecret) {
+            ((P2PKSecret) secret).validate();
+        }
         return secret;
     }
 
