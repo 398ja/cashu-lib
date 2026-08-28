@@ -7,10 +7,12 @@ import lombok.NonNull;
 import org.bitcoinj.crypto.DeterministicKey;
 import xyz.tcheeric.bips.bip32.nut.Nut13Derivation;
 import xyz.tcheeric.cashu.common.KeysetId;
+import xyz.tcheeric.cashu.common.KeysetIdVersion;
 import xyz.tcheeric.cashu.common.RandomStringSecret;
 import xyz.tcheeric.cashu.common.Secret;
 import xyz.tcheeric.cashu.common.nut11.P2PKSecret;
 import xyz.tcheeric.cashu.common.nut13.DeterministicSecret;
+import xyz.tcheeric.cashu.common.nut13.UnsupportedKeysetVersionException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SecretFactory<T extends Secret> {
+
+    private static final KeysetIdVersion DERIVABLE_KEYSET_ID_VERSION = KeysetIdVersion.V1;
 
     private byte[] p2pkPublicKey;
 
@@ -68,7 +72,8 @@ public class SecretFactory<T extends Secret> {
             @NonNull KeysetId keysetId,
             int counter
     ) {
-        // Use Nut13Derivation to derive the secret bytes
+        requireDerivableKeysetVersion(keysetId);
+
         byte[] secretBytes = Nut13Derivation.deriveSecret(
                 masterKey,
                 keysetId.toString(),
@@ -132,6 +137,8 @@ public class SecretFactory<T extends Secret> {
             @NonNull KeysetId keysetId,
             int counter
     ) {
+        requireDerivableKeysetVersion(keysetId);
+
         var params = Nut13Derivation.Nut13DerivationParams.builder()
                 .mnemonicPhrase(mnemonic)
                 .passphrase(passphrase)
@@ -160,6 +167,8 @@ public class SecretFactory<T extends Secret> {
             @NonNull KeysetId keysetId,
             int counter
     ) {
+        requireDerivableKeysetVersion(keysetId);
+
         var pair = Nut13Derivation.deriveSecretAndBlindingFactor(
                 masterKey,
                 keysetId.toString(),
@@ -173,6 +182,22 @@ public class SecretFactory<T extends Secret> {
         );
 
         return new SecretAndBlindingFactor(secret, pair.blindingFactor());
+    }
+
+    /**
+     * Rejects keyset ids whose version this library cannot derive NUT-13 secrets for.
+     *
+     * <p>Only version 1 ids are derivable today. Deriving version 1 secrets for a version 2
+     * keyset would recover nothing while looking like an empty wallet, so it is refused.
+     *
+     * @param keysetId keyset id to check
+     * @throws UnsupportedKeysetVersionException if the id is not a version 1 keyset id
+     */
+    private static void requireDerivableKeysetVersion(@NonNull KeysetId keysetId) {
+        KeysetIdVersion version = keysetId.getVersion();
+        if (version != DERIVABLE_KEYSET_ID_VERSION) {
+            throw new UnsupportedKeysetVersionException(keysetId, version);
+        }
     }
 
     /**

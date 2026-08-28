@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `KeysetIdVersion` resolves the NUT-02 keyset id version from the leading version byte and id
+  length, and `KeysetId.getVersion()` exposes it. `KeysetId` now accepts version 2 ids
+  (66 hex characters) in addition to version 1 ids (16 hex characters).
+- `UnsupportedKeysetVersionException` carries the offending keyset id and version.
+
+### Fixed
+
+- **NUT-13 derivation silently produced unrecoverable secrets for a version 2 keyset.**
+  `SecretFactory` applied version 1 derivation to any keyset id, so a version 2 keyset yielded
+  secrets the mint never signed: restore returned nothing and was indistinguishable from an
+  empty wallet. Deterministic derivation now dispatches on the keyset id version and throws
+  `UnsupportedKeysetVersionException` for versions it cannot derive. Version 2 derivation itself
+  is still unimplemented.
+
 ---
 
 ## [0.21.0] - 2026-07-27
