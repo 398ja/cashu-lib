@@ -9,27 +9,33 @@ import xyz.tcheeric.cashu.common.nut10.WellKnownSecret;
 import xyz.tcheeric.cashu.common.nut18.VoucherSecret;
 import xyz.tcheeric.cashu.crypto.BDHKEUtils;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SecretUtilTest {
 
     private static final String HEX_SECRET =
             "0000000000000000000000000000000000000000000000000000000000000001";
-    private static final String EXPECTED_Y_FOR_HEX_SECRET =
+
+    /** Y for the 32 raw bytes the secret string hex-decodes to; the pre-migration commitment. */
+    private static final String LEGACY_Y_FOR_HEX_SECRET =
             "022e7158e11c9506f1aa4248bf531298daa7febd6194f003edcd9b93ade6253acf";
 
     /**
-     * Ensures NUT-00 hex secrets are hex-decoded before hash_to_curve, matching protocol vectors.
+     * Ensures a plain secret is UTF-8 encoded before hash_to_curve, as NUT-00 requires, and no
+     * longer hex-decoded into the different point the library used to commit to.
      */
     @Test
-    void shouldComputeYFromHexSecretUsingHexDecoding() {
+    void shouldComputeYFromHexSecretUsingUtf8Encoding() {
         RandomStringSecret secret = RandomStringSecret.fromString(HEX_SECRET);
 
         String actualY = SecretUtil.toY(secret);
-        String expectedY = PublicKey.fromBytes(BDHKEUtils.hashToCurve(HEX_SECRET)).toString();
+        String expectedY = PublicKey.fromBytes(
+                BDHKEUtils.hashToCurve(HEX_SECRET.getBytes(StandardCharsets.UTF_8)).getEncoded(true)).toString();
 
         assertThat(actualY).isEqualTo(expectedY);
-        assertThat(actualY).isEqualTo(EXPECTED_Y_FOR_HEX_SECRET);
+        assertThat(actualY).isNotEqualTo(LEGACY_Y_FOR_HEX_SECRET);
     }
 
     /**

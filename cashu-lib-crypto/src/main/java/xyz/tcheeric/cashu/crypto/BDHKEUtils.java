@@ -71,22 +71,34 @@ public final class BDHKEUtils {
 
     private static final SecP256K1Curve CURVE = new SecP256K1Curve();
 
+    /**
+     * Computes {@code Y = hash_to_curve(secret)} under the encoding used to issue new proofs.
+     *
+     * @param secret the secret string, either a plain secret or a NUT-10 well-known secret
+     * @return the compressed encoding of Y
+     * @throws IllegalArgumentException if the secret is null or empty
+     * @see SecretEncoding#forIssuance()
+     */
     public static byte[] hashToCurve(String secret) {
+        return hashToCurve(secret, SecretEncoding.forIssuance());
+    }
+
+    /**
+     * Computes {@code Y = hash_to_curve(secret)} under an explicit secret encoding.
+     *
+     * <p>Only verification of already-issued proofs may pass an encoding other than
+     * {@link SecretEncoding#forIssuance()}.
+     *
+     * @param secret the secret string
+     * @param encoding the encoding applied to the secret before hashing
+     * @return the compressed encoding of Y
+     * @throws IllegalArgumentException if the secret is null or empty
+     */
+    public static byte[] hashToCurve(String secret, @NonNull SecretEncoding encoding) {
         if (secret == null || secret.isEmpty()) {
             throw new IllegalArgumentException("secret must not be null or empty");
         }
-        // NUT-10 well-known secrets are JSON arrays (start with '[')
-        // They should be UTF-8 encoded for hashing, not hex decoded
-        byte[] secretBytes;
-        if (secret.startsWith("[")) {
-            // NUT-10 JSON secret: UTF-8 encode the JSON string
-            secretBytes = secret.getBytes(StandardCharsets.UTF_8);
-        } else {
-            // Legacy hex secret: hex decode
-            secretBytes = Utils.hexStringToBytes(secret);
-        }
-        ECPoint result = hashToCurve(secretBytes);
-        return result.getEncoded(true);
+        return hashToCurve(encoding.encode(secret)).getEncoded(true);
     }
 
     public static ECPoint hashToCurve(byte[] secret) {
@@ -194,23 +206,34 @@ public final class BDHKEUtils {
         return valid;
     }
 
+    /**
+     * Verifies {@code C = k*Y}, accepting a proof issued under any encoding in
+     * {@link SecretEncoding#verificationOrder()}.
+     *
+     * <p>Proofs issued before the NUT-00 secret encoding was corrected committed to a different
+     * curve point, so verification tries the spec encoding first and falls back to the legacy one.
+     */
     public static boolean verify(@NonNull String secret, @NonNull BigInteger k, @NonNull ECPoint C) {
-        // NUT-10 well-known secrets are JSON arrays (start with '[')
-        // They should be UTF-8 encoded for hashing, not hex decoded
-        // Legacy hex secrets continue to be hex decoded for backward compatibility
-        byte[] secretBytes;
-        if (secret.startsWith("[")) {
-            // NUT-10 JSON secret: UTF-8 encode the JSON string
-            secretBytes = secret.getBytes(StandardCharsets.UTF_8);
-            log.debug("verify: NUT-10 secret detected, using UTF-8 encoding, length={}", secretBytes.length);
-        } else {
-            // Legacy hex secret: hex decode
-            secretBytes = Utils.hexStringToBytes(secret);
-            log.debug("verify: hex secret detected, using hex decoding, length={}", secretBytes.length);
+        for (SecretEncoding encoding : SecretEncoding.verificationOrder()) {
+            if (verifyUnder(encoding, secret, k, C)) {
+                log.debug("bdhke verify_succeeded encoding={}", encoding);
+                return true;
+            }
         }
-        ECPoint Y = hashToCurve(secretBytes);
-        boolean valid = verify(Y, k, C);
-        return valid;
+        log.debug("bdhke verify_failed encodingsTried={}", SecretEncoding.verificationOrder());
+        return false;
+    }
+
+    private static boolean verifyUnder(SecretEncoding encoding, String secret, BigInteger k, ECPoint C) {
+        if (!encoding.supports(secret)) {
+            return false;
+        }
+        try {
+            return verify(hashToCurve(encoding.encode(secret)), k, C);
+        } catch (IllegalArgumentException e) {
+            log.debug("bdhke verify_encoding_inapplicable encoding={}", encoding);
+            return false;
+        }
     }
 
 

@@ -27,3 +27,6 @@ The documentation for cashu-lib follows the Diátaxis framework and is organized
 - [Architecture](explanation/architecture.md)
 - [Key Design Decisions](explanation/design-decisions.md)
 - [Relation to NUT Specifications](explanation/nut-compliance.md)
+
+### Architecture Decision Records
+- [ADR 0001: hash_to_curve hashes the UTF-8 bytes of the secret string](explanation/adr/0001-hash-to-curve-secret-encoding.md)

@@ -185,6 +185,41 @@ public final class DLEQUtils {
     }
 
     /**
+     * Verifies a DLEQ proof carried by a received Proof, given the secret as a string.
+     *
+     * <p>The secret is fed to {@code hash_to_curve} under each encoding in
+     * {@link SecretEncoding#verificationOrder()}, so a proof issued before the NUT-00 secret
+     * encoding was corrected still verifies.
+     *
+     * @param e The challenge scalar (hex string)
+     * @param s The response scalar (hex string)
+     * @param r The blinding factor (hex string)
+     * @param secret The proof secret string
+     * @param unblindedSignature The unblinded signature point C
+     * @param publicKey The mint's public key point A
+     * @return true if the proof is valid under any accepted secret encoding
+     */
+    public static boolean verifyProofWithBlindingFactor(
+            @NonNull String e,
+            @NonNull String s,
+            @NonNull String r,
+            @NonNull String secret,
+            @NonNull ECPoint unblindedSignature,
+            @NonNull ECPoint publicKey
+    ) {
+        for (SecretEncoding encoding : SecretEncoding.verificationOrder()) {
+            if (!encoding.supports(secret)) {
+                continue;
+            }
+            if (verifyProofWithBlindingFactor(e, s, r, encoding.encode(secret), unblindedSignature, publicKey)) {
+                log.debug("dleq verify_succeeded encoding={}", encoding);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Computes the DLEQ hash: SHA256(R1 || R2 || A || C').
      *
      * <p>Points are serialized in uncompressed format (04 || X || Y) and

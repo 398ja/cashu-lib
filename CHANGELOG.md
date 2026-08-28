@@ -9,7 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **NUT-00 `hash_to_curve` now hashes the UTF-8 bytes of the secret string.** It previously
+  hex-decoded any secret that was not a NUT-10 well-known secret, so every proof this library issued
+  committed to a different curve point `Y` than Nutshell or cashu-ts computes for the same secret.
+  The NUT-12 vectors and the Nutshell interoperability harness both adjudicated the encoding; see
+  [ADR 0001](docs/explanation/adr/0001-hash-to-curve-secret-encoding.md)
+  ([#242](https://github.com/398ja/cashu-lib/issues/242)).
+
 ### Added
+
+- `SecretEncoding` names the two byte encodings a secret can be fed to `hash_to_curve` under, and
+  makes the migration explicit: `SecretEncoding.forIssuance()` returns the spec (UTF-8) encoding and
+  is the only encoding used to issue a proof, while `SecretEncoding.verificationOrder()` is tried in
+  order on verification so proofs issued under the legacy hex-decode encoding keep verifying.
+  `BDHKEUtils.hashToCurve(String, SecretEncoding)` and a string-secret overload of
+  `DLEQUtils.verifyProofWithBlindingFactor` expose the dual path. Mints must also key their
+  spent-proof store on both `Y` values; ADR 0001 records what `cashu-mint` has to do.
 
 - **Official NUT test vectors now run on every build.** The cashubtc/nuts vectors are vendored at
   pinned commit `49a909c` under `cashu-lib-common/src/test/resources/vectors/cashubtc-nuts/` and

@@ -117,7 +117,7 @@ class Nut12VectorTest {
                 dleq.getE(),
                 dleq.getS(),
                 dleq.getR(),
-                hashToCurveInput(proof.getSecret().toString()),
+                proof.getSecret().toString(),
                 point(proof.getUnblindedSignature().toString()),
                 point(keys.get("A")));
 
@@ -134,19 +134,6 @@ class Nut12VectorTest {
     @SneakyThrows
     private static <T> T readJson(int jsonBlockIndex, Class<T> type) {
         return JsonUtils.JSON_MAPPER.readValue(VECTORS.block("json", jsonBlockIndex).text(), type);
-    }
-
-    /**
-     * The bytes this library feeds to hash_to_curve for a given secret.
-     *
-     * <p>Mirrors {@code BDHKEUtils}: a NUT-10 secret is UTF-8 encoded, any other secret is
-     * hex-decoded. That second branch is the encoding these vectors cannot adjudicate; see
-     * {@code docs/reference/nut-test-vector-coverage.md}.
-     */
-    private static byte[] hashToCurveInput(String secret) {
-        return secret.startsWith("[")
-                ? secret.getBytes(java.nio.charset.StandardCharsets.UTF_8)
-                : Utils.hexStringToBytes(secret);
     }
 
     private static ECPoint point(String compressedHex) {
