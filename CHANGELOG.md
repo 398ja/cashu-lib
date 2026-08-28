@@ -41,7 +41,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (66 hex characters) in addition to version 1 ids (16 hex characters).
 - `UnsupportedKeysetVersionException` carries the offending keyset id and version.
 
+- **NUT-02 input fees are now resolved per proof.** `InputFeeCalculator` takes a
+  `KeySetResolver` (keyset id to keyset) and yields the total fee for a collection of proofs,
+  summing each proof's own `input_fee_ppk` and rounding up to whole units. `UnknownKeySetException`
+  carries `CashuErrorCode.keyset_not_known` (NUT-02 `12001`) for an unresolvable keyset id.
+- `ActiveKeySet` — the `GET /v1/keysets` entry — now carries `input_fee_ppk` and the optional
+  `final_expiry`. `fromKeySet` propagates the fee from the source keyset, and `final_expiry` is
+  omitted from the JSON when absent rather than serialized as `null`.
+
 ### Fixed
+
+- **Input fees were computed from a single caller-supplied keyset.**
+  `PostInputRequest.getFees(KeySet)` applied one keyset's fee to every input and checked the
+  keyset id with an `assert`, which is disabled at runtime by default: a proof from another
+  keyset was silently priced from the wrong one. Since NUT-02 keeps inactive keysets spendable,
+  multi-keyset input sets are the routine case. The method now takes a `KeySetResolver` and
+  throws `UnknownKeySetException` (`12001`) for an unknown keyset id.
 
 - **NUT-13 derivation silently produced unrecoverable secrets for a version 2 keyset.**
   `SecretFactory` applied version 1 derivation to any keyset id, so a version 2 keyset yielded
