@@ -9,16 +9,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
+---
 
-- **NUT-00 `hash_to_curve` now hashes the UTF-8 bytes of the secret string.** It previously
-  hex-decoded any secret that was not a NUT-10 well-known secret, so every proof this library issued
-  committed to a different curve point `Y` than Nutshell or cashu-ts computes for the same secret.
-  The NUT-12 vectors and the Nutshell interoperability harness both adjudicated the encoding; see
-  [ADR 0001](docs/explanation/adr/0001-hash-to-curve-secret-encoding.md)
-  ([#242](https://github.com/398ja/cashu-lib/issues/242)).
+## [0.22.0] - 2026-08-28
+
+Milestones 1 and 2 of the NUT compliance plan. This release changes wire formats in
+five places so that tokens, proofs, keysets, quotes and errors this library produces
+match what every other Cashu implementation produces. **It contains a breaking change
+to the error type and error wire format — see *Removed* below.**
+
+### Removed
+
+- **BREAKING CHANGE: `xyz.tcheeric.cashu.common.util.Error` and
+  `xyz.tcheeric.cashu.common.json.deserializer.ErrorDeserializer` are removed**, replaced by
+  `xyz.tcheeric.cashu.entities.rest.ErrorResponse`. The error wire format changes shape:
+  it is now the NUT-00 body `{"detail": <string>, "code": <int>}`, serialized through Jackson.
+  **Any consumer that constructs, parses or asserts on the old error format will not compile
+  or will not parse this format.** In particular a consumer that declares its own class at
+  `xyz.tcheeric.cashu.entities.rest.ErrorResponse` now collides with the library's, and a
+  consumer reading a `code`/`message` string pair must be changed to read `detail`/`code`.
 
 ### Added
+
+- **NUT-00 error responses now carry the spec's numeric codes.** `ErrorResponse` serializes
+  `{"detail": <str>, "code": <int>}` through Jackson, so a detail containing quotes or
+  backslashes stays valid JSON — it must never be built with string formatting. `CashuErrorCode`
+  carries the numeric codes from the spec's `error_codes.md`, and each code also carries the HTTP
+  status a mint returns with it, so a REST layer can map a failure directly rather than
+  reconstructing the mapping. The previous string keys survive as the enum constant names, so
+  downstream switch sites over the names keep compiling. `CashuErrorException` now carries the
+  `CashuErrorCode` as a field, removing the need to re-parse an exception message
+  ([#243](https://github.com/398ja/cashu-lib/issues/243)).
 
 - `SecretEncoding` names the two byte encodings a secret can be fed to `hash_to_curve` under, and
   makes the migration explicit: `SecretEncoding.forIssuance()` returns the spec (UTF-8) encoding and
@@ -31,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Official NUT test vectors now run on every build.** The cashubtc/nuts vectors are vendored at
   pinned commit `49a909c` under `cashu-lib-common/src/test/resources/vectors/cashubtc-nuts/` and
   driven by parameterized tests for NUT-00, 01, 02, 11, 12 and 13, so a mismatch fails
-  `mvn verify`. Four of them fail today and are left failing deliberately: they are the instrument
+  `mvn verify`. The remaining failures are left failing deliberately: they are the instrument
   for the encoding and wire-format decisions they expose, documented in
   [What the NUT test vectors cannot pin down](docs/reference/nut-test-vector-coverage.md), which
   also records the properties the vectors cannot adjudicate.
@@ -49,7 +70,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `final_expiry`. `fromKeySet` propagates the fee from the source keyset, and `final_expiry` is
   omitted from the JSON when absent rather than serialized as `null`.
 
+- **NUT-04 and NUT-05 quote responses are complete.** `PostMintQuoteResponse` and
+  `PostMeltQuoteResponse` now carry the fields NUT-04, NUT-05 and NUT-23 require, and
+  `MeltQuoteState` names the states a melt quote can hold — `PENDING` among them, so a wallet
+  can finally tell an in-flight payment from a settled one
+  ([#244](https://github.com/398ja/cashu-lib/issues/244)).
+
 ### Fixed
+
+- **NUT-00 `hash_to_curve` now hashes the UTF-8 bytes of the secret string.** It previously
+  hex-decoded any secret that was not a NUT-10 well-known secret, so every proof this library issued
+  committed to a different curve point `Y` than Nutshell or cashu-ts computes for the same secret.
+  The NUT-12 vectors and the Nutshell interoperability harness both adjudicated the encoding; see
+  [ADR 0001](docs/explanation/adr/0001-hash-to-curve-secret-encoding.md)
+  ([#242](https://github.com/398ja/cashu-lib/issues/242)).
+
+- **TokenV4 CBOR wrote its top-level keys in the wrong order.** `TokenV4CborEncoder` emitted
+  `t,m,u,d` where NUT-00 orders them `t,d,m,u`, so our tokens decoded identically but were
+  byte-different from the published ones and any byte-level comparison against another
+  implementation disagreed. Decoding is unaffected and stays order-tolerant, so no
+  already-issued token stops parsing
+  ([#250](https://github.com/398ja/cashu-lib/issues/250)).
+
+- **P2PK proofs from other implementations could not be read.** Every published example uses
+  both of the wire forms this library rejected: `n_sigs` written as a JSON string (`"2"`) was
+  refused as not-an-integer, though NUT-11 writes tag values as strings throughout, and a
+  witness arriving as a JSON-encoded string had no deserializer at all. `WitnessDeserializer`
+  now accepts the JSON-encoded string form alongside the nested object this library emits, and
+  reads an empty string as a null witness rather than an empty one
+  ([#251](https://github.com/398ja/cashu-lib/issues/251)).
 
 - **Input fees were computed from a single caller-supplied keyset.**
   `PostInputRequest.getFees(KeySet)` applied one keyset's fee to every input and checked the
