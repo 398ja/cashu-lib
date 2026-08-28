@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Official NUT test vectors now run on every build.** The cashubtc/nuts vectors are vendored at
+  pinned commit `49a909c` under `cashu-lib-common/src/test/resources/vectors/cashubtc-nuts/` and
+  driven by parameterized tests for NUT-00, 01, 02, 11, 12 and 13, so a mismatch fails
+  `mvn verify`. Four of them fail today and are left failing deliberately: they are the instrument
+  for the encoding and wire-format decisions they expose, documented in
+  [What the NUT test vectors cannot pin down](docs/reference/nut-test-vector-coverage.md), which
+  also records the properties the vectors cannot adjudicate.
+
 - `KeysetIdVersion` resolves the NUT-02 keyset id version from the leading version byte and id
   length, and `KeysetId.getVersion()` exposes it. `KeysetId` now accepts version 2 ids
   (66 hex characters) in addition to version 1 ids (16 hex characters).
