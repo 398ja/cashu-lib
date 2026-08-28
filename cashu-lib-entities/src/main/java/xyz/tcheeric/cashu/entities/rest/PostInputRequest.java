@@ -9,9 +9,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import xyz.tcheeric.cashu.common.KeySet;
 import xyz.tcheeric.cashu.common.Proof;
 import xyz.tcheeric.cashu.common.Secret;
+import xyz.tcheeric.cashu.common.nut02.InputFeeCalculator;
+import xyz.tcheeric.cashu.common.nut02.KeySetResolver;
+import xyz.tcheeric.cashu.common.nut02.UnknownKeySetException;
 
 import java.util.List;
 
@@ -32,17 +34,14 @@ public abstract class PostInputRequest<T extends Secret> {
     @Valid
     private List<Proof<T>> inputs;
 
-    public int getFees(@NonNull KeySet keySet) {
-        int sum_fees = 0;
-        for (Proof<T> proof : inputs) {
-            String keysetId = proof.getKeySetId();
-
-            assert keysetId.equals(keySet.getId()) : "Keyset and proof keyset id do not match";
-
-            sum_fees += keySet.getPartPerThousand();
-        }
-
-        return Math.floorDiv (sum_fees + 999, 1000);
+    /**
+     * Returns the NUT-02 input fee for these inputs, pricing each proof against its own keyset.
+     *
+     * @param keySetResolver resolves a keyset id to the keyset that issued it
+     * @throws UnknownKeySetException when an input names a keyset the resolver does not know
+     */
+    public int getFees(@NonNull KeySetResolver keySetResolver) throws UnknownKeySetException {
+        return new InputFeeCalculator(keySetResolver).calculateFee(inputs);
     }
 
 }
