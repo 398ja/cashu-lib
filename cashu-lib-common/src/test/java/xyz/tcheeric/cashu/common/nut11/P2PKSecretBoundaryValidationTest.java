@@ -154,9 +154,10 @@ class P2PKSecretBoundaryValidationTest {
             // RandomStringSecret. A rejected P2PK lock taking that path loses its spending
             // condition entirely, leaving the proof spendable by anyone holding it.
             //
-            // Reaching the fall-through is detectable: RandomStringSecret.fromString hex-decodes
-            // its input, so the JSON array surfaces as a DecoderException instead of the
-            // validation failure. Either outcome means the lock was dropped rather than refused.
+            // The fall-through used to be self-announcing, because RandomStringSecret.fromString
+            // hex-decoded its input and a JSON array is not hex. It now accepts any UTF-8 string
+            // (NUT-00 only recommends hex), so the fall-through would succeed silently and this
+            // assertion is the only thing standing between a malformed lock and a bearer secret.
             assertThatThrownBy(() -> SecretUtil.toSecret(nut10("deadbeef", "")))
                     .as("must fail validation, not fall through to an unlocked secret")
                     .isInstanceOf(MalformedP2PKSecretException.class);

@@ -9,6 +9,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING CHANGE: `RandomStringSecret.getData()` and `getBytes()` now return the UTF-8 bytes of
+  the secret string, not the bytes a hex secret decodes to.** For the 64-character hex secret NUT-00
+  recommends, a caller that previously received 32 decoded bytes now receives 64 ASCII bytes. **This
+  break is silent: it changes the bytes returned rather than failing to compile**, so a caller that
+  derives anything from `getData()` will keep running and produce different results. The new value is
+  the one `hash_to_curve` actually consumes, matching `SecretEncoding.SPEC` (ADR 0001), so the
+  storage and hashing layers now agree by construction. A caller that genuinely wants the entropy
+  behind a hex secret must hex-decode `toString()` itself.
+- `RandomStringSecret.fromBytes(byte[])` is deprecated in favour of `fromEntropy(byte[])`. The old
+  name was ambiguous in exactly the place the defect lived: it takes *random bytes to hex-encode*,
+  not *the bytes of a secret string*. Use `fromString(String)` for the latter.
+
+### Fixed
+
+- **NUT-00 secrets are no longer required to be hex.** `RandomStringSecret.fromString` hex-decoded
+  its argument, so deserializing a proof whose secret was not valid hex failed with
+  `exception decoding Hex string` before any protocol logic ran. NUT-00 only *recommends* a
+  64-character hex string; a secret is a UTF-8 string. The secret string is now stored verbatim, so
+  proofs minted by other implementations with non-hex secrets parse, and a secret round-trips
+  byte-exactly, preserving case. Uppercase hex is no longer normalised to lowercase, which would
+  have changed `Y` and made the proof unspendable. Proofs issued under the pre-ADR-0001 legacy hex
+  encoding still verify through `SecretEncoding.verificationOrder()`, covered by a regression test.
+  See ADR 0002 (`docs/explanation/adr/0002-secret-string-storage-encoding.md`).
+
 ---
 
 ## [0.22.0] - 2026-08-28

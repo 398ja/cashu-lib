@@ -22,7 +22,7 @@ class WitnessDeserializerTest {
     @Test
     void shouldReadSignaturesWhenWitnessIsAJsonEncodedString() throws Exception {
         // Arrange
-        String json = "{\"amount\":1,\"secret\":\"9a1f293253e41e9a1f293253e41e9a1f293253e41e9a1f293253e41e9a1f2932\",\"id\":\"009a1f293253e41e\",\"C\":\"c\","
+        String json = "{\"amount\":1,\"secret\":\"s\",\"id\":\"009a1f293253e41e\",\"C\":\"c\","
                 + "\"witness\":\"{\\\"signatures\\\":[\\\"" + SIGNATURE + "\\\"]}\"}";
 
         // Act
@@ -38,7 +38,7 @@ class WitnessDeserializerTest {
     @Test
     void shouldReadSignaturesWhenWitnessIsANestedObject() throws Exception {
         // Arrange
-        String json = "{\"amount\":1,\"secret\":\"9a1f293253e41e9a1f293253e41e9a1f293253e41e9a1f293253e41e9a1f2932\",\"id\":\"009a1f293253e41e\",\"C\":\"c\","
+        String json = "{\"amount\":1,\"secret\":\"s\",\"id\":\"009a1f293253e41e\",\"C\":\"c\","
                 + "\"witness\":{\"signatures\":[\"" + SIGNATURE + "\"]}}";
 
         // Act
@@ -54,7 +54,7 @@ class WitnessDeserializerTest {
     @Test
     void shouldLeaveWitnessNullWhenItIsAnEmptyString() throws Exception {
         // Arrange
-        String json = "{\"amount\":1,\"secret\":\"9a1f293253e41e9a1f293253e41e9a1f293253e41e9a1f293253e41e9a1f2932\",\"id\":\"009a1f293253e41e\",\"C\":\"c\","
+        String json = "{\"amount\":1,\"secret\":\"s\",\"id\":\"009a1f293253e41e\",\"C\":\"c\","
                 + "\"witness\":\"\"}";
 
         // Act

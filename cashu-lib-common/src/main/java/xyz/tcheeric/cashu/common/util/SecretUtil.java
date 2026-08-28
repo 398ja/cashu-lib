@@ -88,7 +88,8 @@ public final class SecretUtil<T extends Secret> {
      * <p>
      * The secret string is the UTF-8 encoding of {@code secret.toString()}, which:
      * <ul>
-     *   <li>For RandomStringSecret: returns 64-char hex string of the random bytes</li>
+     *   <li>For RandomStringSecret: returns the secret string verbatim, typically but not
+     *       necessarily the 64-char hex string NUT-00 recommends</li>
      *   <li>For WellKnownSecret: returns JSON array like ["VOUCHER","hexdata","nonce",[]]</li>
      * </ul>
      *

@@ -70,6 +70,9 @@ class NUT00Tests {
 
     /**
      * Ensures BDHKE hash-to-curve matches the expected points for known inputs.
+     *
+     * <p>The NUT-00 vectors give their messages as raw byte arrays printed as hex, so they are
+     * hex-decoded here rather than being read as secret strings.
      */
     @Test
     void shouldHashMessagesToExpectedCurvePoints() {
@@ -78,8 +81,8 @@ class NUT00Tests {
 
         // Act & Assert
         for (Map.Entry<String, String> vector : vectors) {
-            Secret message = RandomStringSecret.fromString(vector.getKey());
-            String actual = BDHKEUtils.pointToHex(BDHKEUtils.hashToCurve(((RandomStringSecret) message).toBytes()));
+            byte[] message = Hex.decode(vector.getKey());
+            String actual = BDHKEUtils.pointToHex(BDHKEUtils.hashToCurve(message));
             assertEquals(vector.getValue(), actual);
         }
     }
