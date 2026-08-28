@@ -77,18 +77,25 @@ public class VectorDocument {
     }
 
     /**
-     * The first inline {@code h'...'} hex literal in the document.
+     * The first inline {@code h'...'} hex literal written in the document's prose.
      *
-     * <p>Upstream writes the raw binary TokenV4 vector as prose rather than a fenced block.
+     * <p>Upstream writes the raw binary TokenV4 vector as prose rather than a fenced block, while
+     * the fenced blocks use the same {@code h'...'} notation for individual byte fields. Fenced
+     * blocks are therefore excluded, so this returns the whole serialized token rather than the
+     * first keyset id inside a block.
      *
      * @throws IllegalStateException if the document holds no such literal
      */
     public String inlineHexLiteral() {
-        Matcher matcher = INLINE_HEX_LITERAL.matcher(markdown);
+        Matcher matcher = INLINE_HEX_LITERAL.matcher(prose());
         if (!matcher.find()) {
             throw new IllegalStateException("Document contains no inline h'...' hex literal");
         }
         return matcher.group(1);
+    }
+
+    private String prose() {
+        return FENCED_BLOCK.matcher(markdown).replaceAll("");
     }
 
     private static String readResource(String resourcePath) {

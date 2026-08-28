@@ -46,7 +46,7 @@ public final class TokenV4CborEncoder {
     public static byte[] encode(TokenV4 token) {
         var o = new ByteArrayOutputStream();
 
-        // ---- top-level token map: t (always), m, u, d(memo) — each only when non-null ----
+        // ---- top-level token map in NUT-00 order: t, d(memo), m, u — each only when non-null ----
         var tds = token.getTokenDataList();
         int topKeys = (tds != null ? 1 : 0)
                 + (token.getMintUrl() != null ? 1 : 0)
@@ -91,9 +91,9 @@ public final class TokenV4CborEncoder {
                 }
             }
         }
+        if (token.getMemo() != null)    { writeTextString(o, "d"); writeTextString(o, token.getMemo()); }
         if (token.getMintUrl() != null) { writeTextString(o, "m"); writeTextString(o, token.getMintUrl()); }
         if (token.getUnit() != null)    { writeTextString(o, "u"); writeTextString(o, token.getUnit()); }
-        if (token.getMemo() != null)    { writeTextString(o, "d"); writeTextString(o, token.getMemo()); }
         return o.toByteArray();
     }
 }
