@@ -221,10 +221,7 @@ public class P2PKSecret extends WellKnownSecret {
         if (raw == null) {
             return; // absent, or present with no value: the NUT-11 default of 1 applies
         }
-        if (!(raw instanceof Number)) {
-            throw new MalformedP2PKSecretException(tag.name() + " is not an integer");
-        }
-        long threshold = ((Number) raw).longValue();
+        long threshold = asThreshold(tag, raw);
         if (threshold < 1) {
             throw new MalformedP2PKSecretException(
                     tag.name() + " must be a positive integer, got " + threshold);
@@ -232,6 +229,22 @@ public class P2PKSecret extends WellKnownSecret {
         if (threshold > keyCount) {
             throw new MalformedP2PKSecretException(tag.name() + " of " + threshold
                     + " exceeds the " + keyCount + " key(s) in its pathway");
+        }
+    }
+
+    /**
+     * NUT-11 writes every tag value as a JSON string, so {@code "n_sigs": "2"} is the ordinary wire
+     * form and only a value that is not an integer at all is malformed.
+     */
+    private static long asThreshold(P2PKTag tag, Object raw) {
+        if (raw instanceof Number) {
+            return ((Number) raw).longValue();
+        }
+        try {
+            return Long.parseLong(String.valueOf(raw).trim());
+        } catch (NumberFormatException e) {
+            throw new MalformedP2PKSecretException(
+                    tag.name() + " is not an integer, got " + raw, e);
         }
     }
 
