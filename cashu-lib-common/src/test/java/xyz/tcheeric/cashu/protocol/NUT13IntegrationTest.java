@@ -259,7 +259,7 @@ class NUT13IntegrationTest {
 
             // Assert
             assertNotNull(secret);
-            assertEquals(32, secret.getData().length);
+            assertEquals(32, secret.getDerivedBytes().length);
             assertTrue(secret.hasMetadata());
             assertEquals(keysetId, secret.getKeysetId());
             assertEquals(0, secret.getCounter());
@@ -299,7 +299,7 @@ class NUT13IntegrationTest {
             assertNotNull(pair);
             assertNotNull(pair.secret());
             assertNotNull(pair.blindingFactor());
-            assertEquals(32, pair.secret().getData().length);
+            assertEquals(32, pair.secret().getDerivedBytes().length);
             assertEquals(32, pair.blindingFactor().length);
             assertEquals(keysetId, pair.getKeysetId());
             assertEquals(0, pair.getCounter());
@@ -321,9 +321,9 @@ class NUT13IntegrationTest {
             assertNotEquals(secret0, secret1);
             assertNotEquals(secret0, secret99);
             assertNotEquals(secret1, secret99);
-            assertFalse(Arrays.equals(secret0.getData(), secret1.getData()));
-            assertFalse(Arrays.equals(secret0.getData(), secret99.getData()));
-            assertFalse(Arrays.equals(secret1.getData(), secret99.getData()));
+            assertFalse(Arrays.equals(secret0.getDerivedBytes(), secret1.getDerivedBytes()));
+            assertFalse(Arrays.equals(secret0.getDerivedBytes(), secret99.getDerivedBytes()));
+            assertFalse(Arrays.equals(secret1.getDerivedBytes(), secret99.getDerivedBytes()));
         }
 
         @Test
@@ -340,7 +340,7 @@ class NUT13IntegrationTest {
 
             // Assert
             assertNotEquals(secret1, secret2);
-            assertFalse(Arrays.equals(secret1.getData(), secret2.getData()));
+            assertFalse(Arrays.equals(secret1.getDerivedBytes(), secret2.getDerivedBytes()));
         }
 
         @Test
@@ -354,7 +354,7 @@ class NUT13IntegrationTest {
             DeterministicSecret secret = SecretFactory.createDeterministic(masterKey, keysetId, 0);
 
             // Assert
-            assertEquals(32, secret.getData().length);
+            assertEquals(32, secret.getDerivedBytes().length);
         }
     }
 
@@ -379,7 +379,7 @@ class NUT13IntegrationTest {
 
             // Assert
             assertEquals(secret1, secret2);
-            assertArrayEquals(secret1.getData(), secret2.getData());
+            assertArrayEquals(secret1.getDerivedBytes(), secret2.getDerivedBytes());
             assertEquals(secret1.toHexString(), secret2.toHexString());
         }
 
@@ -396,7 +396,7 @@ class NUT13IntegrationTest {
 
             // Assert
             assertEquals(secret1, secret2);
-            assertArrayEquals(secret1.getData(), secret2.getData());
+            assertArrayEquals(secret1.getDerivedBytes(), secret2.getDerivedBytes());
         }
 
         @Test
@@ -440,9 +440,9 @@ class NUT13IntegrationTest {
             assertEquals(initialSecret0, recoveredSecret0);
             assertEquals(initialSecret1, recoveredSecret1);
             assertEquals(initialSecret99, recoveredSecret99);
-            assertArrayEquals(initialSecret0.getData(), recoveredSecret0.getData());
-            assertArrayEquals(initialSecret1.getData(), recoveredSecret1.getData());
-            assertArrayEquals(initialSecret99.getData(), recoveredSecret99.getData());
+            assertArrayEquals(initialSecret0.getDerivedBytes(), recoveredSecret0.getDerivedBytes());
+            assertArrayEquals(initialSecret1.getDerivedBytes(), recoveredSecret1.getDerivedBytes());
+            assertArrayEquals(initialSecret99.getDerivedBytes(), recoveredSecret99.getDerivedBytes());
         }
 
         @Test
@@ -459,7 +459,7 @@ class NUT13IntegrationTest {
 
             // Assert
             assertNotEquals(withoutPassphrase, withPassphrase);
-            assertFalse(Arrays.equals(withoutPassphrase.getData(), withPassphrase.getData()));
+            assertFalse(Arrays.equals(withoutPassphrase.getDerivedBytes(), withPassphrase.getDerivedBytes()));
         }
 
         @Test
@@ -476,7 +476,7 @@ class NUT13IntegrationTest {
 
             // Assert
             assertEquals(secret1, secret2);
-            assertArrayEquals(secret1.getData(), secret2.getData());
+            assertArrayEquals(secret1.getDerivedBytes(), secret2.getDerivedBytes());
         }
     }
 
@@ -556,7 +556,7 @@ class NUT13IntegrationTest {
 
             // Assert
             assertEquals(individual5, batch.get(5));
-            assertArrayEquals(individual5.getData(), batch.get(5).getData());
+            assertArrayEquals(individual5.getDerivedBytes(), batch.get(5).getDerivedBytes());
         }
     }
 
@@ -582,7 +582,7 @@ class NUT13IntegrationTest {
                 masterKey, keysetId, 0);
 
             // Assert - both should produce identical results
-            assertArrayEquals(bipUtilsSecret, factorySecret.getData());
+            assertArrayEquals(bipUtilsSecret, factorySecret.getDerivedBytes());
         }
 
         @Test
@@ -680,7 +680,7 @@ class NUT13IntegrationTest {
 
             // Assert
             assertEquals(original, deserialized);
-            assertArrayEquals(original.getData(), deserialized.getData());
+            assertArrayEquals(original.getDerivedBytes(), deserialized.getDerivedBytes());
         }
 
         @Test
@@ -697,7 +697,7 @@ class NUT13IntegrationTest {
 
             // Assert
             assertEquals(original, roundTripped);
-            assertArrayEquals(original.getData(), roundTripped.getData());
+            assertArrayEquals(original.getDerivedBytes(), roundTripped.getDerivedBytes());
             // Note: metadata is lost during serialization (as expected)
             assertFalse(roundTripped.hasMetadata());
         }
@@ -721,7 +721,7 @@ class NUT13IntegrationTest {
 
             // Assert
             assertEquals(0, secret.getCounter());
-            assertNotNull(secret.getData());
+            assertNotNull(secret.getDerivedBytes());
         }
 
         @Test
@@ -777,7 +777,7 @@ class NUT13IntegrationTest {
 
             // Assert
             assertEquals(withEmptyString, withExplicitEmpty);
-            assertArrayEquals(withEmptyString.getData(), withExplicitEmpty.getData());
+            assertArrayEquals(withEmptyString.getDerivedBytes(), withExplicitEmpty.getDerivedBytes());
         }
 
         @Test

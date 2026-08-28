@@ -41,7 +41,7 @@ class DeterministicSecretTest {
 
         // Assert
         assertNotNull(secret);
-        assertArrayEquals(TEST_SECRET_BYTES, secret.getData());
+        assertArrayEquals(TEST_SECRET_BYTES, secret.getDerivedBytes());
         assertArrayEquals(TEST_SECRET_BYTES, secret.toBytes());
         assertFalse(secret.hasMetadata());
     }
@@ -59,7 +59,7 @@ class DeterministicSecretTest {
 
         // Assert
         assertNotNull(secret);
-        assertArrayEquals(TEST_SECRET_BYTES, secret.getData());
+        assertArrayEquals(TEST_SECRET_BYTES, secret.getDerivedBytes());
         assertEquals(hex, secret.toHexString());
         assertFalse(secret.hasMetadata());
     }
@@ -78,7 +78,7 @@ class DeterministicSecretTest {
 
         // Assert
         assertNotNull(secret);
-        assertArrayEquals(TEST_SECRET_BYTES, secret.getData());
+        assertArrayEquals(TEST_SECRET_BYTES, secret.getDerivedBytes());
         assertTrue(secret.hasMetadata());
         assertEquals(keysetId, secret.getKeysetId());
         assertEquals(counter, secret.getCounter());
@@ -191,7 +191,7 @@ class DeterministicSecretTest {
 
         // Assert
         assertNotNull(secret);
-        assertArrayEquals(TEST_SECRET_BYTES, secret.getData());
+        assertArrayEquals(TEST_SECRET_BYTES, secret.getDerivedBytes());
         assertEquals(TEST_SECRET_HEX, secret.toHexString());
     }
 
@@ -213,7 +213,7 @@ class DeterministicSecretTest {
 
         // Assert
         assertEquals(original.toHexString(), deserialized.toHexString());
-        assertArrayEquals(original.getData(), deserialized.getData());
+        assertArrayEquals(original.getDerivedBytes(), deserialized.getDerivedBytes());
         assertFalse(deserialized.hasMetadata());
     }
 
@@ -351,7 +351,7 @@ class DeterministicSecretTest {
         DeterministicSecret secret = DeterministicSecret.fromBytes(TEST_SECRET_BYTES);
 
         // Act
-        byte[] data = secret.getData();
+        byte[] data = secret.getDerivedBytes();
 
         // Assert
         assertNotNull(data);

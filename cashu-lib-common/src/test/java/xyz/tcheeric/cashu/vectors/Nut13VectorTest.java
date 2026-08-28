@@ -77,7 +77,7 @@ class Nut13VectorTest {
         DeterministicKey masterKey = masterKey();
 
         // Act
-        byte[] secret = SecretFactory.createDeterministic(masterKey, keysetId(), vector.getCounter()).getData();
+        byte[] secret = SecretFactory.createDeterministic(masterKey, keysetId(), vector.getCounter()).getDerivedBytes();
 
         // Assert
         assertThat(Utils.bytesToHexString(secret)).isEqualTo(vector.getSecret());

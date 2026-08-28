@@ -7,6 +7,7 @@ import xyz.tcheeric.cashu.common.BaseKey;
 import xyz.tcheeric.cashu.common.KeysetId;
 import xyz.tcheeric.cashu.common.Secret;
 import xyz.tcheeric.cashu.common.SecretDerivationPath;
+import java.nio.charset.StandardCharsets;
 
 /**
  * DeterministicSecret represents a secret derived from a BIP39 mnemonic using BIP32 derivation paths.
@@ -158,8 +159,31 @@ public class DeterministicSecret extends BaseKey implements Secret {
         );
     }
 
+    /**
+     * Returns the bytes {@code hash_to_curve} consumes, which are the UTF-8 bytes of the
+     * hex string this secret is transmitted as.
+     *
+     * <p>Deliberately not the 32 derived bytes. Those are the derivation output and remain
+     * available through {@link #getDerivedBytes()}, but a proof commits to
+     * {@code hash_to_curve(secret_string)}, and the secret string here is the hex encoding
+     * produced by {@link #toString()}. Returning the raw derived bytes would make a wallet
+     * blind against one curve point and tell the mint about another, which loses funds
+     * silently rather than failing.
+     *
+     * @see xyz.tcheeric.cashu.crypto.SecretEncoding
+     */
     @Override
     public byte[] getData() {
+        return toString().getBytes(StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Returns the raw bytes produced by NUT-13 derivation, before hex encoding.
+     *
+     * <p>This is the derivation output, not the bytes hashed to the curve. Use
+     * {@link #getData()} for anything cryptographic on the proof.
+     */
+    public byte[] getDerivedBytes() {
         return this.getBytes();
     }
 
