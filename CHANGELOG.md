@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [0.28.0] - 2026-08-29
 
 ### Fixed
 
@@ -96,7 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See [ADR 0003](docs/explanation/adr/0003-nut10-secret-serialization.md), including which callers
 must re-derive secrets before upgrading.
 
-## [Unreleased]
+## [0.28.0] - 2026-08-29
 
 ---
 
