@@ -125,7 +125,12 @@ public enum CashuErrorCode {
     proofs_not_bound(90021, 500, "Failed to durably bind every input proof to the melt saga"),
     sign_private_key_not_found(90022, 500, "Private key not found"),
     melt_proof_amount_error(90023, 400, "Proof amount error"),
-    melt_proof_refund_failed(90024, 500, "Failed to refund melt proofs");
+    melt_proof_refund_failed(90024, 500, "Failed to refund melt proofs"),
+    voucher_not_accepted(90025, 400, "Voucher must be redeemed with the issuing merchant"),
+    iou_not_meltable(90026, 400, "Merchant IOU proofs cannot be melted"),
+    unsupported_proof_type(90027, 400, "Proof carries a spending condition this mint cannot evaluate"),
+    invalid_blind_signature(90028, 500, "Mint produced a malformed blind signature"),
+    payment_unknown(90029, 500, "Payment outcome is unknown and awaiting operator review");
 
     /** First code reserved for errors this implementation raises that the NUT registry lacks. */
     public static final int EXTENSION_RANGE_START = 90000;
