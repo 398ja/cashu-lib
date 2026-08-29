@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   not tell which fee it had agreed to. Under v2 a changed fee is a different keyset by construction.
   All three published v2 vectors pass, including the zero-fee case the spec says MUST be omitted
   from the preimage and the vector that publishes no final expiry at all.
+- **NUT-13 HMAC-SHA256 derivation for v2 keysets** (#247). v1 keysets derive secrets through BIP32
+  and v2 keysets through this KDF; `SecretFactory.createDeterministic(seed, masterKey, ...)`
+  dispatches on the version. Without it, issuing a v2 keyset would leave every wallet unable to
+  recover from it, and a wrongly-derived recovery is indistinguishable from an empty wallet. Driven
+  by the published NUT-13 v2 vectors, which were already vendored but never exercised.
+- A TokenV4 carries a 33-byte v2 keyset id without truncating it, now asserted rather than assumed.
 
 ## [0.25.0] - 2026-08-29
 

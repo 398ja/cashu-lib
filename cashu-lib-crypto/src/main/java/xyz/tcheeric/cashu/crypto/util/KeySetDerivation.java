@@ -10,6 +10,16 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * Derives a NUT-02 keyset id.
+ *
+ * <p>{@link #getId(Map)} is the version 1 derivation over the public keys alone. New keysets
+ * should be derived through {@link KeySetIdV2Derivation}, which commits to the keyset's unit, fee
+ * and expiry as well, so a changed fee is a different keyset rather than the same one behaving
+ * differently.
+ *
+ * @see <a href="https://github.com/cashubtc/nuts/blob/main/02.md">NUT-02</a>
+ */
 @AllArgsConstructor
 public class KeySetDerivation {
 

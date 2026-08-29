@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import xyz.tcheeric.bips.bip32.nut.Nut13Derivation;
 import xyz.tcheeric.bips.bip39.Bip39;
 import xyz.tcheeric.cashu.common.KeysetId;
+import xyz.tcheeric.cashu.common.nut13.Nut13HmacDerivation;
 import xyz.tcheeric.cashu.common.util.SecretFactory;
 import xyz.tcheeric.cashu.crypto.util.Utils;
 
@@ -20,8 +21,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * NUT-13 vectors: deterministic secrets and blinding factors derived from a mnemonic.
  *
- * <p>Only the version 1 derivation is exercised. Version 2 keyset ids and the P2PK derivation are
- * not implemented (issues #247 and #248) and their vectors are recorded as uncovered in
+ * <p>Both derivations are exercised: version 1 keysets derive through BIP32 and version 2 keysets
+ * through the HMAC-SHA256 KDF. The P2PK derivation is still uncovered and is recorded in
  * {@code docs/reference/nut-test-vector-coverage.md}.
  *
  * @see <a href="https://github.com/cashubtc/nuts/blob/main/tests/13-tests.md">NUT-13 test vectors</a>
@@ -35,6 +36,11 @@ class Nut13VectorTest {
     private static final int SECRET_BLOCK = 2;
     private static final int BLINDING_FACTOR_BLOCK = 3;
     private static final int DERIVATION_PATH_BLOCK = 4;
+    private static final int V2_MNEMONIC_BLOCK = 5;
+    private static final int V2_SECRET_BLOCK = 6;
+    private static final int V2_BLINDING_FACTOR_BLOCK = 7;
+    private static final String V2_KEYSET_ID =
+            "015ba18a8adcd02e715a58358eb618da4a4b3791151a4bee5e968bb88406ccf76a";
     private static final int COUNTER_COUNT = 5;
 
     private static final String EMPTY_PASSPHRASE = "";
@@ -49,6 +55,56 @@ class Nut13VectorTest {
                         secrets.get("secret_" + counter),
                         blindingFactors.get("r_" + counter),
                         derivationPaths.get("derivation_path_" + counter)));
+    }
+
+    static Stream<CounterVector> versionTwoCounterVectors() {
+        Map<String, String> secrets = jsonFields(V2_SECRET_BLOCK);
+        Map<String, String> blindingFactors = jsonFields(V2_BLINDING_FACTOR_BLOCK);
+        return IntStream.range(0, COUNTER_COUNT)
+                .mapToObj(counter -> new CounterVector(
+                        counter,
+                        secrets.get("secret_" + counter),
+                        blindingFactors.get("r_" + counter),
+                        null));
+    }
+
+    /**
+     * Ensures each counter derives the published secret for a version 2 keyset, which uses the
+     * HMAC-SHA256 KDF rather than BIP32.
+     */
+    @ParameterizedTest(name = "counter {0}")
+    @MethodSource("versionTwoCounterVectors")
+    void shouldDerivePublishedSecretWhenKeysetIsVersionTwo(CounterVector vector) {
+        // Arrange
+        byte[] seed = versionTwoSeed();
+
+        // Act
+        byte[] secret = Nut13HmacDerivation.deriveSecret(
+                seed, Nut13HmacDerivation.KeysetIdBytes.of(V2_KEYSET_ID), vector.getCounter());
+
+        // Assert
+        assertThat(Utils.bytesToHexString(secret)).isEqualTo(vector.getSecret());
+    }
+
+    /**
+     * Ensures each counter derives the published blinding factor for a version 2 keyset.
+     */
+    @ParameterizedTest(name = "counter {0}")
+    @MethodSource("versionTwoCounterVectors")
+    void shouldDerivePublishedBlindingFactorWhenKeysetIsVersionTwo(CounterVector vector) {
+        // Arrange
+        byte[] seed = versionTwoSeed();
+
+        // Act
+        byte[] blindingFactor = Nut13HmacDerivation.deriveBlindingFactor(
+                seed, Nut13HmacDerivation.KeysetIdBytes.of(V2_KEYSET_ID), vector.getCounter());
+
+        // Assert
+        assertThat(Utils.bytesToHexString(blindingFactor)).isEqualTo(vector.getBlindingFactor());
+    }
+
+    private static byte[] versionTwoSeed() {
+        return Bip39.mnemonicToSeed(jsonFields(V2_MNEMONIC_BLOCK).get("mnemonic"), EMPTY_PASSPHRASE);
     }
 
     /**
