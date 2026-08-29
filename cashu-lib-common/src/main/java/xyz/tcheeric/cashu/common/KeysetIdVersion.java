@@ -7,9 +7,14 @@ import java.util.Locale;
 /**
  * NUT-02 keyset identifier versions, distinguished by the leading version byte of the id.
  *
- * <p>Version {@code 0x00} ids are 8 bytes (16 hex characters) and are the only form this
- * library derives NUT-13 deterministic secrets for. Version {@code 0x01} ids are 33 bytes
- * (66 hex characters) and use a different NUT-13 derivation, which is not implemented yet.
+ * <p>Version {@code 0x00} ids are 8 bytes (16 hex characters), derived from the public keys alone.
+ * Version {@code 0x01} ids are 33 bytes (66 hex characters), derived over the keys and the keyset's
+ * metadata, so a keyset's fee and expiry are part of its identity rather than mutable alongside it.
+ *
+ * <p>Both are derivable ({@code KeySetDerivation} and {@code KeySetIdV2Derivation}). NUT-13
+ * deterministic secrets are still v1-only: v2 keysets use HMAC-SHA256 rather than BIP32, which is
+ * tracked separately, and derivation fails loudly on a v2 id rather than silently deriving the
+ * wrong secrets.
  */
 @Getter
 public enum KeysetIdVersion {

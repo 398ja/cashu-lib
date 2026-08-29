@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- **NUT-02 keyset ID v2 derivation** (#247). `KeySetIdV2Derivation` derives the 33-byte `01`-prefixed
+  id over the keys *and* the keyset metadata. That is the point of the version: under v1 a mint
+  could change `input_fee_ppk` while keeping the same keyset id, so a wallet holding a proof could
+  not tell which fee it had agreed to. Under v2 a changed fee is a different keyset by construction.
+  All three published v2 vectors pass, including the zero-fee case the spec says MUST be omitted
+  from the preimage and the vector that publishes no final expiry at all.
+
 ## [0.25.0] - 2026-08-29
 
 ### Added
