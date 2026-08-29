@@ -9,6 +9,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [0.23.0] - 2026-08-29
+
+> ## ⚠️ FUND-LOSS FIX — UPGRADE IMMEDIATELY, SKIP 0.22.0
+>
+> **Do not run 0.22.0.** On 0.22.0 a NUT-13 deterministic wallet blinded against one curve
+> point and told the mint about another. The consequences were silent, not loud:
+> `/checkstate` **reported already-SPENT proofs as spendable balance**, and NUT-13 restore
+> **recovered nothing** while appearing to succeed. Both failure modes lose funds without
+> raising an error.
+>
+> **Required consumer action:** upgrade to 0.23.0, then re-derive and re-check every
+> deterministic proof produced under 0.22.0. Any balance figure computed on 0.22.0 must be
+> treated as untrusted until re-verified against the mint.
+
+### Fixed
+
+- **BREAKING CHANGE / FUND LOSS: `DeterministicSecret.getData()` now returns the UTF-8 bytes of
+  the hex string the secret is transmitted as, rather than the 32 raw derived bytes** (`6e23f51`).
+  A proof commits to `hash_to_curve(secret_string)`, and for a NUT-13 secret that string is the
+  hex encoding returned by `toString()`. Feeding the raw derived bytes to `hash_to_curve` produced
+  a different `Y` than the one the mint computes from the transmitted secret, so the wallet's
+  view of proof state and the mint's view disagreed: spent proofs looked spendable to
+  `/checkstate`, and `/restore` matched nothing. See
+  [cashu-wallet#40](https://github.com/398ja/cashu-wallet/issues/40) and the audit in
+  `cashu-wallet` at `docs/explanation/cashu-lib-0.22.0-secret-encoding-audit.md`.
+- **This break is silent at compile time.** `getData()` keeps its signature and returns different
+  bytes, so a caller deriving anything from it keeps compiling and starts producing different
+  results. Every call site must be reviewed rather than assumed correct.
+
+### Added
+
+- `DeterministicSecret.getDerivedBytes()` returns the raw NUT-13 derivation output, before hex
+  encoding. This is the only supported way to reach the pre-0.23.0 `getData()` value, and it must
+  not be used for anything cryptographic on a proof.
+
+- **Five extension error codes reserved for mint-specific conditions** in the 90000 range:
+  `voucher_not_accepted` (90025), `iou_not_meltable` (90026), `unsupported_proof_type` (90027),
+  `invalid_blind_signature` (90028) and `payment_unknown` (90029). Without them a mint has to
+  collapse five distinct failures into `internal_error`, which tells a client nothing about what
+  went wrong or whether retrying helps. Purely additive; no existing code or HTTP status changes.
+  Needed by the `cashu-mint` error-code migration
+  ([#398](https://github.com/398ja/cashu-mint/issues/398),
+  [#388](https://github.com/398ja/cashu-mint/issues/388)).
+
 ### Changed
 
 - **BREAKING CHANGE: `RandomStringSecret.getData()` and `getBytes()` now return the UTF-8 bytes of
@@ -38,6 +84,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [0.22.0] - 2026-08-28
+
+> ## ⛔ SKIP THIS VERSION
+>
+> 0.22.0 loses funds on NUT-13 deterministic wallets: `DeterministicSecret.getData()` returned
+> the raw derived bytes instead of the transmitted secret string, so spent proofs were reported
+> as spendable balance and restore recovered nothing. Anyone on 0.22.0 is exposed. Go straight
+> to 0.23.0.
 
 Milestones 1 and 2 of the NUT compliance plan. This release changes wire formats in
 five places so that tokens, proofs, keysets, quotes and errors this library produces
