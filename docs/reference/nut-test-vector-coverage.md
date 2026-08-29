@@ -16,7 +16,7 @@ currently fail.
 | 11 | P2PK secret parsing and validation; BIP-340 verification of a valid and an invalid `SIG_INPUTS` signature; the two published `SIG_ALL` message digests | Whether a proof is *spendable*: locktime evaluation, threshold counting across the main and refund pathways, HTLC preimages. That logic lives in `cashu-mint`, which drives those vectors from its own suite |
 | 12 | `hash_e`, the deterministic nonce vector, DLEQ on a `BlindSignature` and on a `Proof` | Mint-side proof *generation*, which is nondeterministic and has no published vector |
 | 13 | Version 1 and version 2 secret and blinding-factor derivation for counters 0–4, and the version 1 derivation paths | The NUT-20 P2PK derivation path; counter persistence and restore gap handling, which are wallet concerns |
-| 18 | Decoding all seven published payment requests | Re-encoding, which fails on two of them (issue #255) |
+| 18 | Decoding all seven published payment requests, re-encoding each to the same CBOR structure, and definite-length map encoding | Byte-exact re-encoding, since NUT-18 fixes no key order and the published vectors do not agree on one |
 | 20 | The published `msg_to_sign` bytes, its SHA-256 hash, and verification of the published signature | The deterministic quote-locking key derivation `m/129373'/20'/0'/0'/{counter}`, which is a wallet concern (cashu-wallet#41) |
 
 ## NUTs with no vendored vectors
@@ -53,15 +53,12 @@ standing instrument for that decision, now passes.
 
 ## Currently failing vectors
 
-Left failing deliberately. Each is a library defect the vectors exposed, kept as the standing
-evidence for its issue rather than hidden.
+None. Every vendored vector passes.
 
-| Test | What it shows | Issue |
-| --- | --- | --- |
-| `Nut18VectorTest.shouldReEncodeToThePublishedString` (2 of 7 vectors) | Payment requests serialize as indefinite-length CBOR maps (`bf ... ff`) where the spec uses definite-length (`a5`), and an empty transport array is emitted where the spec omits the field. Both decode correctly, so only the byte comparison catches them | [#255](https://github.com/398ja/cashu-lib/issues/255) |
-
-Every other vector passes. The NUT-00 CBOR key ordering, the NUT-11 P2PK wire forms and the NUT-12
-secret encoding were all found this way and have since been fixed; see issues #250, #251 and #242.
+The NUT-00 CBOR key ordering, the NUT-11 P2PK wire forms, the NUT-12 secret encoding and the NUT-18
+payment request encoding were all found this way and have since been fixed; see issues #250, #251,
+#242 and #255. Each was invisible to a round-trip test, because each produced output this library
+decoded perfectly and no other implementation reproduced.
 
 ## Refreshing the vectors
 

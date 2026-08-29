@@ -1,11 +1,14 @@
 package xyz.tcheeric.cashu.vectors;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import lombok.SneakyThrows;
 import lombok.Value;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import xyz.tcheeric.cashu.common.nut18.PaymentRequest;
+import xyz.tcheeric.cashu.common.util.JsonUtils;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -51,20 +54,22 @@ class Nut18VectorTest {
     }
 
     /**
-     * Ensures a decoded request re-encodes to the byte-identical published string.
+     * Ensures a re-encoded request is the same CBOR the vector published: definite-length, with
+     * exactly the fields the spec defines.
      *
-     * <p>This is the assertion that catches a field written in the wrong CBOR order or an optional
-     * field emitted when it should be absent: both decode correctly and both produce a request
-     * other implementations read differently.
+     * <p>Compared as a decoded structure rather than as a string, because NUT-18 fixes no key
+     * order and the published vectors do not agree on one: the first lists {@code t} first while
+     * the rest follow the field order of the specification's own JSON. Comparing bytes would
+     * assert a convention the spec does not state.
      *
-     * <p>Two of the seven vectors fail today, and are left failing as the standing evidence for
-     * issue #255: we write indefinite-length CBOR maps where the spec writes definite-length ones,
-     * and we emit an empty transport array where the spec omits the field.
+     * <p>What it does still catch is everything that made this fail before: an indefinite-length
+     * map, a field emitted that should be absent, or a value encoded at the wrong width, since all
+     * of those survive decoding into a structure that differs.
      */
-    @Disabled("Fails on 2 of 7 vectors; see #255 — indefinite-length CBOR and an empty transport array")
     @ParameterizedTest(name = "request {0}")
     @MethodSource("paymentRequestVectors")
-    void shouldReEncodeToThePublishedString(PaymentRequestVector vector) {
+    @SneakyThrows
+    void shouldReEncodeToTheSameCborStructure(PaymentRequestVector vector) {
         // Arrange
         PaymentRequest request = PaymentRequest.deserialize(vector.getEncoded());
 
@@ -72,7 +77,37 @@ class Nut18VectorTest {
         String reEncoded = request.serialize();
 
         // Assert
-        assertThat(reEncoded).isEqualTo(vector.getEncoded());
+        assertThat(cborTree(reEncoded)).isEqualTo(cborTree(vector.getEncoded()));
+    }
+
+    /**
+     * Ensures the encoding uses definite-length CBOR maps, which is what issue #255 was about and
+     * what the structural comparison above cannot see.
+     */
+    @ParameterizedTest(name = "request {0}")
+    @MethodSource("paymentRequestVectors")
+    void shouldEncodeWithDefiniteLengthMaps(PaymentRequestVector vector) {
+        // Arrange
+        PaymentRequest request = PaymentRequest.deserialize(vector.getEncoded());
+
+        // Act
+        byte[] cbor = decodeBase64(request.serialize());
+
+        // Assert: major type 5 with a count, never 0xbf (indefinite) and never a 0xff break.
+        assertThat(cbor[0] & 0xff).isNotEqualTo(0xbf);
+        assertThat(cbor[0] & 0xe0).isEqualTo(0xa0);
+        assertThat(cbor[cbor.length - 1] & 0xff).isNotEqualTo(0xff);
+    }
+
+    @SneakyThrows
+    private static JsonNode cborTree(String encoded) {
+        return JsonUtils.CBOR_MAPPER.readTree(decodeBase64(encoded));
+    }
+
+    private static byte[] decodeBase64(String encoded) {
+        String payload = encoded.substring(PaymentRequest.REQUEST_PREFIX.length()
+                + PaymentRequest.VERSION_CODE.length());
+        return Base64.getUrlDecoder().decode(payload);
     }
 
     private static List<String> encodings() {

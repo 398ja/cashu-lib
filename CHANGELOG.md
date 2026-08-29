@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **NUT-18 payment requests are encoded as definite-length CBOR** (#255), matching the published
+  vectors, and carry only the fields NUT-18 defines. Jackson wrote indefinite-length maps and
+  serialized every public getter, so each transport gained `type`, `nostr` and `httpPost` entries
+  from methods that exist for callers rather than for the wire. Both survived decoding, so only a
+  comparison against the published bytes could see them.
+
 ### Added
 
 - **NUT-18 and NUT-20 test vectors are vendored and driven**, completing the vector coverage for
@@ -18,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The NUT-18 vectors immediately found a real defect: payment requests serialize as
   indefinite-length CBOR where the spec uses definite-length, and emit an empty transport array
   where the spec omits the field. Both decode correctly, so only a byte comparison catches them.
-  Filed as #255, with the re-encoding test left in place as its standing evidence.
+  Fixed by `PaymentRequestCborEncoder` (#255).
 
 ## [0.26.0] - 2026-08-29
 
