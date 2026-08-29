@@ -30,3 +30,5 @@ The documentation for cashu-lib follows the Diátaxis framework and is organized
 
 ### Architecture Decision Records
 - [ADR 0001: hash_to_curve hashes the UTF-8 bytes of the secret string](explanation/adr/0001-hash-to-curve-secret-encoding.md)
+- [ADR 0002: a secret is stored as the bytes of the string it arrived as](explanation/adr/0002-secret-string-storage-encoding.md)
+- [ADR 0003: NUT-10 secrets keep the string they arrived as](explanation/adr/0003-nut10-secret-serialization.md)

@@ -56,7 +56,7 @@ public final class SecretUtil<T extends Secret> {
                 try {
                     // Parse as JSON array and convert to WellKnownSecret
                     List<?> list = MAPPER.readValue(trimmed, new TypeReference<List<?>>() {});
-                    return listToSecret(list);
+                    return rememberingWireString(listToSecret(list), str);
                 } catch (MalformedP2PKSecretException e) {
                     // MUST NOT fall through. The fall-through treats the input as a NUT-00 random
                     // string, which carries no spending condition at all - so a P2PK lock we just
@@ -84,14 +84,25 @@ public final class SecretUtil<T extends Secret> {
     }
 
     /**
-     * Computes Y = hash_to_curve(secret_string) per Cashu spec.
+     * Records the string a secret was parsed from, so that hashing and signing use the bytes that
+     * actually arrived rather than this library's re-encoding of them.
+     *
+     * @return the same secret, for chaining
+     */
+    private static <T extends Secret> T rememberingWireString(T secret, String wireString) {
+        if (secret instanceof WellKnownSecret wellKnown) {
+            wellKnown.rememberWireString(wireString);
+        }
+        return secret;
+    }
+
+    /**
+     * Computes {@code Y = hash_to_curve(secret_string)} per NUT-00.
      * <p>
-     * The secret string is the UTF-8 encoding of {@code secret.toString()}, which:
-     * <ul>
-     *   <li>For RandomStringSecret: returns the secret string verbatim, typically but not
-     *       necessarily the 64-char hex string NUT-00 recommends</li>
-     *   <li>For WellKnownSecret: returns JSON array like ["VOUCHER","hexdata","nonce",[]]</li>
-     * </ul>
+     * The secret string is {@code secret.toString()}, which for a secret parsed off the wire is the
+     * exact string that arrived, and for a constructed secret is its canonical encoding: verbatim
+     * for a {@link RandomStringSecret}, and NUT-10's {@code [kind, {nonce, data, tags}]} for a
+     * {@link WellKnownSecret}.
      *
      * @param secret the secret
      * @return hex-encoded Y point on secp256k1 curve
@@ -118,8 +129,8 @@ public final class SecretUtil<T extends Secret> {
      * <p>
      * Supports two formats:
      * <ol>
-     *   <li>Legacy format: ["KIND", {"nonce": "...", "data": "...", "tags": [...]}]</li>
-     *   <li>NUT-10 format: ["KIND", "hexdata", "nonce", [[tag_arrays]]]</li>
+     *   <li>the NUT-10 form: ["KIND", {"nonce": "...", "data": "...", "tags": [...]}]</li>
+     *   <li>the flattened form emitted up to 0.23.0: ["KIND", "hexdata", "nonce", [[tag_arrays]]]</li>
      * </ol>
      */
     @SuppressWarnings("unchecked")
@@ -136,14 +147,12 @@ public final class SecretUtil<T extends Secret> {
         }
         Object second = list.size() > 1 ? list.get(1) : null;
 
-        // Check if this is legacy format (second element is a Map)
         if (second instanceof Map<?, ?> data) {
-            // Legacy format: ["KIND", {nonce: ..., data: ..., tags: [...]}]
-            return legacyMapToSecret(kind, data);
+            // The NUT-10 form: ["KIND", {nonce: ..., data: ..., tags: [...]}]
+            return conditionObjectToSecret(kind, data);
         }
 
-        // NUT-10 format: ["KIND", "hexdata", "nonce", [tags]]
-        // Element 1 is hex-encoded data string
+        // The pre-0.24.0 flattened form: ["KIND", "hexdata", "nonce", [tags]]
         String hexData = second != null ? String.valueOf(second) : "";
         // Note: String.valueOf(null) returns "null" (string), so we must check explicitly
         Object nonceObj = list.size() > 2 ? list.get(2) : null;
@@ -274,10 +283,10 @@ public final class SecretUtil<T extends Secret> {
     }
 
     /**
-     * Converts legacy format map to WellKnownSecret.
+     * Converts NUT-10's second element, the spending-condition object, to a WellKnownSecret.
      */
     @SuppressWarnings("unchecked")
-    private static <T extends Secret> T legacyMapToSecret(WellKnownSecret.Kind kind, Map<?, ?> data) {
+    private static <T extends Secret> T conditionObjectToSecret(WellKnownSecret.Kind kind, Map<?, ?> data) {
         // Note: Use null instead of empty string to preserve JSON null nonce
         Object nonceObj = data.get("nonce");
         String nonce = nonceObj != null ? String.valueOf(nonceObj) : null;
@@ -289,7 +298,7 @@ public final class SecretUtil<T extends Secret> {
             try {
                 dataBytes = org.bouncycastle.util.encoders.Hex.decode(hexStr);
             } catch (Exception e) {
-                log.warn("secret_util legacy_map_to_secret hex_decode_failed kind={} error={}", kind, e.getMessage());
+                log.warn("secret_util condition_object_to_secret hex_decode_failed kind={} error={}", kind, e.getMessage());
                 dataBytes = new byte[0];
             }
         } else {
@@ -319,6 +328,6 @@ public final class SecretUtil<T extends Secret> {
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Unknown secret kind: " + kindStr, e);
         }
-        return legacyMapToSecret(kind, map);
+        return conditionObjectToSecret(kind, map);
     }
 }

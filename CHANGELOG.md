@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **BREAKING CHANGE: NUT-10 secrets are serialized in the spec's `[kind, {object}]` form**, not the
+  four-element `[kind, data, nonce, tags]` array releases up to 0.23.0 emitted and no other
+  implementation reads. All 30 published NUT-11 vectors now pass; every one of them failed before
+  (cashu-lib#254, found by cashu-mint#383).
+- **A secret parsed from the wire is never re-encoded.** NUT-11 requires the signed message to be
+  built from the unescaped secret string and NUT-00 derives `Y` from that same string, so both
+  commit to the bytes that arrived. `WellKnownSecret` now replays the original string and clears it
+  on mutation. The four-element bug was one symptom of re-encoding; this removes the class.
+- NUT-10 tag values are stored as strings, the only type the spec's tags hold, instead of being
+  converted to enums and ints on the way in. A constructed secret is now equal to the same secret
+  parsed back.
+- The four-element form is still read, so proofs issued under it stay spendable. The deserializer no
+  longer calls the spec form "legacy", which was backwards.
+
+See [ADR 0003](docs/explanation/adr/0003-nut10-secret-serialization.md), including which callers
+must re-derive secrets before upgrading.
+
+## [Unreleased]
+
 ---
 
 ## [0.23.0] - 2026-08-29

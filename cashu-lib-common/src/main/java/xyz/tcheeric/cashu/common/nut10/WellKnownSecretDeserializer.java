@@ -15,11 +15,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Deserializes WellKnownSecret supporting two formats:
+ * Reads a {@link WellKnownSecret} from either encoding this library has emitted:
  * <ul>
- *   <li>NUT-10 array format: ["kind", "hexdata", "nonce", [[tag arrays]]]</li>
- *   <li>Legacy object format: ["kind", {"nonce": "...", "data": "...", "tags": [...]}]</li>
+ *   <li>the NUT-10 form, {@code ["kind", {"nonce": ..., "data": ..., "tags": [...]}]}</li>
+ *   <li>the flattened form, {@code ["kind", "hexdata", "nonce", [[tag arrays]]]}, which releases up
+ *       to 0.23.0 emitted and which no other implementation understands</li>
  * </ul>
+ *
+ * <p>Both are accepted so that proofs already issued under the flattened form stay readable; only
+ * the NUT-10 form is ever written. See
+ * {@code docs/explanation/adr/0003-nut10-secret-serialization.md}.
  *
  * <p>See: <a href="https://github.com/cashubtc/nuts/blob/main/10.md">NUT-10</a>
  */
@@ -44,22 +49,20 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
         String kindStr = node.get(0).asText();
         WellKnownSecret.Kind kind = WellKnownSecret.Kind.valueOf(kindStr);
 
-        // Check if this is legacy format (2-element with object) or NUT-10 format (4-element)
         JsonNode secondElement = node.get(1);
         if (secondElement.isObject()) {
-            // Legacy format: ["kind", {object}]
-            return deserializeLegacyFormat(kind, secondElement);
+            return deserializeSpecFormat(kind, secondElement);
         } else if (node.size() >= 4) {
-            // NUT-10 format: ["kind", "hexdata", "nonce", [tags]]
-            return deserializeNut10Format(kind, node);
+            return deserializeFlattenedFormat(kind, node);
         } else {
-            throw new IOException("Invalid secret format: expected NUT-10 (4-element) or legacy (2-element with object)");
+            throw new IOException("Invalid secret format: expected the NUT-10 form [kind, {object}]"
+                    + " or the pre-0.24.0 flattened form [kind, data, nonce, tags], got " + node);
         }
     }
 
     /**
-     * Deserializes object format: {"kind": "...", "nonce": "...", "data": "...", "tags": [...]}
-     * Used when SecretUtil.convertValue passes a Map.
+     * Reads the bare-object shape {@code {"kind": ..., "nonce": ..., "data": ..., "tags": [...]}},
+     * which is not a wire format but is what an in-process {@code Map} conversion produces.
      */
     private WellKnownSecret deserializeObjectFormat(JsonNode objectNode) {
         JsonNode kindNode = objectNode.get("kind");
@@ -67,13 +70,14 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
             throw new IllegalArgumentException("Missing 'kind' field in secret object");
         }
         WellKnownSecret.Kind kind = WellKnownSecret.Kind.valueOf(kindNode.asText());
-        return deserializeLegacyFormat(kind, objectNode);
+        return deserializeSpecFormat(kind, objectNode);
     }
 
     /**
-     * Deserializes NUT-10 format: ["kind", "hexdata", "nonce", [tags]]
+     * Reads the flattened form {@code ["kind", "hexdata", "nonce", [tags]]} that releases up to
+     * 0.23.0 emitted, so their proofs remain readable.
      */
-    private WellKnownSecret deserializeNut10Format(WellKnownSecret.Kind kind, JsonNode node) {
+    private WellKnownSecret deserializeFlattenedFormat(WellKnownSecret.Kind kind, JsonNode node) {
         // Element 1: data (hex-encoded bytes)
         String dataHex = node.get(1).asText();
         byte[] data = Hex.decode(dataHex);
@@ -120,9 +124,9 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
     }
 
     /**
-     * Deserializes legacy format: ["kind", {"nonce": "...", "data": "...", "tags": [...]}]
+     * Reads the NUT-10 form {@code ["kind", {"nonce": ..., "data": ..., "tags": [...]}]}.
      */
-    private WellKnownSecret deserializeLegacyFormat(WellKnownSecret.Kind kind, JsonNode objectNode) {
+    private WellKnownSecret deserializeSpecFormat(WellKnownSecret.Kind kind, JsonNode objectNode) {
         WellKnownSecret secret = createSecret(kind);
 
         // Extract nonce (check for both missing and null nodes)
@@ -192,37 +196,20 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
         };
     }
 
+    /**
+     * Normalises a tag's values to strings, which is the only thing NUT-10 tags hold.
+     *
+     * <p>This used to convert {@code sigflag} to an enum and the counters to ints, so a parsed
+     * secret held values of a different type from an identical constructed one and the two were
+     * unequal. NUT-11 is explicit that integer-valued tags travel as strings and a wallet casts
+     * them on the way in, which {@link P2PKSecret} already does when reading a tag. Keeping the
+     * wire type here means one representation everywhere.
+     */
     private void convertP2PKTagValues(WellKnownSecret.Tag tag) {
-        switch (tag.getKey()) {
-            case "sigflag" -> {
-                List<Object> values = new ArrayList<>();
-                for (Object v : tag.getValues()) {
-                    if (v instanceof String s) {
-                        values.add(P2PKSecret.SignatureFlag.valueOf(s));
-                    } else {
-                        values.add(v);
-                    }
-                }
-                tag.setValues(values);
-            }
-            case "n_sigs", "n_sigs_refund", "locktime" -> {
-                List<Object> values = new ArrayList<>();
-                for (Object v : tag.getValues()) {
-                    if (v instanceof Number n) {
-                        values.add(n.intValue());
-                    } else {
-                        values.add(v);
-                    }
-                }
-                tag.setValues(values);
-            }
-            case "pubkeys", "refund" -> {
-                List<Object> values = new ArrayList<>();
-                for (Object v : tag.getValues()) {
-                    values.add(String.valueOf(v));
-                }
-                tag.setValues(values);
-            }
+        List<Object> values = new ArrayList<>();
+        for (Object value : tag.getValues()) {
+            values.add(String.valueOf(value));
         }
+        tag.setValues(values);
     }
 }
