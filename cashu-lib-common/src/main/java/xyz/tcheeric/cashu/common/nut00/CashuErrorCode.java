@@ -130,7 +130,9 @@ public enum CashuErrorCode {
     iou_not_meltable(90026, 400, "Merchant IOU proofs cannot be melted"),
     unsupported_proof_type(90027, 400, "Proof carries a spending condition this mint cannot evaluate"),
     invalid_blind_signature(90028, 500, "Mint produced a malformed blind signature"),
-    payment_unknown(90029, 500, "Payment outcome is unknown and awaiting operator review");
+    payment_unknown(90029, 500, "Payment outcome is unknown and awaiting operator review"),
+    sigall_missing_inputs(90030, 400, "SIG_ALL proof verified outside a transaction"),
+    dleq_generation_failed(90031, 500, "Mint could not produce a DLEQ proof for the signature");
 
     /** First code reserved for errors this implementation raises that the NUT registry lacks. */
     public static final int EXTENSION_RANGE_START = 90000;
