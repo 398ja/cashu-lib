@@ -12,10 +12,19 @@ currently fail.
 | --- | --- | --- |
 | 00 | `hash_to_curve` points, `B_` blinding, `C_` signing, v3 and v4 token serialization, the raw v4 CBOR body | The secret **encoding** fed to `hash_to_curve`, settled instead by the NUT-12 vectors (see below); DLEQ fields inside tokens |
 | 01 | Rejection of a truncated and an uncompressed key; acceptance of two valid keysets including a `2^63` amount | Key ordering, unit binding, `/v1/keys` response shape |
-| 02 | Version 1 keyset id derivation from the published keys | Version 2 keyset ids (issue #247); `input_fee_ppk` and `final_expiry`, which the vectors publish as prose but the library has no type for (issue #246) |
-| 11 | P2PK secret parsing and validation; BIP-340 verification of a valid and an invalid `SIG_INPUTS` signature; the two published `SIG_ALL` message digests | Whether a proof is *spendable*: locktime evaluation, threshold counting across the main and refund pathways, HTLC preimages. That logic lives in `cashu-mint`, so the vectors that exercise it cannot be driven from this repository |
+| 02 | Version 1 and version 2 keyset id derivation, including the zero-fee case the spec omits from the preimage and a keyset with no final expiry | Nothing published |
+| 11 | P2PK secret parsing and validation; BIP-340 verification of a valid and an invalid `SIG_INPUTS` signature; the two published `SIG_ALL` message digests | Whether a proof is *spendable*: locktime evaluation, threshold counting across the main and refund pathways, HTLC preimages. That logic lives in `cashu-mint`, which drives those vectors from its own suite |
 | 12 | `hash_e`, the deterministic nonce vector, DLEQ on a `BlindSignature` and on a `Proof` | Mint-side proof *generation*, which is nondeterministic and has no published vector |
-| 13 | Version 1 keyset id integer, secrets, blinding factors and derivation paths for counters 0–4 | Version 2 derivation and the P2PK derivation (issue #248); counter persistence and restore gap handling, which are wallet concerns |
+| 13 | Version 1 and version 2 secret and blinding-factor derivation for counters 0–4, and the version 1 derivation paths | The NUT-20 P2PK derivation path; counter persistence and restore gap handling, which are wallet concerns |
+| 18 | Decoding all seven published payment requests | Re-encoding, which fails on two of them (issue #255) |
+| 20 | The published `msg_to_sign` bytes, its SHA-256 hash, and verification of the published signature | The deterministic quote-locking key derivation `m/129373'/20'/0'/0'/{counter}`, which is a wallet concern (cashu-wallet#41) |
+
+## NUTs with no vendored vectors
+
+Upstream publishes vectors for NUT-26, 27, 28 and 29. None are vendored, because none of those NUTs
+are implemented: Bech32m payment request encoding, Nostr mint backup, Pay-to-Blinded-Key and batched
+minting respectively. Vendoring vectors for unimplemented specifications would add failing tests that
+say nothing except that the feature is absent, which the absent code already says.
 
 ## The `hash_to_curve` secret encoding
 
@@ -44,18 +53,15 @@ standing instrument for that decision, now passes.
 
 ## Currently failing vectors
 
-Left failing deliberately. Each is a library defect the vectors were introduced to expose, and
-fixing any of them changes production behaviour that Milestone 0 is explicitly not allowed to touch.
+Left failing deliberately. Each is a library defect the vectors exposed, kept as the standing
+evidence for its issue rather than hidden.
 
 | Test | What it shows | Issue |
 | --- | --- | --- |
-| `Nut00VectorTest.shouldReproducePublishedSerializationWhenRoundTrippingTokenV4` (single and multi keyset) | `TokenV4CborEncoder` emits the top-level CBOR keys as `t, m, u, d`; NUT-00 orders them `t, d, m, u`, so our tokens are byte-different from the published ones even though they decode identically | new |
-| `Nut00VectorTest.shouldReproducePublishedCborBodyWhenEncodingTokenV4` | The same ordering defect, seen against the published raw binary token | new |
-| `Nut11VectorTest.shouldParseAndValidateWhenProofCarriesPublishedSpendingCondition` | Two distinct parsing defects: `n_sigs` written as a JSON **string** (`"2"`) is rejected as "not an integer", though NUT-11 §Tags writes tag values as strings throughout; and `Proof.witness` arriving as a **JSON-encoded string** (the `P2PKWitness` wire form) has no deserializer, so any real P2PK proof fails to parse | new |
+| `Nut18VectorTest.shouldReEncodeToThePublishedString` (2 of 7 vectors) | Payment requests serialize as indefinite-length CBOR maps (`bf ... ff`) where the spec uses definite-length (`a5`), and an empty transport array is emitted where the spec omits the field. Both decode correctly, so only the byte comparison catches them | [#255](https://github.com/398ja/cashu-lib/issues/255) |
 
-The `Nut11VectorTest` failures matter most of the three: they mean this library cannot read a P2PK
-proof produced by any other implementation, because every published example uses both of those wire
-forms.
+Every other vector passes. The NUT-00 CBOR key ordering, the NUT-11 P2PK wire forms and the NUT-12
+secret encoding were all found this way and have since been fixed; see issues #250, #251 and #242.
 
 ## Refreshing the vectors
 

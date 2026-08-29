@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- **NUT-18 and NUT-20 test vectors are vendored and driven**, completing the vector coverage for
+  every NUT this library implements. The NUT-20 vectors publish the exact `msg_to_sign` bytes and
+  their hash, which confirms our mint-quote signature encoding against the spec rather than only
+  against itself.
+- The NUT-18 vectors immediately found a real defect: payment requests serialize as
+  indefinite-length CBOR where the spec uses definite-length, and emit an empty transport array
+  where the spec omits the field. Both decode correctly, so only a byte comparison catches them.
+  Filed as #255, with the re-encoding test left in place as its standing evidence.
+
 ## [0.26.0] - 2026-08-29
 
 ### Added

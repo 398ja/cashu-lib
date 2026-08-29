@@ -13,6 +13,12 @@ directory `tests/`.
 | `11-test.md` | NUT-11 P2PK spending conditions | `Nut11VectorTest` |
 | `12-tests.md` | NUT-12 DLEQ proofs | `Nut12VectorTest` |
 | `13-tests.md` | NUT-13 deterministic secrets | `Nut13VectorTest` |
+| `18-tests.md` | NUT-18 payment requests | `Nut18VectorTest` |
+| `20-test.md` | NUT-20 signed mint quotes | `Nut20VectorTest` |
+
+Upstream also publishes `26-test.md`, `27-test.md`, `28-tests.md` and `29-tests.md`. They are
+deliberately not vendored: NUT-26, 27, 28 and 29 are unimplemented, and vectors for a specification
+we do not implement only restate that fact.
 
 ## Refreshing
 
