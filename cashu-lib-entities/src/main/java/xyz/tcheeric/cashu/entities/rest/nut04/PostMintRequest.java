@@ -37,11 +37,33 @@ public class PostMintRequest<T extends Secret> {
     @Valid
     private List<BlindedMessage> blindedMessages;
 
+    /**
+     * NUT-20 — a BIP-340 signature over the quote id and the outputs, when the quote is locked.
+     *
+     * <p>Absent for an unlocked quote. The mint rejects a missing signature on a locked quote with
+     * {@code 20009} and an invalid one with {@code 20008}.
+     */
+    @JsonProperty("signature")
+    private String signature;
+
     @JsonIgnore
     private List<T> secrets;
 
     @JsonIgnore
     private List<byte[]> blindingFactors;
+
+    /**
+     * A mint request against an unlocked quote, carrying no NUT-20 signature.
+     *
+     * <p>The mint accepts this only when the quote itself is unlocked; a locked quote is refused
+     * with {@code 20009}.
+     */
+    public PostMintRequest(String quoteId,
+                           List<BlindedMessage> blindedMessages,
+                           List<T> secrets,
+                           List<byte[]> blindingFactors) {
+        this(quoteId, blindedMessages, null, secrets, blindingFactors);
+    }
 
     public PostMintRequest() {
         this.blindedMessages = new ArrayList<>();

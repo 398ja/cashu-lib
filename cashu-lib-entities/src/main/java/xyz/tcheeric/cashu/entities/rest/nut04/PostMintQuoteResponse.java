@@ -36,6 +36,13 @@ public class PostMintQuoteResponse {
     @JsonProperty
     private String unit;
 
+    /**
+     * NUT-20 — the key this quote is locked to, echoed back from the request, or null when the
+     * quote is unlocked.
+     */
+    @JsonProperty("pubkey")
+    private String pubkey;
+
     /** NUT-23 — the payment method, {@code "bolt11"} for a Lightning mint quote. */
     @JsonProperty
     @Builder.Default

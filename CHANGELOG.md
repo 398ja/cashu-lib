@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- **NUT-20 signed mint quotes.** `PostMintQuoteRequest`/`Response` carry an optional `pubkey` and
+  `PostMintRequest` an optional `signature`. `MintQuoteSignatureMessage` builds the message the
+  spec defines and `MintQuoteSignature` verifies the BIP-340 signature over it. Without this a
+  quote id is a bearer token: NUT-04 warns that anyone who learns the id of a paid quote can take
+  its ecash, and quote ids travel through logs, webhooks and traces.
+- The signature commits to the quote id **and** every output in request order, so a captured
+  signature cannot be replayed with substituted or reordered outputs to redirect the ecash.
+
 ## [0.24.0] - 2026-08-29
 
 ### Fixed
