@@ -42,6 +42,15 @@ misdescribe it.
 order `nonce`, `data`, `tags`, and every tag value written as a string, which is
 the only type NUT-10 tags hold.
 
+**`Proof.secret` is written as a JSON string.** NUT-00 defines the field as a
+string, and NUT-11 prints the escaped string form explicitly. A NUT-10 secret is
+itself JSON, so without an explicit serializer Jackson inlined it as a nested
+JSON *array*. That is a distinct defect from the shape of the secret, and it
+survived the first correction: a mint reading the array form computes a
+different `hash_to_curve` preimage, or fails to parse the proof at all. The
+secret written is `Secret.toString()`, so a received secret is replayed
+byte-for-byte here too.
+
 **Both wire forms are still read.** The four-element form is what releases up to
 0.23.0 emitted, and proofs issued under it must stay spendable.
 
@@ -71,6 +80,14 @@ This is the third encoding correction in the same family, after
 common cause each time was the library deciding for itself what a secret's bytes
 were, rather than deferring to what arrived. Preserving the wire string removes
 that class of defect rather than another instance of it.
+
+## Evidence
+
+`WellKnownSecretSerializationTest` pins each half of this decision separately,
+because they fail independently: the emitted two-element shape, string-valued
+tags, byte-exact replay of a received secret, agreement with the published `Y`
+`02561ea0...a9`, `Proof.secret` round-tripping as an unchanged JSON string, and
+the flattened form still parsing and keeping its original `Y`.
 
 ## References
 

@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Fixed
+
+- **`Proof.secret` is serialized as a JSON string** (#254), which is what NUT-00 defines it to be.
+  A NUT-10 well-known secret is itself JSON, so Jackson inlined it as a nested JSON *array* rather
+  than as a string containing that array. This is the remaining half of #254: correcting the shape
+  of the secret in 0.27.0 left the field around it still wrong, and NUT-11 prints the escaped
+  string form explicitly. A mint reading the array form derives a different `hash_to_curve`
+  preimage, or cannot parse the proof at all.
+
+### Added
+
+- `WellKnownSecretSerializationTest` pins the NUT-10 secret encoding decided in ADR 0003, which
+  previously had no dedicated test: the two-element shape, string-valued tags, byte-exact replay of
+  a received secret, agreement with the published `Y`, and the pre-0.24.0 flattened form still
+  parsing and keeping its original `Y`.
+
 ## [0.27.0] - 2026-08-29
 
 ### Fixed
