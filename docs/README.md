@@ -20,6 +20,7 @@ The documentation for cashu-lib follows the Diátaxis framework and is organized
 - [cashu-lib-common](reference/cashu-lib-common.md)
 - [cashu-lib-crypto](reference/cashu-lib-crypto.md)
 - [cashu-lib-entities](reference/cashu-lib-entities.md)
+- [NUT-20: Signature on Mint Quote](reference/nut20-mint-quote-signature.md)
 - [What the NUT test vectors cannot pin down](reference/nut-test-vector-coverage.md)
 
 ## Explanation
