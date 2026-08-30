@@ -106,4 +106,4 @@ they are spent.
 ## References
 
 - Finding L1, `docs/explanations/nut-compliance-audit.md` in `cashu-mint`
-- [What the NUT test vectors cannot pin down](../reference/nut-test-vector-coverage.md)
+- [What the NUT test vectors cannot pin down](../../reference/nut-test-vector-coverage.md)
