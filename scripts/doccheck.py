@@ -46,6 +46,10 @@ ECDomainParameters SECNamedCurves DeterministicKey RandomSource SimplePool""".sp
 
 ALLOWLIST_NAME = ".doccheck-allow"
 
+# Below this many sibling repositories the workspace is treated as partial:
+# unresolved names are reported for information but do not fail the run.
+PARTIAL_WORKSPACE_MIN = 10
+
 def allowlist(root: Path):
     """Names a repo declares are not Java types: alert rules, external products.
 
@@ -164,13 +168,22 @@ def main(argv):
     for f, t in broken:
         print(f"  BROKEN {f}\n      -> {t}")
     # The class check indexes sibling repos because docs legitimately cite them.
-    # In CI only one repo is checked out, so the index is too small to judge
-    # against: skip rather than emit failures that are an artefact of the
-    # checkout. MIN_TYPES is far below any single real repo's type count.
-    MIN_TYPES = 50
-    if len(types) < MIN_TYPES:
-        print(f"classes: skipped ({len(types)} types indexed; needs sibling repos "
-              f"checked out, so this is a single-repo checkout)")
+    # A single-repo checkout, which is what CI does, cannot see those siblings, so
+    # every cross-repo reference would be reported unknown. Detect that case by
+    # asking whether any sibling repository is actually present, rather than by
+    # guessing from the size of the index: a repo with its own sources easily
+    # exceeds any threshold while still lacking every sibling.
+    siblings = [d for d in workspace.iterdir()
+                if d.is_dir() and (d/'.git').exists() and d.resolve() not in
+                {r.resolve() for r in repos}]
+    # A partial workspace (some siblings, not all) is the awkward middle case: a
+    # reference to an absent repo looks identical to a genuine typo. Report those
+    # names but do not fail, so a partial clone stays usable without turning the
+    # checker into noise that gets ignored.
+    partial = bool(siblings) and len(siblings) < PARTIAL_WORKSPACE_MIN
+    if not siblings:
+        print(f"classes: skipped ({len(types)} types indexed; no sibling "
+              f"repositories present, so cross-repo references cannot be checked)")
         unresolved = []
     else:
         print(f"classes: {n_types - len(unresolved)}/{n_types} resolve ({len(types)} known types)")
@@ -187,6 +200,12 @@ def main(argv):
                 print(f"  UNDOCUMENTED {m}")
     if not cfg_gaps:
         print("config:  every bound env var is documented")
+
+    if partial and unresolved:
+        print(f"         (partial workspace: {len(siblings)} sibling repos present, "
+              f"so the names above may simply live in a repo that is not checked "
+              f"out; not failing on them)")
+        unresolved = []
 
     return 1 if (broken or unresolved or cfg_gaps) else 0
 
