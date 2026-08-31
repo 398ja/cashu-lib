@@ -44,3 +44,4 @@ project/SECURITY_ARCHITECTURE.md
 docs/explanation/adr/
 docs/superpowers/
 .superpowers/
+.specify/
