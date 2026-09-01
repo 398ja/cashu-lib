@@ -57,7 +57,7 @@ xyz.tcheeric.cashu.common/
 │             #   WellKnownSecret, Nut10Option, WellKnownSecretSerializer,
 │             #   WellKnownSecretDeserializer, TagSerializer, TagDeserializer
 ├── nut11/    # NUT-11: Pay-to-Pubkey (P2PK)
-│             #   P2PKSecret
+│             #   P2PKSecret, P2PKVoucherSecret
 ├── nut12/    # NUT-12: DLEQ Proofs
 │             #   DLEQProof, DLEQProofDeserializer
 ├── nut13/    # NUT-13: Deterministic Secrets

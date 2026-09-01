@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Hex;
 import xyz.tcheeric.cashu.common.nut11.P2PKSecret;
+import xyz.tcheeric.cashu.common.nut11.P2PKVoucherSecret;
 import xyz.tcheeric.cashu.common.nut18.VoucherSecret;
 
 import java.io.IOException;
@@ -112,7 +113,7 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
                             tag.addValue(valueNode.asText());
                         }
                     }
-                    if (kind == WellKnownSecret.Kind.P2PK) {
+                    if (carriesP2PKTags(kind)) {
                         convertP2PKTagValues(tag);
                     }
                     secret.addTag(tag);
@@ -161,7 +162,7 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
                             tag.addValue(valueNode.asText());
                         }
                     }
-                    if (kind == WellKnownSecret.Kind.P2PK) {
+                    if (carriesP2PKTags(kind)) {
                         convertP2PKTagValues(tag);
                     }
                     secret.addTag(tag);
@@ -182,15 +183,30 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
      * fault — NUT-11 frames these conditions as rejection, not as a parse crash.
      */
     private WellKnownSecret validated(WellKnownSecret secret) {
+        // P2PKVoucherSecret extends P2PKSecret, so it is validated here too: its lock is a
+        // real NUT-11 lock and must meet the same malformed-secret rules. The voucher half —
+        // issuer signature, expiry — is domain policy and is checked where that policy lives.
         if (secret instanceof P2PKSecret) {
             ((P2PKSecret) secret).validate();
         }
         return secret;
     }
 
+    /**
+     * Whether a kind's tags follow NUT-11's conventions and so need the same normalisation.
+     *
+     * <p>{@code P2PK_VOUCHER} carries P2PK tags alongside its voucher ones. Without this a
+     * parsed secret would hold values of a different type from an identically constructed one,
+     * and the two would compare unequal.
+     */
+    private static boolean carriesP2PKTags(WellKnownSecret.Kind kind) {
+        return kind == WellKnownSecret.Kind.P2PK || kind == WellKnownSecret.Kind.P2PK_VOUCHER;
+    }
+
     private WellKnownSecret createSecret(WellKnownSecret.Kind kind) {
         return switch (kind) {
             case P2PK -> new P2PKSecret();
+            case P2PK_VOUCHER -> new P2PKVoucherSecret();
             case VOUCHER -> new VoucherSecret();
             default -> throw new IllegalArgumentException("Invalid kind: " + kind);
         };

@@ -26,10 +26,32 @@ import java.util.List;
 @JsonSerialize(using = WellKnownSecretSerializer.class)
 public abstract class WellKnownSecret implements Secret {
 
+    /**
+     * NUT-10 spending-condition kinds.
+     *
+     * <p><strong>These names are the wire format.</strong> {@code WellKnownSecretSerializer}
+     * writes {@code getKind().name()} and {@code WellKnownSecretDeserializer} reads
+     * {@code Kind.valueOf(...)}, so renaming a member changes what every mint and wallet sees.
+     *
+     * <p>{@code P2PK} and {@code HTLC} are specified upstream (NUT-11, NUT-14). {@code VOUCHER}
+     * and {@code P2PK_VOUCHER} are Imani extensions; NUT-10 sanctions this — it defines only the
+     * envelope and leaves the condition types to other documents — but note its caution that a
+     * mint which does not know a kind "may treat proofs as regular anyone-can-spend tokens".
+     */
     public enum Kind {
         P2PK,
         HTLC,
-        VOUCHER
+        VOUCHER,
+        /**
+         * A voucher that is also P2PK-locked: issuer-signed voucher metadata in the tags, and a
+         * spending key in {@code data} that the mint requires a witness signature from.
+         *
+         * <p>Named for the mechanism rather than the payload, as {@code P2PK} and {@code HTLC}
+         * are, so a mint implementer can see that a witness is involved. A bare {@code VOUCHER}
+         * secret carrying P2PK tags would not convey that, and the mint would dispatch it to a
+         * voucher-only condition that never checks the witness.
+         */
+        P2PK_VOUCHER
     }
 
     private Kind kind;
