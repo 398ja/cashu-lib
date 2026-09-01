@@ -94,18 +94,14 @@ public class PaymentRequest {
      * @throws RuntimeException if serialization fails
      */
     public String serialize(boolean clickable) {
-        try {
-            validate();
-            log.debug("Serializing PaymentRequest with id={}", paymentId);
+        validate();
+        log.debug("Serializing PaymentRequest with id={}", paymentId);
 
-            byte[] cborBytes = JsonUtils.CBOR_MAPPER.writeValueAsBytes(this);
-            String encoded = REQUEST_PREFIX + VERSION_CODE +
-                    Base64.getUrlEncoder().withoutPadding().encodeToString(cborBytes);
+        byte[] cborBytes = PaymentRequestCborEncoder.encode(this);
+        String encoded = REQUEST_PREFIX + VERSION_CODE
+                + Base64.getUrlEncoder().withoutPadding().encodeToString(cborBytes);
 
-            return clickable ? URI_SCHEME + encoded : encoded;
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to serialize PaymentRequest", e);
-        }
+        return clickable ? URI_SCHEME + encoded : encoded;
     }
 
     /**

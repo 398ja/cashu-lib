@@ -26,7 +26,7 @@ All cashu-lib modules are compatible with Java 21+ Virtual Threads (Project Loom
 See [Virtual Thread Compatibility](docs/explanation/virtual-thread-compatibility.md) for the full audit report and recommendations.
 
 ## Use in your project
-Add the releases repository and depend on the modules you need (replace `0.15.0` with the latest tag):
+Add the releases repository and depend on the modules you need (replace `0.28.0` with the latest tag):
 
 ```xml
 <repositories>
@@ -39,24 +39,29 @@ Add the releases repository and depend on the modules you need (replace `0.15.0`
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-common</artifactId>
-    <version>0.15.0</version>
+    <version>0.28.0</version>
 </dependency>
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-crypto</artifactId>
-    <version>0.15.0</version>
+    <version>0.28.0</version>
 </dependency>
 <dependency>
     <groupId>xyz.tcheeric</groupId>
     <artifactId>cashu-lib-entities</artifactId>
-    <version>0.15.0</version>
+    <version>0.28.0</version>
 </dependency>
 ```
 
+If your project imports `imani-bom`, omit the versions entirely; the BOM manages them.
+
 ## Modules
-- `cashu-lib-common`: Token codecs (V3/V4), keysets, deterministic secrets (NUT-13), and JSON/CBOR utilities.
-- `cashu-lib-crypto`: BIP-340 Schnorr helpers, BDHKE utilities, and key derivation primitives.
-- `cashu-lib-entities`: REST DTOs for mint APIs (quotes, swaps, melts, restores) with Jackson annotations.
+
+| Module | Sources | Contents |
+|--------|---------|----------|
+| `cashu-lib-common` | 97 main, 67 test | Token codecs (V3/V4), keysets, deterministic secrets (NUT-13), spending conditions, and JSON/CBOR utilities |
+| `cashu-lib-crypto` | 14 main, 6 test | BIP-340 Schnorr helpers, BDHKE utilities, and key derivation primitives |
+| `cashu-lib-entities` | 33 main, 6 test | REST DTOs for mint APIs (quotes, swaps, melts, restores) with Jackson annotations |
 
 ## Supported NUTs
 
@@ -76,6 +81,7 @@ Add the releases repository and depend on the modules you need (replace `0.15.0`
 | [NUT-13](https://github.com/cashubtc/nuts/blob/main/13.md) | Deterministic Secrets | ✅ | `common/nut13` |
 | [NUT-17](https://github.com/cashubtc/nuts/blob/main/17.md) | WebSocket Subscriptions | ✅ | `common/nut17` |
 | [NUT-18](https://github.com/cashubtc/nuts/blob/main/18.md) | Payment Requests | ✅ | `common/nut18` |
+| [NUT-20](https://github.com/cashubtc/nuts/blob/main/20.md) | Signature on Mint Quote | ✅ | `common/nut20` |
 
 ## Protocol alignment
 

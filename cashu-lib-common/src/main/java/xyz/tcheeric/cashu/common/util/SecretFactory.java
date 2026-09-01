@@ -7,10 +7,13 @@ import lombok.NonNull;
 import org.bitcoinj.crypto.DeterministicKey;
 import xyz.tcheeric.bips.bip32.nut.Nut13Derivation;
 import xyz.tcheeric.cashu.common.KeysetId;
+import xyz.tcheeric.cashu.common.KeysetIdVersion;
 import xyz.tcheeric.cashu.common.RandomStringSecret;
 import xyz.tcheeric.cashu.common.Secret;
 import xyz.tcheeric.cashu.common.nut11.P2PKSecret;
 import xyz.tcheeric.cashu.common.nut13.DeterministicSecret;
+import xyz.tcheeric.cashu.common.nut13.Nut13HmacDerivation;
+import xyz.tcheeric.cashu.common.nut13.UnsupportedKeysetVersionException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +36,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SecretFactory<T extends Secret> {
+
+    private static final KeysetIdVersion DERIVABLE_KEYSET_ID_VERSION = KeysetIdVersion.V1;
 
     private byte[] p2pkPublicKey;
 
@@ -68,7 +73,8 @@ public class SecretFactory<T extends Secret> {
             @NonNull KeysetId keysetId,
             int counter
     ) {
-        // Use Nut13Derivation to derive the secret bytes
+        requireDerivableKeysetVersion(keysetId);
+
         byte[] secretBytes = Nut13Derivation.deriveSecret(
                 masterKey,
                 keysetId.toString(),
@@ -132,6 +138,8 @@ public class SecretFactory<T extends Secret> {
             @NonNull KeysetId keysetId,
             int counter
     ) {
+        requireDerivableKeysetVersion(keysetId);
+
         var params = Nut13Derivation.Nut13DerivationParams.builder()
                 .mnemonicPhrase(mnemonic)
                 .passphrase(passphrase)
@@ -160,6 +168,8 @@ public class SecretFactory<T extends Secret> {
             @NonNull KeysetId keysetId,
             int counter
     ) {
+        requireDerivableKeysetVersion(keysetId);
+
         var pair = Nut13Derivation.deriveSecretAndBlindingFactor(
                 masterKey,
                 keysetId.toString(),
@@ -173,6 +183,47 @@ public class SecretFactory<T extends Secret> {
         );
 
         return new SecretAndBlindingFactor(secret, pair.blindingFactor());
+    }
+
+    /**
+     * Derives a secret for a keyset of either version, choosing the derivation its version
+     * requires.
+     *
+     * <p>Version 1 keysets derive through BIP32 from the master key; version 2 keysets use the
+     * HMAC-SHA256 KDF over the seed. Both are needed because the wrong one recovers nothing while
+     * looking exactly like an empty wallet.
+     *
+     * @param seed      the BIP39 seed, required for a version 2 keyset
+     * @param masterKey the BIP32 master key derived from that seed, required for version 1
+     */
+    public static DeterministicSecret createDeterministic(@NonNull byte[] seed,
+                                                          @NonNull DeterministicKey masterKey,
+                                                          @NonNull KeysetId keysetId,
+                                                          int counter) {
+        if (keysetId.getVersion() == DERIVABLE_KEYSET_ID_VERSION) {
+            return createDeterministic(masterKey, keysetId, counter);
+        }
+        byte[] secretBytes = Nut13HmacDerivation.deriveSecret(
+                seed, Nut13HmacDerivation.KeysetIdBytes.of(keysetId.toString()), counter);
+        return DeterministicSecret.create(secretBytes, keysetId, counter);
+    }
+
+    /**
+     * Rejects keyset ids the master-key derivation cannot serve.
+     *
+     * <p>Only version 1 ids derive through BIP32. A version 2 keyset needs the seed rather than
+     * the master key, so it is refused here and served by the overload that takes one: deriving
+     * version 1 secrets for a version 2 keyset would recover nothing while looking like an empty
+     * wallet.
+     *
+     * @param keysetId keyset id to check
+     * @throws UnsupportedKeysetVersionException if the id is not a version 1 keyset id
+     */
+    private static void requireDerivableKeysetVersion(@NonNull KeysetId keysetId) {
+        KeysetIdVersion version = keysetId.getVersion();
+        if (version != DERIVABLE_KEYSET_ID_VERSION) {
+            throw new UnsupportedKeysetVersionException(keysetId, version);
+        }
     }
 
     /**

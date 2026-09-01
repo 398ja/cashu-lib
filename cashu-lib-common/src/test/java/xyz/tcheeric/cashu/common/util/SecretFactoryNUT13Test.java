@@ -45,7 +45,7 @@ class SecretFactoryNUT13Test {
 
         // Assert
         assertNotNull(secret);
-        assertEquals(32, secret.getData().length);
+        assertEquals(32, secret.getDerivedBytes().length);
         assertTrue(secret.hasMetadata());
         assertEquals(keysetId, secret.getKeysetId());
         assertEquals(counter, secret.getCounter());
@@ -67,7 +67,7 @@ class SecretFactoryNUT13Test {
 
         // Assert
         assertEquals(secretOne, secretTwo);
-        assertArrayEquals(secretOne.getData(), secretTwo.getData());
+        assertArrayEquals(secretOne.getDerivedBytes(), secretTwo.getDerivedBytes());
         assertEquals(secretOne.toHexString(), secretTwo.toHexString());
     }
 
@@ -86,7 +86,7 @@ class SecretFactoryNUT13Test {
 
         // Assert
         assertNotEquals(counterZeroSecret, counterOneSecret);
-        assertFalse(Arrays.equals(counterZeroSecret.getData(), counterOneSecret.getData()));
+        assertFalse(Arrays.equals(counterZeroSecret.getDerivedBytes(), counterOneSecret.getDerivedBytes()));
     }
 
     /**
@@ -105,7 +105,7 @@ class SecretFactoryNUT13Test {
 
         // Assert
         assertNotEquals(firstSecret, secondSecret);
-        assertFalse(Arrays.equals(firstSecret.getData(), secondSecret.getData()));
+        assertFalse(Arrays.equals(firstSecret.getDerivedBytes(), secondSecret.getDerivedBytes()));
     }
 
     /**
@@ -231,7 +231,7 @@ class SecretFactoryNUT13Test {
 
         // Assert
         assertNotNull(secret);
-        assertEquals(32, secret.getData().length);
+        assertEquals(32, secret.getDerivedBytes().length);
         assertTrue(secret.hasMetadata());
         assertEquals(keysetId, secret.getKeysetId());
         assertEquals(counter, secret.getCounter());
@@ -254,7 +254,7 @@ class SecretFactoryNUT13Test {
 
         // Assert
         assertEquals(fromMnemonic, fromMasterKey);
-        assertArrayEquals(fromMnemonic.getData(), fromMasterKey.getData());
+        assertArrayEquals(fromMnemonic.getDerivedBytes(), fromMasterKey.getDerivedBytes());
         assertEquals(fromMnemonic.toHexString(), fromMasterKey.toHexString());
     }
 
@@ -274,7 +274,7 @@ class SecretFactoryNUT13Test {
 
         // Assert
         assertNotEquals(withPassphrase, withoutPassphrase);
-        assertFalse(Arrays.equals(withPassphrase.getData(), withoutPassphrase.getData()));
+        assertFalse(Arrays.equals(withPassphrase.getDerivedBytes(), withoutPassphrase.getDerivedBytes()));
     }
 
     /**
@@ -346,7 +346,7 @@ class SecretFactoryNUT13Test {
 
         // Assert
         assertEquals(firstPair.secret(), secondPair.secret());
-        assertArrayEquals(firstPair.secret().getData(), secondPair.secret().getData());
+        assertArrayEquals(firstPair.secret().getDerivedBytes(), secondPair.secret().getDerivedBytes());
         assertArrayEquals(firstPair.blindingFactor(), secondPair.blindingFactor());
     }
 
@@ -367,7 +367,7 @@ class SecretFactoryNUT13Test {
 
         // Assert
         assertNotEquals(firstPair.secret(), secondPair.secret());
-        assertFalse(Arrays.equals(firstPair.secret().getData(), secondPair.secret().getData()));
+        assertFalse(Arrays.equals(firstPair.secret().getDerivedBytes(), secondPair.secret().getDerivedBytes()));
         assertFalse(Arrays.equals(firstPair.blindingFactor(), secondPair.blindingFactor()));
     }
 
@@ -410,6 +410,6 @@ class SecretFactoryNUT13Test {
 
         // Assert
         assertNotEquals(firstSecret, secondSecret);
-        assertFalse(Arrays.equals(firstSecret.getData(), secondSecret.getData()));
+        assertFalse(Arrays.equals(firstSecret.getDerivedBytes(), secondSecret.getDerivedBytes()));
     }
 }

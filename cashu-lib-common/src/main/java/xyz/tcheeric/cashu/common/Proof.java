@@ -4,11 +4,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import xyz.tcheeric.cashu.common.json.deserializer.SecretDeserializer;
+import xyz.tcheeric.cashu.common.json.deserializer.WitnessDeserializer;
+import xyz.tcheeric.cashu.common.json.serializer.SecretSerializer;
 import xyz.tcheeric.cashu.common.nut12.DLEQProof;
 
 @Data
@@ -23,6 +26,7 @@ public class Proof<T extends Secret> {
 
     @JsonProperty
     @JsonDeserialize(using = SecretDeserializer.class)
+    @JsonSerialize(using = SecretSerializer.class)
     private T secret;
 
     @JsonProperty("id")
@@ -40,6 +44,7 @@ public class Proof<T extends Secret> {
 
     @JsonProperty("witness")
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonDeserialize(using = WitnessDeserializer.class)
     private Witness witness;
 
     public void setSecretData(byte[] data) {

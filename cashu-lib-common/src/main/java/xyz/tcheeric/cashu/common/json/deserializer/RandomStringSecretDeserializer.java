@@ -27,8 +27,8 @@ public class RandomStringSecretDeserializer extends JsonDeserializer<RandomStrin
                 return rss;
             }
             // For other secret types, we shouldn't reach here in normal use
-            // but handle gracefully by creating a RandomStringSecret from the string bytes
-            return RandomStringSecret.fromBytes(value.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            // but handle gracefully by keeping the secret string verbatim
+            return RandomStringSecret.fromString(value);
         }
         throw new RuntimeException("Invalid RandomStringSecret format: expected text node");
     }

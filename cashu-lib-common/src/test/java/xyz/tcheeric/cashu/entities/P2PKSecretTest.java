@@ -12,19 +12,34 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class P2PKSecretTest {
 
-    @Test
+    // Real compressed secp256k1 points (G, 2G, 3G, 4G). These fixtures previously used
+    // "deadbeef" as the lock and "pk1"/"refund1" as keys, which NUT-11 rejects — the
+    // constructors and key setters now validate, so the placeholders no longer parse.
+    private static final String KEY_LOCK =
+            "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798";
+    private static final String KEY_2 =
+            "02c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5";
+    private static final String KEY_3 =
+            "02f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9";
+    private static final String KEY_4 =
+            "02e493dbf1c10d80f3581e4904930b1404cc6c13900ee0758474fa94abe8c4cd13";
+
+    private static P2PKSecret lock() {
+        return new P2PKSecret(Hex.decode(KEY_LOCK));
+    }
+
     /**
      * Ensures P2PK secrets round-trip through JSON serialization with all metadata intact.
      */
+    @Test
     void shouldRoundTripSerializeP2PKSecret() throws Exception {
         // Arrange
-        byte[] secretData = Hex.decode("deadbeef");
-        P2PKSecret secret = new P2PKSecret(secretData);
-        secret.setNSigs(2);
+        P2PKSecret secret = lock();
+        secret.setNSigs(2); // lock key + one extra = 2 keys in the main pathway
         secret.setSigFlag(P2PKSecret.SignatureFlag.SIG_ALL);
-        secret.addPubKey("pk1");
+        secret.addPubKey(KEY_2);
         secret.setLockTime(42);
-        secret.addRefund("refund1");
+        secret.addRefund(KEY_3);
         ObjectMapper mapper = new ObjectMapper();
 
         // Act
@@ -42,8 +57,7 @@ class P2PKSecretTest {
     @Test
     void shouldDefaultNSigsRefundToOneWhenUnset() {
         // Arrange
-        byte[] secretData = Hex.decode("deadbeef");
-        P2PKSecret secret = new P2PKSecret(secretData);
+        P2PKSecret secret = lock();
 
         // Act
         int nSigsRefund = secret.getNSigsRefund();
@@ -59,8 +73,7 @@ class P2PKSecretTest {
     @Test
     void shouldSetAndGetNSigsRefund() {
         // Arrange
-        byte[] secretData = Hex.decode("deadbeef");
-        P2PKSecret secret = new P2PKSecret(secretData);
+        P2PKSecret secret = lock();
 
         // Act
         secret.setNSigsRefund(2);
@@ -77,8 +90,7 @@ class P2PKSecretTest {
     @Test
     void shouldDefaultNSigsRefundToOneWhenTagHasNoValue() {
         // Arrange
-        byte[] secretData = Hex.decode("deadbeef");
-        P2PKSecret secret = new P2PKSecret(secretData);
+        P2PKSecret secret = lock();
         secret.setTag(P2PKSecret.P2PKTag.n_sigs_refund.name(), List.of()); // present but empty
 
         // Act / Assert
@@ -88,18 +100,20 @@ class P2PKSecretTest {
     /**
      * Ensures the n_sigs_refund tag round-trips through JSON serialization the
      * same way the existing n_sigs tag does.
+     *
+     * <p>Three refund keys, not one: NUT-11 makes a threshold exceeding its pathway's key count
+     * malformed, so an n_sigs_refund of 3 against a single refund key no longer deserializes.
      */
     @Test
     void shouldRoundTripSerializeNSigsRefund() throws Exception {
         // Arrange
-        byte[] secretData = Hex.decode("deadbeef");
-        P2PKSecret secret = new P2PKSecret(secretData);
+        P2PKSecret secret = lock();
         secret.setNSigs(2);
-        secret.setNSigsRefund(3);
         secret.setSigFlag(P2PKSecret.SignatureFlag.SIG_ALL);
-        secret.addPubKey("pk1");
+        secret.addPubKey(KEY_2);
         secret.setLockTime(42);
-        secret.addRefund("refund1");
+        secret.setRefund(List.of(KEY_2, KEY_3, KEY_4));
+        secret.setNSigsRefund(3);
         ObjectMapper mapper = new ObjectMapper();
 
         // Act

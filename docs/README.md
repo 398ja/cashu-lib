@@ -20,9 +20,16 @@ The documentation for cashu-lib follows the Diátaxis framework and is organized
 - [cashu-lib-common](reference/cashu-lib-common.md)
 - [cashu-lib-crypto](reference/cashu-lib-crypto.md)
 - [cashu-lib-entities](reference/cashu-lib-entities.md)
+- [NUT-20: Signature on Mint Quote](reference/nut20-mint-quote-signature.md)
+- [What the NUT test vectors cannot pin down](reference/nut-test-vector-coverage.md)
 
 ## Explanation
 - [Background](explanation/README.md)
 - [Architecture](explanation/architecture.md)
 - [Key Design Decisions](explanation/design-decisions.md)
 - [Relation to NUT Specifications](explanation/nut-compliance.md)
+
+### Architecture Decision Records
+- [ADR 0001: hash_to_curve hashes the UTF-8 bytes of the secret string](explanation/adr/0001-hash-to-curve-secret-encoding.md)
+- [ADR 0002: a secret is stored as the bytes of the string it arrived as](explanation/adr/0002-secret-string-storage-encoding.md)
+- [ADR 0003: NUT-10 secrets keep the string they arrived as](explanation/adr/0003-nut10-secret-serialization.md)

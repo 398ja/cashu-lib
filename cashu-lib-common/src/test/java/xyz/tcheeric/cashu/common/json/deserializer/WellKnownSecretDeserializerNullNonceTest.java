@@ -31,13 +31,13 @@ class WellKnownSecretDeserializerNullNonceTest {
                 .withFailMessage("Nonce should be Java null, not the string 'null'")
                 .isNull();
 
-        // And: Re-serialized JSON should contain JSON null, not string "null"
+        // And: Re-serialized JSON should carry a JSON null, not the string "null"
         assertThat(output)
                 .withFailMessage("Output should contain JSON null: %s", output)
-                .contains(",null,");
+                .contains("\"nonce\":null");
         assertThat(output)
                 .withFailMessage("Output should NOT contain string 'null': %s", output)
-                .doesNotContain(",\"null\",");
+                .doesNotContain("\"nonce\":\"null\"");
     }
 
     @Test

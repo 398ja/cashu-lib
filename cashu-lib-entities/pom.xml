@@ -3,7 +3,7 @@
     <parent>
         <groupId>xyz.tcheeric</groupId>
         <artifactId>cashu-lib</artifactId>
-        <version>0.20.0</version>
+        <version>0.28.0</version>
     </parent>
 
     <artifactId>cashu-lib-entities</artifactId>
@@ -54,6 +54,12 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
+        </dependency>
+        <!-- JUnit Jupiter Params for parameterized tests (@ParameterizedTest, @EnumSource) -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
