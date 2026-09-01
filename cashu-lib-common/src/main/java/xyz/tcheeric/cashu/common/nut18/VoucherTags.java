@@ -9,6 +9,17 @@ package xyz.tcheeric.cashu.common.nut18;
  */
 public interface VoucherTags {
 
+    /**
+     * Voucher identifier, for kinds that cannot keep it in {@code data}.
+     *
+     * <p>A {@code VOUCHER} secret carries its id in {@code data}. A {@code P2PK_VOUCHER}
+     * cannot: {@code data} holds the spending key, which is where NUT-11 puts it and where a
+     * mint looks for the lock. It lives here rather than beside the kind that needs it because
+     * the issuer signs over the tags and a mint reads them back, so a rename must break both
+     * sides at compile time rather than silently in production.
+     */
+    String VOUCHER_ID = "voucher_id";
+
     /** Merchant/issuer identifier */
     String ISSUER = "issuer";
 

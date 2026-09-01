@@ -156,11 +156,6 @@ public class Nut10Option {
     /**
      * Checks if this option is for Voucher locking.
      *
-     * @return true if kind is VOUCHER
-     */
-    /**
-     * Checks if this option is for Voucher locking.
-     *
      * <p>True for {@code VOUCHER} only. A {@code P2PK_VOUCHER} is a voucher too, but callers
      * branching on this usually mean "the voucher-only condition applies", and answering true
      * for both would send a locked voucher down a path that never checks its witness. Use

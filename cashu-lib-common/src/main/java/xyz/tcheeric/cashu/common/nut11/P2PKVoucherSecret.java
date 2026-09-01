@@ -91,25 +91,20 @@ public class P2PKVoucherSecret extends P2PKSecret {
     // carries it. Only the key location differs: the voucher id is a tag here, because `data`
     // holds the spending key.
 
-    /** Tag keys specific to this kind, beyond those shared with an ordinary voucher. */
-    public interface Tags {
-        /**
-         * The voucher id.
-         *
-         * <p>A tag rather than {@code data}, which an ordinary {@code VoucherSecret} uses,
-         * because {@code data} is where NUT-11 puts the spending key and the lock has to be
-         * where the mint looks for it.
-         */
-        String VOUCHER_ID = "voucher_id";
-    }
-
-    /** The voucher id, or {@code null} when unset. */
+    /**
+     * The voucher id, or {@code null} when unset.
+     *
+     * <p>A tag rather than {@code data}, which an ordinary {@code VoucherSecret} uses, because
+     * {@code data} is where NUT-11 puts the spending key and the lock has to be where the mint
+     * looks for it. The key comes from {@link VoucherTags} like every other, so the issuer that
+     * signs over it and the mint that reads it back cannot drift apart silently.
+     */
     public String getVoucherId() {
-        return tagValue(Tags.VOUCHER_ID);
+        return tagValue(VoucherTags.VOUCHER_ID);
     }
 
     public void setVoucherId(@NonNull String voucherId) {
-        setTag(Tags.VOUCHER_ID, List.of(voucherId));
+        setTag(VoucherTags.VOUCHER_ID, List.of(voucherId));
     }
 
     /** The issuing merchant's identifier, or {@code null} when unset. */

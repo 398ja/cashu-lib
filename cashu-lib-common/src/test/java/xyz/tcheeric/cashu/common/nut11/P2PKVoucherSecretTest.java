@@ -123,7 +123,7 @@ class P2PKVoucherSecretTest {
             P2PKVoucherSecret secret = sample();
 
             assertThat(secret.getVoucherId()).isEqualTo("0f5d9e0e-3a0a-4a4f-9f6f-6f4a3b2c1d0e");
-            assertThat(secret.getTag(P2PKVoucherSecret.Tags.VOUCHER_ID)).isNotNull();
+            assertThat(secret.getTag(xyz.tcheeric.cashu.common.nut18.VoucherTags.VOUCHER_ID)).isNotNull();
         }
 
         @Test
