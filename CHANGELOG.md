@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **A `P2PK_VOUCHER` may no longer carry a `locktime` without `refund` keys**
+  ([cashu-mint#406](https://github.com/398ja/cashu-mint/issues/406)).
+
+  NUT-11 makes a proof whose locktime has passed spendable with **no witness at all** when the
+  `refund` tag is absent. For a plain `P2PKSecret` that is correct and deliberate — an escrow
+  that falls open is recoverable rather than burned — and that behaviour is unchanged.
+
+  For a voucher it silently retracts the one guarantee the kind exists to provide. The lock is
+  what makes a stolen proof worthless; a past locktime with no refund path makes possession
+  alone sufficient, which is exactly the property that ruled out reusing the plain `VOUCHER`
+  kind. It also degrades on a timer: the voucher behaves correctly until the locktime passes,
+  then stops being locked with nothing observable changing.
+
+  Refused in `P2PKVoucherSecret.validate()`, so the combination cannot be constructed *or*
+  deserialised. Verification is untouched, because a mint must remain able to spend proofs
+  issued by others; the guarantee is restored by making the voucher unissuable rather than by
+  making a proof unspendable. A `locktime` with refund keys is still allowed, since that is a
+  real reclaim path with a real signature requirement.
+
 ### Added
 
 - **`P2PK_VOUCHER` NUT-10 secret kind** - a voucher that is also P2PK-locked. Issuer-signed

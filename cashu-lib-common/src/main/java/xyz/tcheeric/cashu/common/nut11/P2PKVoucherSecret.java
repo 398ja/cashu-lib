@@ -174,6 +174,42 @@ public class P2PKVoucherSecret extends P2PKSecret {
         }
     }
 
+    /**
+     * NUT-11's rules, plus one this kind adds: a {@code locktime} requires {@code refund} keys.
+     *
+     * <p>Under NUT-11 a proof whose locktime has passed with no refund keys is spendable with no
+     * witness at all. For a plain {@code P2PKSecret} that is correct and deliberate — an escrow
+     * that falls open is recoverable rather than burned — and it is left untouched.
+     *
+     * <p>For a voucher it silently retracts the only guarantee this kind exists to provide. The
+     * lock is what makes a stolen proof worthless; a past locktime with no refund path makes
+     * possession alone sufficient, which is precisely the property that ruled out reusing the
+     * plain {@code VOUCHER} kind. Worse, it degrades quietly and on a timer: the voucher works
+     * exactly as intended until the locktime passes, and then stops being locked with nothing
+     * observable changing.
+     *
+     * <p>So the combination is refused where it is created rather than where it is spent.
+     * Verification keeps NUT-11 semantics unchanged, because a mint must remain able to spend
+     * proofs issued by others; making the secret unconstructable removes the footgun without
+     * deviating from the spec for anybody else's proofs.
+     *
+     * <p>A {@code locktime} with refund keys is still allowed: that is a real reclaim path with
+     * a real signature requirement, not an absence of one.
+     *
+     * @throws MalformedP2PKSecretException if the Proof must be rejected as unspendable
+     */
+    @Override
+    public void validate() {
+        super.validate();
+
+        if (getTag(P2PKTag.locktime.name()) != null && getRefund().isEmpty()) {
+            throw new MalformedP2PKSecretException(
+                    "a P2PK_VOUCHER with a locktime must also carry refund keys: once the locktime "
+                            + "passes, NUT-11 makes a refund-less proof spendable with no witness, "
+                            + "which would silently unlock the voucher");
+        }
+    }
+
     // ===== Helpers =====
 
     /**

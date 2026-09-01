@@ -274,4 +274,78 @@ class P2PKVoucherSecretTest {
             assertThat(option.carriesVoucherMetadata()).isTrue();
         }
     }
+
+    /**
+     * Issue 398ja/cashu-mint#406: a locktime without refund keys unlocks the proof.
+     *
+     * <p>NUT-11 makes a refund-less proof spendable with no witness once its locktime passes.
+     * For a plain P2PK secret that is intended. For a voucher it is the one guarantee this kind
+     * exists to provide, retracted silently and on a timer: the voucher behaves correctly until
+     * the locktime passes, then quietly stops being locked.
+     *
+     * <p>Refused at construction rather than at spending, so the mint's NUT-11 behaviour is
+     * unchanged for proofs it did not issue.
+     */
+    @Nested
+    @DisplayName("locktime without refund keys")
+    class LocktimeWithoutRefund {
+
+        @Test
+        @DisplayName("is refused, because it would unlock the voucher once the locktime passed")
+        void refusesALocktimeWithNoRefundPath() {
+            P2PKVoucherSecret secret = sample();
+            secret.setLockTime(1);
+
+            assertThatThrownBy(secret::validate)
+                    .isInstanceOf(MalformedP2PKSecretException.class)
+                    .hasMessageContaining("locktime")
+                    .hasMessageContaining("refund");
+        }
+
+        @Test
+        @DisplayName("is allowed with refund keys, which are a real signature requirement")
+        void allowsALocktimeWithARefundPath() {
+            P2PKVoucherSecret secret = sample();
+            secret.setLockTime(1);
+            secret.setRefund(java.util.List.of(SPENDING_KEY));
+
+            assertThatCode(secret::validate).doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("does not restrict a voucher with no locktime at all")
+        void allowsNoLocktime() {
+            // The common case, and the one that would break loudly if the rule were written as
+            // "refund keys are mandatory" rather than "mandatory when a locktime is present".
+            assertThatCode(sample()::validate).doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("is refused when it arrives from the wire, not only when built locally")
+        void refusesItOnDeserialization() {
+            // The check that decides whether this rule is real. A secret an attacker sends is
+            // deserialised, never constructed through the setters, so a rule enforced only in
+            // validate() would be dead if nothing on that path called it. The deserialiser
+            // does, for every P2PKSecret and therefore for this subclass.
+            String wire = "[\"P2PK_VOUCHER\",{\"nonce\":\"n\",\"data\":\"" + SPENDING_KEY
+                    + "\",\"tags\":[[\"locktime\",\"1\"],[\"voucher_id\",\"v-1\"]]}]";
+
+            // Thrown straight out of the deserialiser rather than wrapped, so the caller sees
+            // the reason rather than a generic mapping failure.
+            assertThatThrownBy(() -> JsonUtils.JSON_MAPPER.readValue(wire, WellKnownSecret.class))
+                    .isInstanceOf(MalformedP2PKSecretException.class)
+                    .hasMessageContaining("refund");
+        }
+
+        @Test
+        @DisplayName("does not change the rule for a plain P2PK secret")
+        void leavesPlainP2PKAlone() {
+            // The deliberate NUT-11 behaviour this must not disturb: an escrow whose locktime
+            // passes with no refund path falls open, which is what makes it recoverable.
+            P2PKSecret plain = new P2PKSecret(Hex.decode(SPENDING_KEY));
+            plain.setLockTime(1);
+
+            assertThatCode(plain::validate).doesNotThrowAnyException();
+        }
+    }
 }
