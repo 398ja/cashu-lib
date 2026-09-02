@@ -7,6 +7,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.29.0] - 2026-09-02
+
+### Security
+
+- **A `P2PK_VOUCHER` may no longer carry a `locktime` without `refund` keys**
+  ([cashu-mint#406](https://github.com/398ja/cashu-mint/issues/406)).
+
+  NUT-11 makes a proof whose locktime has passed spendable with **no witness at all** when the
+  `refund` tag is absent. For a plain `P2PKSecret` that is correct and deliberate — an escrow
+  that falls open is recoverable rather than burned — and that behaviour is unchanged.
+
+  For a voucher it silently retracts the one guarantee the kind exists to provide. The lock is
+  what makes a stolen proof worthless; a past locktime with no refund path makes possession
+  alone sufficient, which is exactly the property that ruled out reusing the plain `VOUCHER`
+  kind. It also degrades on a timer: the voucher behaves correctly until the locktime passes,
+  then stops being locked with nothing observable changing.
+
+  Refused in `P2PKVoucherSecret.validate()`, so the combination cannot be constructed *or*
+  deserialised. Verification is untouched, because a mint must remain able to spend proofs
+  issued by others; the guarantee is restored by making the voucher unissuable rather than by
+  making a proof unspendable. A `locktime` with refund keys is still allowed, since that is a
+  real reclaim path with a real signature requirement.
+
+### Added
+
+- **`P2PK_VOUCHER` NUT-10 secret kind** - a voucher that is also P2PK-locked. Issuer-signed
+  voucher metadata rides in the NUT-10 tags; the spending key lives in `data`, where NUT-11
+  puts it and where a mint looks for the lock. `P2PKVoucherSecret` extends `P2PKSecret`, so
+  NUT-11's malformed-secret rules and existing lock enforcement apply unchanged.
+
+  Neither existing kind worked. A `VOUCHER` carrying P2PK tags is dispatched by a mint to its
+  voucher condition, which never checks a witness, so the lock would be advisory and a thief
+  holding the proof could still spend it. A plain `P2PK` carrying voucher tags is enforced,
+  but the issuer signature commits to the kind and to `data`, so it would cover a document
+  that never appears on the wire.
+
+  Named for the mechanism, as `P2PK` and `HTLC` are, rather than for the payload - a mint
+  implementer reading it can see a witness is involved. Note that **the enum name is the wire
+  format**: the serializer writes `getKind().name()` and the deserializer reads
+  `Kind.valueOf(...)`.
+
+  Consumers dispatching on secret type must test for this kind **before** any
+  `instanceof P2PKSecret` branch and before any voucher branch, or a proof of this kind falls
+  into a condition that runs half its checks silently.
+
+  `Nut10Option` gains `forP2PKVoucher(...)`, `isP2PKVoucher()`, and
+  `carriesVoucherMetadata()`. `isVoucher()` deliberately stays **false** for the new kind:
+  callers branching on it mean "the voucher-only condition applies", and answering true would
+  route a locked voucher down a path that never checks its witness.
+
+  `VoucherTags.VOUCHER_ID` is new, shared rather than private to the kind that needs it,
+  because the issuer signs over the tags and a mint reads them back - a rename must break both
+  sides at compile time.
+
+---
+
 ## [0.28.0] - 2026-08-29
 
 ### Fixed

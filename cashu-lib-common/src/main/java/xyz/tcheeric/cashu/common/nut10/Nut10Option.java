@@ -88,6 +88,22 @@ public class Nut10Option {
     }
 
     /**
+     * Creates a locking condition for a voucher that is also P2PK-locked.
+     *
+     * <p>{@code data} is the spending key, not the voucher id: the mint reads the lock from
+     * {@code data}, so a {@code P2PK_VOUCHER} carries its voucher id in a tag instead.
+     *
+     * @param spendingKeyHex the key a witness must sign for, in hex
+     * @return a P2PK_VOUCHER Nut10Option
+     */
+    public static Nut10Option forP2PKVoucher(@NonNull String spendingKeyHex) {
+        return Nut10Option.builder()
+                .kind(WellKnownSecret.Kind.P2PK_VOUCHER)
+                .data(spendingKeyHex)
+                .build();
+    }
+
+    /**
      * Adds a key-value tag to this option.
      *
      * @param key the tag key
@@ -140,10 +156,37 @@ public class Nut10Option {
     /**
      * Checks if this option is for Voucher locking.
      *
+     * <p>True for {@code VOUCHER} only. A {@code P2PK_VOUCHER} is a voucher too, but callers
+     * branching on this usually mean "the voucher-only condition applies", and answering true
+     * for both would send a locked voucher down a path that never checks its witness. Use
+     * {@link #isP2PKVoucher()} or {@link #carriesVoucherMetadata()} deliberately.
+     *
      * @return true if kind is VOUCHER
      */
     @JsonIgnore
     public boolean isVoucher() {
         return WellKnownSecret.Kind.VOUCHER.equals(kind);
+    }
+
+    /**
+     * Checks if this option is for a voucher that is also P2PK-locked.
+     *
+     * @return true if kind is P2PK_VOUCHER
+     */
+    @JsonIgnore
+    public boolean isP2PKVoucher() {
+        return WellKnownSecret.Kind.P2PK_VOUCHER.equals(kind);
+    }
+
+    /**
+     * Whether this option carries voucher metadata, under either voucher kind.
+     *
+     * <p>For code that reads the metadata and does not care how the proof is locked.
+     *
+     * @return true if kind is VOUCHER or P2PK_VOUCHER
+     */
+    @JsonIgnore
+    public boolean carriesVoucherMetadata() {
+        return isVoucher() || isP2PKVoucher();
     }
 }
