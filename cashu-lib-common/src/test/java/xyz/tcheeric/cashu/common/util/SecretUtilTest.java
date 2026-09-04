@@ -6,6 +6,7 @@ import xyz.tcheeric.cashu.common.PublicKey;
 import xyz.tcheeric.cashu.common.RandomStringSecret;
 import xyz.tcheeric.cashu.common.Secret;
 import xyz.tcheeric.cashu.common.nut10.WellKnownSecret;
+import xyz.tcheeric.cashu.common.nut11.P2PKSecret;
 import xyz.tcheeric.cashu.common.nut11.P2PKVoucherSecret;
 import xyz.tcheeric.cashu.common.nut18.VoucherSecret;
 import xyz.tcheeric.cashu.crypto.BDHKEUtils;
@@ -161,5 +162,53 @@ class SecretUtilTest {
 
         assertThatThrownBy(() -> SecretUtil.toSecret(json))
                 .isInstanceOf(RuntimeException.class);
+    }
+    /**
+     * A P2PK_VOUCHER's spending conditions must read the same as a P2PK's.
+     *
+     * <p>{@code addTagsToSecret} calls {@code convertP2PKTagValues} only when
+     * {@code kind == P2PK}, so a P2PK_VOUCHER keeps its tag values as the raw
+     * JSON types: {@code sigflag} stays a String rather than becoming a
+     * SignatureFlag, and {@code locktime}/{@code n_sigs} stay Double rather
+     * than Integer. P2PKVoucherSecret extends P2PKSecret and inherits every
+     * rule that reads them, so a divergence here would mean one kind enforcing
+     * a locktime the other ignores.
+     *
+     * <p>The accessors happen to normalise both forms today
+     * ({@code intValue} parses a String, {@code getSigFlag} handles either), so
+     * this is currently latent rather than exploitable. Asserted so it stays
+     * that way: anything that starts reading a tag value directly would break
+     * silently, and silently is how the parse gap that preceded this test
+     * behaved.
+     */
+    @Test
+    void aP2pkVoucherReportsTheSameSpendingConditionsAsAP2pk() {
+        String spendingKey =
+                "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798";
+        // n_sigs=1 with one key: a threshold above the key count is correctly
+        // rejected by validate(), which this test is not about.
+        // locktime needs refund keys, or P2PKVoucherSecret refuses the secret
+        // outright — a past locktime with no refund path silently unlocks it.
+        String refundKey = "02c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5";
+        String tags = "[[\"sigflag\",\"SIG_ALL\"],[\"n_sigs\",1],[\"locktime\",1700000000],"
+                + "[\"refund\",\"" + refundKey + "\"],"
+                + "[\"issuer\",\"test-issuer\"],[\"unit\",\"sat\"]]";
+        String voucherJson = "[\"P2PK_VOUCHER\",{\"nonce\":\"" + "ab".repeat(16)
+                + "\",\"data\":\"" + spendingKey + "\",\"tags\":" + tags + "}]";
+        String p2pkJson = "[\"P2PK\",{\"nonce\":\"" + "ab".repeat(16)
+                + "\",\"data\":\"" + spendingKey + "\",\"tags\":" + tags + "}]";
+
+        P2PKSecret voucher = (P2PKSecret) SecretUtil.toSecret(voucherJson);
+        P2PKSecret p2pk = (P2PKSecret) SecretUtil.toSecret(p2pkJson);
+
+        assertThat(voucher.getSigFlag())
+                .as("a locked voucher must not ignore a sigflag the plain kind honours")
+                .isEqualTo(p2pk.getSigFlag());
+        assertThat(voucher.getNSigs())
+                .as("nor a signature threshold")
+                .isEqualTo(p2pk.getNSigs());
+        assertThat(voucher.getLockTime())
+                .as("nor a locktime, which decides when the lock stops applying")
+                .isEqualTo(p2pk.getLockTime());
     }
 }
