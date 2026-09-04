@@ -6,12 +6,14 @@ import xyz.tcheeric.cashu.common.PublicKey;
 import xyz.tcheeric.cashu.common.RandomStringSecret;
 import xyz.tcheeric.cashu.common.Secret;
 import xyz.tcheeric.cashu.common.nut10.WellKnownSecret;
+import xyz.tcheeric.cashu.common.nut11.P2PKVoucherSecret;
 import xyz.tcheeric.cashu.common.nut18.VoucherSecret;
 import xyz.tcheeric.cashu.crypto.BDHKEUtils;
 
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class SecretUtilTest {
 
@@ -110,5 +112,54 @@ class SecretUtilTest {
         assertThat(secret).isInstanceOf(WellKnownSecret.class);
         WellKnownSecret wks = (WellKnownSecret) secret;
         assertThat(wks.getNonce()).isEqualTo("my-nonce-123");
+    }
+
+    /**
+     * A P2PK_VOUCHER read off the wire must come back as a LOCKED secret.
+     *
+     * <p>This is the mint's parse path. Before this case existed it threw
+     * "Unsupported secret kind: P2PK_VOUCHER", and the caller fell back to a
+     * spending condition that checks no lock — so a locked proof was accepted
+     * and spent with {@code witness=null}. Observed against a real mint, which
+     * returned 200 for exactly that request.</p>
+     *
+     * <p>The bug was invisible from inside cashu-lib: every unit test built its
+     * secrets with {@code new P2PKVoucherSecret(...)} rather than parsing one,
+     * so the one route a mint actually uses was the one route untested.</p>
+     */
+    @Test
+    void parsesAP2pkVoucherAsALockedSecret() {
+        String spendingKey =
+                "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798";
+        String json = "[\"P2PK_VOUCHER\",{\"nonce\":\"" + "ab".repeat(16)
+                + "\",\"data\":\"" + spendingKey
+                + "\",\"tags\":[[\"issuer\",\"test-issuer\"],[\"unit\",\"sat\"]]}]";
+
+        Secret parsed = SecretUtil.toSecret(json);
+
+        // A P2PKSecret, so VerifyProofsTask routes it to the condition that
+        // checks the witness rather than to the voucher-only one.
+        assertThat(parsed).isInstanceOf(P2PKVoucherSecret.class);
+
+        P2PKVoucherSecret locked = (P2PKVoucherSecret) parsed;
+        assertThat(locked.getKind()).isEqualTo(WellKnownSecret.Kind.P2PK_VOUCHER);
+        // The lock survives the parse. Losing it here would leave a secret that
+        // looks locked and enforces nothing.
+        assertThat(Hex.toHexString(locked.getData())).isEqualTo(spendingKey);
+        // And so do the voucher fields, which the voucher half of the condition
+        // needs.
+        assertThat(locked.getIssuerId()).isEqualTo("test-issuer");
+        assertThat(locked.getUnit()).isEqualTo("sat");
+    }
+
+    @Test
+    void refusesAP2pkVoucherWhoseLockIsNotAKey() {
+        // `validated()` runs P2PKSecret.validate() on this path, so a malformed
+        // lock is refused at parse rather than becoming an unspendable proof.
+        String json = "[\"P2PK_VOUCHER\",{\"nonce\":\"" + "ab".repeat(16)
+                + "\",\"data\":\"" + "00".repeat(33) + "\",\"tags\":[]}]";
+
+        assertThatThrownBy(() -> SecretUtil.toSecret(json))
+                .isInstanceOf(RuntimeException.class);
     }
 }

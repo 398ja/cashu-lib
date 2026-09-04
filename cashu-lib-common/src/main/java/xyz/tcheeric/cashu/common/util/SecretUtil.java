@@ -10,6 +10,7 @@ import xyz.tcheeric.cashu.common.Secret;
 import xyz.tcheeric.cashu.common.nut10.WellKnownSecret;
 import xyz.tcheeric.cashu.common.nut11.MalformedP2PKSecretException;
 import xyz.tcheeric.cashu.common.nut11.P2PKSecret;
+import xyz.tcheeric.cashu.common.nut11.P2PKVoucherSecret;
 import xyz.tcheeric.cashu.common.nut18.VoucherSecret;
 import xyz.tcheeric.cashu.crypto.BDHKEUtils;
 
@@ -207,6 +208,22 @@ public final class SecretUtil<T extends Secret> {
                 p2pk.setData(data);
                 p2pk.setNonce(nonce);
                 yield p2pk;
+            }
+            case P2PK_VOUCHER -> {
+                // Absent until now, and silently so. This parse path is how a
+                // MINT reads a proof off the wire, and an unsupported kind here
+                // throws — after which the caller falls back to a condition
+                // that checks no lock at all. So a P2PK_VOUCHER was accepted and
+                // spent WITHOUT its witness: the exact failure the composite
+                // kind exists to prevent, reached by the one route nobody
+                // thought to add it to.
+                //
+                // Observed against a real mint before this fix: swapping a
+                // locked proof with `witness=null` returned 200.
+                P2PKVoucherSecret locked = new P2PKVoucherSecret();
+                locked.setData(data);
+                locked.setNonce(nonce);
+                yield locked;
             }
             default -> throw new IllegalArgumentException("Unsupported secret kind: " + kind);
         };
