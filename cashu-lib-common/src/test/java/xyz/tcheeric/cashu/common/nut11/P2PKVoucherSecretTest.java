@@ -348,4 +348,78 @@ class P2PKVoucherSecretTest {
             assertThatCode(plain::validate).doesNotThrowAnyException();
         }
     }
+
+    /**
+     * The two voucher-carrying kinds must READ the same.
+     *
+     * They carry identical tags and differ only in where the spending key
+     * lives, so a caller that gets a different answer depending on which kind
+     * it holds would have the lock silently change the money. These four
+     * accessors were missing from this class entirely, which meant a locked
+     * voucher could be constructed and then not be fully readable — the gap
+     * that blocked SignedVoucher from accepting one.
+     */
+    @Nested
+    @DisplayName("parity with the plain VOUCHER kind")
+    class ParityWithVoucherSecret {
+
+        @Test
+        @DisplayName("the same tags read back the same values")
+        void readsMatch() {
+            P2PKVoucherSecret locked = new P2PKVoucherSecret(Hex.decode(SPENDING_KEY));
+            locked.setMemo("two coffees");
+            locked.setFaceDecimals(2);
+            locked.setBackingStrategy("PROPORTIONAL");
+            locked.setIssuanceRatio(0.75d);
+
+            VoucherSecret plain = new VoucherSecret();
+            plain.setMemo("two coffees");
+            plain.setFaceDecimals(2);
+            plain.setBackingStrategy("PROPORTIONAL");
+            plain.setIssuanceRatio(0.75d);
+
+            assertThat(locked.getMemo()).isEqualTo(plain.getMemo());
+            assertThat(locked.getFaceDecimals()).isEqualTo(plain.getFaceDecimals());
+            assertThat(locked.getBackingStrategy()).isEqualTo(plain.getBackingStrategy());
+            assertThat(locked.getIssuanceRatio()).isEqualTo(plain.getIssuanceRatio());
+        }
+
+        @Test
+        @DisplayName("unset tags default the same way")
+        void defaultsMatch() {
+            P2PKVoucherSecret locked = new P2PKVoucherSecret(Hex.decode(SPENDING_KEY));
+            VoucherSecret plain = new VoucherSecret();
+
+            // The defaults are load-bearing: a voucher with no explicit ratio
+            // is 1:1, and one defaulting to 0 would value every coupon at
+            // nothing.
+            assertThat(locked.getFaceDecimals()).isEqualTo(plain.getFaceDecimals());
+            assertThat(locked.getBackingStrategy()).isEqualTo(plain.getBackingStrategy());
+            assertThat(locked.getIssuanceRatio()).isEqualTo(plain.getIssuanceRatio());
+            assertThat(locked.getMemo()).isNull();
+        }
+
+        @Test
+        @DisplayName("a malformed ratio falls back rather than throwing")
+        void malformedRatioFallsBack() {
+            // Read from a proof someone else minted, so it must not be trusted
+            // to parse. Throwing here would make an unreadable tag an
+            // unspendable proof.
+            P2PKVoucherSecret locked = new P2PKVoucherSecret(Hex.decode(SPENDING_KEY));
+            locked.setTag("issuance_ratio", java.util.List.of("not-a-number"));
+
+            assertThat(locked.getIssuanceRatio()).isEqualTo(1.0d);
+        }
+
+        @Test
+        @DisplayName("the spending key still owns data")
+        void dataIsStillTheKey() {
+            // The whole point of the kind. If a payload ever displaced this,
+            // P2PKSecret.validate() would reject the proof outright.
+            P2PKVoucherSecret locked = new P2PKVoucherSecret(Hex.decode(SPENDING_KEY));
+            locked.setMemo("two coffees");
+
+            assertThat(Hex.toHexString(locked.getData())).isEqualTo(SPENDING_KEY);
+        }
+    }
 }

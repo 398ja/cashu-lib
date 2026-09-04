@@ -174,6 +174,63 @@ public class P2PKVoucherSecret extends P2PKSecret {
         }
     }
 
+    /** Free-text note from the issuer, or {@code null} when unset. */
+    public String getMemo() {
+        return tagValue(VoucherTags.MEMO);
+    }
+
+    public void setMemo(String memo) {
+        if (memo != null) {
+            setTag(VoucherTags.MEMO, List.of(memo));
+        }
+    }
+
+    /**
+     * Decimal places of the face value, defaulting to 0.
+     *
+     * <p>Same defaults as {@link xyz.tcheeric.cashu.common.nut18.VoucherSecret}, deliberately:
+     * the two kinds carry the same tags and a reader that gets a different answer depending on
+     * which one it holds would make the lock change the money.
+     */
+    public int getFaceDecimals() {
+        Long value = longValue(VoucherTags.FACE_DECIMALS);
+        return value != null ? value.intValue() : 0;
+    }
+
+    public void setFaceDecimals(int faceDecimals) {
+        setTag(VoucherTags.FACE_DECIMALS, List.of(faceDecimals));
+    }
+
+    /** How the voucher is backed, defaulting to {@code FIXED} as the plain kind does. */
+    public String getBackingStrategy() {
+        String value = tagValue(VoucherTags.BACKING_STRATEGY);
+        return value != null ? value : "FIXED";
+    }
+
+    public void setBackingStrategy(String backingStrategy) {
+        if (backingStrategy != null) {
+            setTag(VoucherTags.BACKING_STRATEGY, List.of(backingStrategy));
+        }
+    }
+
+    /** Face value per unit of backing, defaulting to 1.0 as the plain kind does. */
+    public double getIssuanceRatio() {
+        String value = tagValue(VoucherTags.ISSUANCE_RATIO);
+        if (value == null) {
+            return 1.0d;
+        }
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException malformed) {
+            log.warn("p2pk_voucher_secret get_issuance_ratio invalid_format value={}", value);
+            return 1.0d;
+        }
+    }
+
+    public void setIssuanceRatio(double issuanceRatio) {
+        setTag(VoucherTags.ISSUANCE_RATIO, List.of(issuanceRatio));
+    }
+
     /**
      * NUT-11's rules, plus one this kind adds: a {@code locktime} requires {@code refund} keys.
      *
