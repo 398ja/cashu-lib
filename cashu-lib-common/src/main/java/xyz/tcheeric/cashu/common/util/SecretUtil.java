@@ -122,6 +122,10 @@ public final class SecretUtil<T extends Secret> {
 
     /**
      * A short, bounded excerpt of an unparsable secret for diagnostics.
+     *
+     * <p>16 characters, not 40 (audit L-6). A NUT-00 secret is 64 hex characters, so a 40-char
+     * preview published nearly two thirds of it to the log; 16 is enough to correlate two log
+     * lines about the same input and not enough to be worth harvesting.
      */
     private static String preview(String s) {
         return s.length() > 16 ? s.substring(0, 16) + "..." : s;
@@ -390,11 +394,18 @@ public final class SecretUtil<T extends Secret> {
             try {
                 dataBytes = org.bouncycastle.util.encoders.Hex.decode(hexStr);
             } catch (Exception e) {
-                log.warn("secret_util condition_object_to_secret hex_decode_failed kind={} error={}", kind, e.getMessage());
-                dataBytes = new byte[0];
+                // Not empty bytes (audit M-11). `data` in a P2PK secret is the lock key, so
+                // substituting an empty array turns "I could not read the lock" into "there is
+                // no lock", which is the same class of silent downgrade as the bearer-secret
+                // fallback in toSecret(). A secret whose data cannot be decoded is malformed.
+                log.warn("secret_util condition_object_to_secret hex_decode_failed kind={} error={}",
+                        kind, e.getMessage());
+                throw new MalformedP2PKSecretException(
+                        "secret data is not valid hex for kind " + kind, e);
             }
         } else {
-            dataBytes = new byte[0];
+            throw new MalformedP2PKSecretException(
+                    "secret data must be a hex string for kind " + kind);
         }
 
         WellKnownSecret secret = createSecret(kind, dataBytes, nonce);

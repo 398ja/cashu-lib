@@ -105,7 +105,17 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
                         if (valueNode.isNumber()) {
                             // Preserve fractional values
                             if (valueNode.isFloatingPointNumber()) {
-                                tag.addValue(valueNode.doubleValue());
+                                // NaN and Infinity are representable in JSON only by extension,
+                                // and neither is a meaningful tag value. SecretUtil already
+                                // rejected them on its parse path; this one did not, so the two
+                                // ingresses disagreed about what a valid secret was (audit L-9).
+                                double d = valueNode.doubleValue();
+                                if (Double.isNaN(d) || Double.isInfinite(d)) {
+                                    throw new IllegalArgumentException(
+                                            "Invalid floating-point value in tag '" + key
+                                                    + "': NaN or Infinity not allowed");
+                                }
+                                tag.addValue(d);
                             } else {
                                 tag.addValue(valueNode.longValue());
                             }
@@ -154,7 +164,17 @@ public class WellKnownSecretDeserializer extends JsonDeserializer<WellKnownSecre
                         if (valueNode.isNumber()) {
                             // Preserve fractional values
                             if (valueNode.isFloatingPointNumber()) {
-                                tag.addValue(valueNode.doubleValue());
+                                // NaN and Infinity are representable in JSON only by extension,
+                                // and neither is a meaningful tag value. SecretUtil already
+                                // rejected them on its parse path; this one did not, so the two
+                                // ingresses disagreed about what a valid secret was (audit L-9).
+                                double d = valueNode.doubleValue();
+                                if (Double.isNaN(d) || Double.isInfinite(d)) {
+                                    throw new IllegalArgumentException(
+                                            "Invalid floating-point value in tag '" + key
+                                                    + "': NaN or Infinity not allowed");
+                                }
+                                tag.addValue(d);
                             } else {
                                 tag.addValue(valueNode.longValue());
                             }

@@ -17,6 +17,10 @@ public class Point {
     );
 
     private static final BigInteger BI_TWO = BigInteger.valueOf(2);
+
+    /** secp256k1, for scalar multiplication; see {@link #mul}. */
+    private static final org.bouncycastle.math.ec.custom.sec.SecP256K1Curve CURVE =
+            new org.bouncycastle.math.ec.custom.sec.SecP256K1Curve();
     private final Pair<BigInteger, BigInteger> pair;
 
     public Point(BigInteger x, BigInteger y) {
@@ -108,18 +112,33 @@ public class Point {
         return new Point(x3, lam.multiply(P1.getX().subtract(x3)).subtract(P1.getY()).mod(p));
     }
 
+    /**
+     * Scalar multiplication, delegated to BouncyCastle.
+     *
+     * <p>This used to be a textbook double-and-add: for each of the 256 bits, always double, and
+     * add only when the bit is set. The number of point additions is therefore the Hamming
+     * weight of the scalar, and the scalar here is a private key
+     * ({@code Schnorr.sign} line 112) or a per-signature nonce (line 133). That is a timing side
+     * channel on exactly the two values that must not leak (audit M-6), and BigInteger's own
+     * operations are variable-time on top of it.
+     *
+     * <p>BouncyCastle's {@code ECPoint.multiply} uses a windowed comb with the countermeasures
+     * that implementation has accumulated, and it is already a dependency of this module. Using
+     * it is strictly better than maintaining a hand-rolled ladder here: writing constant-time
+     * arithmetic over {@code BigInteger} is not achievable anyway, since BigInteger allocates and
+     * branches on magnitude.
+     */
     public static Point mul(Point P, BigInteger n) {
-
-        Point R = null;
-
-        for (int i = 0; i < 256; i++) {
-            if (n.shiftRight(i).and(BigInteger.ONE).compareTo(BigInteger.ZERO) > 0) {
-                R = add(R, P);
-            }
-            P = add(P, P);
+        if (P == null || n == null || n.signum() == 0) {
+            return null;
         }
-
-        return R;
+        org.bouncycastle.math.ec.ECPoint bcPoint = CURVE.createPoint(P.getX(), P.getY());
+        org.bouncycastle.math.ec.ECPoint result = bcPoint.multiply(n.mod(Point.n)).normalize();
+        if (result.isInfinity()) {
+            return null;
+        }
+        return new Point(result.getAffineXCoord().toBigInteger(),
+                result.getAffineYCoord().toBigInteger());
     }
 
     public boolean hasEvenY() {

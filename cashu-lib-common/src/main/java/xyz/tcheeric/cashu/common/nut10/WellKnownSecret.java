@@ -138,6 +138,9 @@ public abstract class WellKnownSecret implements Secret {
 
     public void setTags(List<Tag> tags) {
         this.tags = tags;
+        if (tags != null) {
+            tags.forEach(tag -> tag.attachTo(this));
+        }
         forgetWireString();
     }
 
@@ -161,6 +164,7 @@ public abstract class WellKnownSecret implements Secret {
         Tag tag = new Tag(key);
         tag.getValues().addAll(asTagStrings(values));
         this.tags.add(tag);
+        tag.attachTo(this);
         forgetWireString();
     }
 
@@ -179,11 +183,13 @@ public abstract class WellKnownSecret implements Secret {
 
     public void addTag(@NonNull Tag tag) {
         this.tags.add(tag);
+        tag.attachTo(this);
         forgetWireString();
     }
 
     public void removeTag(@NonNull Tag tag) {
         this.tags.remove(tag);
+        tag.attachTo(null);
         forgetWireString();
     }
 
@@ -215,12 +221,36 @@ public abstract class WellKnownSecret implements Secret {
     }
 
 
+    /**
+     * A NUT-10 tag.
+     *
+     * <h2>Why a tag knows its owner</h2>
+     *
+     * <p>{@link WellKnownSecret} caches the exact string it was parsed from, so that hashing and
+     * signing use the bytes that actually arrived. Every mutator on the secret discards that
+     * cache. A tag, however, is reachable through {@code getTags()} and was independently
+     * mutable, so changing a tag's values left the secret returning a {@code toString()} that no
+     * longer described it (audit L-7). Since {@code toString()} is what {@code hash_to_curve}
+     * consumes, that is a secret whose identity and content disagree.
+     *
+     * <p>A tag therefore holds a back-reference to the secret it belongs to, set when it is
+     * attached, and invalidates through it. Tags built during parsing have no owner yet, which is
+     * correct: there is nothing cached to invalidate until the parse completes.
+     */
     @Data
     @JsonDeserialize(using = TagDeserializer.class)
     @JsonSerialize(using = TagSerializer.class)
     public static class Tag {
         private String key;
         private List<Object> values;
+
+        /** The secret this tag is attached to, if any. Not part of the tag's value. */
+        @lombok.Getter(lombok.AccessLevel.NONE)
+        @lombok.Setter(lombok.AccessLevel.NONE)
+        @lombok.EqualsAndHashCode.Exclude
+        @lombok.ToString.Exclude
+        @JsonIgnore
+        private transient WellKnownSecret owner;
 
         public Tag() {
             this.values = new ArrayList<>();
@@ -231,12 +261,35 @@ public abstract class WellKnownSecret implements Secret {
             this.values = new ArrayList<>();
         }
 
+        /** Attaches this tag to a secret, so that later mutation invalidates its wire string. */
+        void attachTo(WellKnownSecret owner) {
+            this.owner = owner;
+        }
+
+        private void ownerChanged() {
+            if (owner != null) {
+                owner.forgetWireString();
+            }
+        }
+
+        public void setKey(String key) {
+            this.key = key;
+            ownerChanged();
+        }
+
+        public void setValues(List<Object> values) {
+            this.values = values;
+            ownerChanged();
+        }
+
         public void addValue(@NonNull Object value) {
             this.values.add(value);
+            ownerChanged();
         }
 
         public void removeValue(@NonNull Object value) {
             this.values.remove(value);
+            ownerChanged();
         }
     }
 }
