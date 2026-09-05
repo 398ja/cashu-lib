@@ -20,6 +20,10 @@ on:
 
 permissions:
   contents: read
+  # Required by upload-sarif. Without it the upload returns 403, and because that step is
+  # if: always() it ran and failed even when the scan itself passed, so the job was red
+  # unconditionally from the first push. A check that cannot go green is worse than no check.
+  security-events: write
 
 jobs:
   scan:
@@ -72,7 +76,10 @@ jobs:
           output: 'trivy-results.sarif'
 
       - name: Upload SARIF
-        if: always()
+        # Not on pull requests from forks: security-events: write is not granted there whatever
+        # the workflow asks for, so the step can only fail. The push and schedule runs cover the
+        # same code.
+        if: always() && github.event_name != 'pull_request'
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
