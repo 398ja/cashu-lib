@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.NonNull;
 import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.util.encoders.Hex;
+import org.bouncycastle.math.ec.custom.sec.SecP256K1Curve;
 import xyz.tcheeric.cashu.crypto.util.Point;
 
 import java.util.Arrays;
@@ -61,6 +62,9 @@ public sealed class PublicKey extends BaseKey permits CompressedPublicKey, UnCom
      * @deprecated Subclasses are deprecated; use PublicKey directly.
      */
     @Deprecated(forRemoval = true)
+    /** secp256k1, for validating that decoded bytes are actually a point on it. */
+    private static final SecP256K1Curve SECP256K1 = new SecP256K1Curve();
+
     protected PublicKey() {
         // For deprecated subclass compatibility
     }
@@ -178,8 +182,10 @@ public sealed class PublicKey extends BaseKey permits CompressedPublicKey, UnCom
     public static PublicKey fromString(@NonNull String s) {
         int len = s.length();
         if (len == COMPRESSED_BYTES * 2) {
-            // Compressed: 66 hex chars
-            return new PublicKey(s);
+            // Compressed: 66 hex chars. Routed through fromBytes so the on-curve check applies
+            // here too; constructing directly from the string skipped it, which was the common
+            // path for keys arriving off the wire.
+            return fromBytes(Hex.decode(s));
         } else if (len == UNCOMPRESSED_XY_BYTES * 2) {
             // Uncompressed x||y: 128 hex chars
             return fromBytes(Hex.decode(s));
@@ -206,10 +212,10 @@ public sealed class PublicKey extends BaseKey permits CompressedPublicKey, UnCom
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static PublicKey fromBytes(byte[] bytes) {
         if (bytes.length == COMPRESSED_BYTES) {
-            return new PublicKey(bytes);
+            return new PublicKey(requireOnCurve(bytes));
         } else if (bytes.length == UNCOMPRESSED_XY_BYTES) {
             // Compress x||y to 33 bytes
-            return new PublicKey(compressXY(bytes));
+            return new PublicKey(requireOnCurve(compressXY(bytes)));
         } else if (bytes.length == SEC1_UNCOMPRESSED_BYTES) {
             // Strip 04 prefix and compress
             if (bytes[0] != 0x04) {
@@ -217,11 +223,42 @@ public sealed class PublicKey extends BaseKey permits CompressedPublicKey, UnCom
                         "Invalid SEC1 uncompressed prefix: " + String.format("0x%02x", bytes[0]));
             }
             byte[] xy = Arrays.copyOfRange(bytes, 1, bytes.length);
-            return new PublicKey(compressXY(xy));
+            return new PublicKey(requireOnCurve(compressXY(xy)));
         } else {
             throw new IllegalArgumentException(
                     "Invalid public key bytes length: " + bytes.length +
                     ". Expected 33 (compressed), 64 (x||y), or 65 (SEC1 uncompressed).");
+        }
+    }
+
+    /**
+     * Requires that the bytes decode to a point actually on secp256k1.
+     *
+     * <p>Length and prefix were checked; membership of the curve was not (audit L-4). A 33-byte
+     * string with an {@code 02} prefix is not necessarily a public key: most x values have no
+     * corresponding point. Accepting one produced a {@code PublicKey} that looked valid
+     * everywhere it was passed and failed, or behaved undefinedly, only at the point of use deep
+     * inside a signature or BDHKE operation. Rejecting at construction keeps the invariant where
+     * it can be stated: a PublicKey instance is a point on the curve.
+     *
+     * @param compressed 33-byte compressed encoding
+     * @return the same bytes, when they are a valid point
+     * @throws IllegalArgumentException if the bytes are not a point on secp256k1
+     */
+    private static byte[] requireOnCurve(byte[] compressed) {
+        try {
+            ECPoint point = SECP256K1.decodePoint(compressed);
+            if (point.isInfinity() || !point.isValid()) {
+                throw new IllegalArgumentException(
+                        "Public key is not a valid point on secp256k1");
+            }
+            return compressed;
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            // BouncyCastle throws various unchecked types for an undecodable point.
+            throw new IllegalArgumentException(
+                    "Public key is not a point on secp256k1: " + e.getMessage(), e);
         }
     }
 
