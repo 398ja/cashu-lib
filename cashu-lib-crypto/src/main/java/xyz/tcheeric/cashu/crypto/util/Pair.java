@@ -27,8 +27,38 @@ public class Pair<K, V> {
         return elementRight;
     }
 
-    public boolean equals(Pair<K, V> p) {
-        return (this.elementLeft.equals(p.getLeft())) && (this.elementRight.equals(p.getRight()));
+    /**
+     * Value equality on both elements.
+     *
+     * <p>Was {@code equals(Pair<K, V>)}, an overload rather than an override, so every comparison
+     * through an {@code Object} reference silently used identity: two Pairs holding equal elements
+     * were unequal, and {@code Point.equals}, which delegates here, inherited that. The compiler
+     * accepts the overload without complaint, which is why it went unnoticed.
+     *
+     * <p>Also null-safe now. The old body dereferenced {@code elementLeft} directly, so comparing
+     * the point at infinity, whose coordinates are both null, threw NullPointerException instead
+     * of answering the question.
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof Pair<?, ?> p)) {
+            return false;
+        }
+        return java.util.Objects.equals(elementLeft, p.getLeft())
+                && java.util.Objects.equals(elementRight, p.getRight());
     }
 
+    /** Required with {@link #equals}, and null-safe for the same reason. */
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(elementLeft, elementRight);
+    }
+
+    @Override
+    public String toString() {
+        return "(" + elementLeft + ", " + elementRight + ")";
+    }
 }

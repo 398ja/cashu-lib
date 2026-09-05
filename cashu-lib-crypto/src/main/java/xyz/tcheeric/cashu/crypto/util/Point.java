@@ -127,6 +127,34 @@ public class Point {
      * it is strictly better than maintaining a hand-rolled ladder here: writing constant-time
      * arithmetic over {@code BigInteger} is not achievable anyway, since BigInteger allocates and
      * branches on magnitude.
+     *
+     * <h2>Contract, and how it differs from the old loop</h2>
+     *
+     * <p>The swap was described as behaviour-preserving. It is not, and since this is
+     * {@code public static} on a published class the difference is worth stating rather than
+     * leaving for an external caller to discover:
+     *
+     * <ul>
+     *   <li><b>The scalar is reduced mod n.</b> The old loop iterated a fixed 256 bits and never
+     *       reduced, so a scalar of {@code 2^300} fell off the end and produced {@code null},
+     *       while {@code 2n} produced a finite point. Both were wrong. Now {@code 2^300} gives
+     *       the mathematically correct point and {@code 2n} gives infinity.</li>
+     *   <li><b>Infinity is {@code null}, not a non-null infinity Point.</b> The old code could
+     *       return {@link #infinityPoint()}, a {@code Point} with {@code x} and {@code y} both
+     *       null. A caller distinguishing "no result" from "the point at infinity" sees a
+     *       different object now. {@link #add} accepts both, which is why no in-repo caller
+     *       broke.</li>
+     *   <li><b>Negative scalars normalise.</b> The old signed bit iteration returned a different
+     *       point than {@code n mod order} does. The new answer is the correct one.</li>
+     * </ul>
+     *
+     * <p>Every in-repo caller was traced and none can reach a divergent scalar: {@code Schnorr}
+     * range-checks its private key and nonce, and the one place a scalar of exactly {@code n} can
+     * arise ({@code Schnorr} line 209, when {@code e == 0}) feeds {@link #add}, which null-checks.
+     *
+     * @param n scalar; reduced modulo the group order, so any value is accepted
+     * @return the resulting point, or {@code null} for the point at infinity, which includes the
+     *         cases {@code n == 0} and {@code n} a non-zero multiple of the group order
      */
     public static Point mul(Point P, BigInteger n) {
         if (P == null || n == null || n.signum() == 0) {
@@ -203,7 +231,36 @@ public class Point {
         return new Point(null, (BigInteger) null);
     }
 
-    public boolean equals(Point P) {
-        return getPair().equals(P.getPair());
+    /**
+     * Value equality on the affine coordinates.
+     *
+     * <p>This was previously declared as {@code equals(Point)}, which is an overload rather than
+     * an override: any comparison through an {@code Object} reference, which includes every
+     * collection lookup and every assertion library, silently fell back to
+     * {@link Object#equals(Object)} and compared identity. Two Points with the same coordinates
+     * were unequal, and the compiler had nothing to say about it because the overload is legal.
+     *
+     * <p>Kept working for callers that pass a {@code Point} statically, by widening the parameter
+     * rather than adding a second method, so there is one definition of equality instead of two
+     * that can disagree.
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof Point point)) {
+            return false;
+        }
+        return getPair().equals(point.getPair());
+    }
+
+    /**
+     * Required with {@link #equals}: a Point in a HashSet or as a HashMap key would otherwise be
+     * unfindable, which is the failure mode that hides longest.
+     */
+    @Override
+    public int hashCode() {
+        return getPair().hashCode();
     }
 }
