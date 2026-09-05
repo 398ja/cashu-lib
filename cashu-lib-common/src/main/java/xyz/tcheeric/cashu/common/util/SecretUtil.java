@@ -54,22 +54,39 @@ public final class SecretUtil<T extends Secret> {
             // Check if the string is a NUT-10 JSON array (e.g., ["VOUCHER","data","nonce",[]])
             String trimmed = str.trim();
             if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+                List<?> list;
                 try {
-                    // Parse as JSON array and convert to WellKnownSecret
-                    List<?> list = MAPPER.readValue(trimmed, new TypeReference<List<?>>() {});
+                    list = MAPPER.readValue(trimmed, new TypeReference<List<?>>() {});
+                } catch (Exception notJson) {
+                    // Not actually JSON despite the brackets, so it never claimed to be a
+                    // structured secret. A NUT-00 bearer string is the correct reading.
+                    log.debug("secret_util to_secret json_parse_failed secret_preview={} error={}",
+                            preview(trimmed), notJson.getMessage());
+                    return (T) RandomStringSecret.fromString(str);
+                }
+                if (!claimsToBeStructured(list)) {
+                    // A JSON array that is not of the form [kind, ...] is not a NUT-10 secret.
+                    log.debug("secret_util to_secret not_structured secret_preview={}", preview(trimmed));
+                    return (T) RandomStringSecret.fromString(str);
+                }
+                // From here the input declared a kind, so it IS a structured secret and any
+                // failure to build it MUST propagate.
+                //
+                // Falling through to RandomStringSecret would hand back a NUT-00 bearer secret
+                // carrying no spending condition at all: a P2PK or HTLC lock we could not parse
+                // would come back spendable by anyone holding the proof, and `Y` is derived from
+                // the same wire string so the mint would happily accept the swap. The sender, who
+                // knows the secret string, could then spend behind the recipient's back. Refusing
+                // to parse is the safe outcome; silently dropping the lock is strictly worse than
+                // the malformed lock itself.
+                try {
                     return rememberingWireString(listToSecret(list), str);
                 } catch (MalformedP2PKSecretException e) {
-                    // MUST NOT fall through. The fall-through treats the input as a NUT-00 random
-                    // string, which carries no spending condition at all - so a P2PK lock we just
-                    // rejected as malformed would come back as a bearer secret, spendable by
-                    // anyone holding the proof. Refusing to parse is the safe outcome; silently
-                    // dropping the lock is strictly worse than the malformed lock itself.
                     throw e;
-                } catch (Exception e) {
-                    log.debug("secret_util to_secret json_parse_failed secret_preview={} error={}",
-                            trimmed.length() > 40 ? trimmed.substring(0, 40) + "..." : trimmed,
-                            e.getMessage());
-                    // Fall through to treat as hex string
+                } catch (RuntimeException e) {
+                    throw new MalformedP2PKSecretException(
+                            "Refusing to parse a structured secret that declares kind '"
+                                    + declaredKind(list) + "': " + e.getMessage(), e);
                 }
             }
             // Treat as random hex string (NUT-00)
@@ -82,6 +99,32 @@ public final class SecretUtil<T extends Secret> {
             return listToSecret(list);
         }
         throw new IllegalArgumentException("Unknown secret type");
+    }
+
+    /**
+     * Whether the parsed JSON array declares a NUT-10 secret kind, i.e. is of the form
+     * {@code [kind, ...]} with a string first element.
+     *
+     * <p>This is deliberately a structural test rather than a test against the {@code Kind} enum:
+     * an array declaring an unknown or future kind still claims to be a structured secret, and
+     * must be rejected rather than silently downgraded to a bearer secret.
+     */
+    private static boolean claimsToBeStructured(List<?> list) {
+        return list != null && !list.isEmpty() && list.get(0) instanceof String;
+    }
+
+    /**
+     * The kind string a list declared, for diagnostics. Never includes secret material.
+     */
+    private static String declaredKind(List<?> list) {
+        return claimsToBeStructured(list) ? String.valueOf(list.get(0)) : "<none>";
+    }
+
+    /**
+     * A short, bounded excerpt of an unparsable secret for diagnostics.
+     */
+    private static String preview(String s) {
+        return s.length() > 16 ? s.substring(0, 16) + "..." : s;
     }
 
     /**
@@ -278,14 +321,20 @@ public final class SecretUtil<T extends Secret> {
                 java.util.List<Object> values = new java.util.ArrayList<>();
                 for (Object v : tag.getValues()) {
                     if (v instanceof String s) {
-                        values.add(P2PKSecret.SignatureFlag.valueOf(s));
+                        // Leave an unrecognised flag as the raw string rather than throwing here.
+                        // P2PKSecret.validate() -> requireKnownSigFlag() is the enforcement point
+                        // and raises a typed MalformedP2PKSecretException. Throwing a bare
+                        // IllegalArgumentException from this conversion ran *before* validate()
+                        // ever got a chance, and the caller's catch treated the whole secret as
+                        // an unstructured bearer string, dropping the lock entirely.
+                        values.add(parseSigFlagOrKeep(s));
                     } else {
                         values.add(v);
                     }
                 }
                 tag.setValues(values);
             }
-            case "n_sigs", "n_sigs_refund", "locktime" -> {
+            case "n_sigs", "n_sigs_refund" -> {
                 java.util.List<Object> values = new java.util.ArrayList<>();
                 for (Object v : tag.getValues()) {
                     if (v instanceof Number n) {
@@ -296,6 +345,32 @@ public final class SecretUtil<T extends Secret> {
                 }
                 tag.setValues(values);
             }
+            case "locktime" -> {
+                java.util.List<Object> values = new java.util.ArrayList<>();
+                for (Object v : tag.getValues()) {
+                    if (v instanceof Number n) {
+                        // Keep the full width. Narrowing to int silently wrapped any timestamp
+                        // past 2038-01-19 into a negative number, which every "has the locktime
+                        // passed?" check then read as long expired, unlocking the proof.
+                        values.add(n.longValue());
+                    } else {
+                        values.add(v);
+                    }
+                }
+                tag.setValues(values);
+            }
+        }
+    }
+
+    /**
+     * Parses a signature flag, returning the original string when it is not a known flag so that
+     * {@code P2PKSecret.validate()} can reject it with a typed exception.
+     */
+    private static Object parseSigFlagOrKeep(String s) {
+        try {
+            return P2PKSecret.SignatureFlag.valueOf(s);
+        } catch (IllegalArgumentException unknownFlag) {
+            return s;
         }
     }
 

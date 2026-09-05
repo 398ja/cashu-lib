@@ -14,7 +14,7 @@ class BaseKeyJsonCreatorTest {
     void shouldDeserializePrivateKey() throws Exception {
         // Arrange
         ObjectMapper mapper = new ObjectMapper();
-        String privateKeyHex = PrivateKey.generateRandom().toString();
+        String privateKeyHex = PrivateKey.generateRandom().asHex();
 
         // Act
         PrivateKey deserializedKey = mapper.readValue("\"" + privateKeyHex + "\"", PrivateKey.class);

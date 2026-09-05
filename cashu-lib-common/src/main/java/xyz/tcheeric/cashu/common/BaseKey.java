@@ -150,18 +150,35 @@ public abstract class BaseKey {
      * @return true if the keys are equal (case-insensitive)
      */
     public boolean equalsIgnoreCase(@NonNull BaseKey key) {
-        return this.toString().equalsIgnoreCase(key.toString());
+        return this.asHex().equalsIgnoreCase(key.asHex());
     }
 
     /**
      * Returns the key as a lowercase hex string.
+     *
+     * <p>This is the wire form. It is deliberately separate from {@link #toString()} so that a
+     * subclass holding secret material can redact its {@code toString()} without losing the
+     * ability to serialize. Call this only where the hex is genuinely needed (JSON, storage,
+     * signing), never in a log statement or an exception message.
+     *
+     * @return hex string representation
+     */
+    public String asHex() {
+        return Hex.toHexString(bytes);
+    }
+
+    /**
+     * Returns the key as a lowercase hex string.
+     *
+     * <p>Overridden by secret-bearing subclasses to redact. See {@link #asHex()} for the
+     * unconditional wire form.
      *
      * @return hex string representation
      */
     @JsonValue
     @Override
     public String toString() {
-        return Hex.toHexString(bytes);
+        return asHex();
     }
 
     /**

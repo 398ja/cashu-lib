@@ -116,4 +116,21 @@ public final class PrivateKey extends BaseKey implements AutoCloseable {
         return closed;
     }
 
+    /**
+     * Returns a redacted description, never the key material.
+     *
+     * <p>A private key reaches a log or an exception message almost exclusively by accident, via
+     * string concatenation or a container's {@code toString()}. Returning the raw hex here made
+     * every such accident a full keyset compromise. Callers that genuinely need the wire form
+     * (JSON serialization, persistence, signing) must ask for it explicitly via
+     * {@link #asHex()}; {@code @JsonValue} still sits on {@code asHex()}, so serialization is
+     * unaffected.
+     *
+     * @return a constant redaction marker
+     */
+    @Override
+    public String toString() {
+        return "PrivateKey(redacted)";
+    }
+
 }
