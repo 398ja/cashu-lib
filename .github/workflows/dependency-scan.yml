@@ -1,0 +1,70 @@
+name: Dependency vulnerability scan
+
+# Audit finding L-34: no repository in the cashu ecosystem ran vulnerability scanning in CI.
+# Dependabot proposes upgrades, but nothing failed a build when a known-vulnerable dependency
+# was present, so a transitively-introduced CVE could land unnoticed. That is how the
+# react-router advisories in mint-admin-web went unobserved until a manual audit.
+#
+# Trivy is used rather than OWASP dependency-check because it needs no NVD API key, caches its
+# database, and understands both the Maven and npm trees in this repository.
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Weekly, because a dependency does not have to change for it to become vulnerable: most
+    # findings arrive as new advisories against versions that were already pinned.
+    - cron: '0 6 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      # Trivy reads the resolved dependency tree, not just the poms, so transitive dependencies
+      # are covered. The build must therefore run first.
+      - name: Resolve dependencies
+        run: ./mvnw -q -B -DskipTests dependency:resolve
+
+      - name: Scan for vulnerabilities
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: 'fs'
+          scanners: 'vuln'
+          severity: 'CRITICAL,HIGH'
+          # Fail the build. A scan that only reports is a scan nobody reads.
+          exit-code: '1'
+          ignore-unfixed: true
+          format: 'table'
+
+      # Always produce SARIF so findings appear in the Security tab even when the step above
+      # failed the build.
+      - name: Generate SARIF report
+        if: always()
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: 'fs'
+          scanners: 'vuln'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'
+          ignore-unfixed: true
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
