@@ -43,10 +43,18 @@ jobs:
         with:
           scan-type: 'fs'
           scanners: 'vuln'
-          severity: 'CRITICAL,HIGH'
-          # Fail the build. A scan that only reports is a scan nobody reads.
+          # CRITICAL only blocks. A scan that only reports is a scan nobody reads, but a scan
+          # that is always red is also a scan nobody reads, and it blocks merges as well.
+          # CRITICAL+HIGH across a Spring Boot, Jackson and Netty tree produces findings most
+          # weeks, none of which need be related to the change under review, so blocking on HIGH
+          # would have trained everyone to ignore the check within about a month. HIGH findings
+          # still surface: the SARIF upload below reports them in the Security tab, and the
+          # weekly schedule means they arrive without needing a push.
+          severity: 'CRITICAL'
           exit-code: '1'
           ignore-unfixed: true
+          # Anything listed here is suppressed with a reason and a review date.
+          trivyignores: '.trivyignore'
           format: 'table'
 
       # Always produce SARIF so findings appear in the Security tab even when the step above

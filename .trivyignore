@@ -1,0 +1,12 @@
+# Trivy suppressions.
+#
+# One CVE per line. Every entry must carry a reason and a review date, because a suppression with
+# neither is indistinguishable from an oversight and outlives whoever added it:
+#
+#   # CVE-2024-12345 -- transitive via foo:bar, not reachable: we never call the affected codec.
+#   # Review by 2026-12-01, or when foo:bar 2.x lands.
+#   CVE-2024-12345
+#
+# The scan blocks on CRITICAL only. HIGH findings appear in the Security tab rather than failing
+# the build, so they do not need suppressing here to keep CI green; suppress a HIGH only if the
+# noise is actively obscuring something.
