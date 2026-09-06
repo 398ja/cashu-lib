@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.30.1] - 2026-09-06
+
+### Fixed
+
+- **Every voucher proof shared one nonce, making a split voucher unspendable.**
+  `0.30.0` redacted `PrivateKey.toString()` so a key could not reach a log by
+  accident, which was right. But `VoucherWellKnownSecret` and `WellKnownSecret`
+  built their NUT-10 nonce out of exactly that call, so every voucher secret of
+  every kind got the constant `"PrivateKey(redacted)"`.
+
+  The nonce is the only thing distinguishing two otherwise identical secrets.
+  Identical secrets hash to the same curve point, BDHKE gives them the same `Y`,
+  and the mint keys spent proofs on `Y` — so a 120 sat voucher splitting into
+  64+32+16+8 produced four proofs the mint saw as one. Spending any one marked
+  the rest spent, and a swap of all four was refused outright with
+  `11007 duplicate_inputs`. The holder lost three quarters of the value, and the
+  mint was correct to refuse.
+
+  Not confined to a single token either: the constant was shared by every proof
+  in existence, from every wallet.
+
+  Both constructors now use `asHex()`, the accessor the redaction javadoc
+  already directs callers to for the wire form.
+
+### Why this is a patch release rather than an amended 0.30.0
+
+`0.30.0` was tagged before this fix. Re-tagging would leave two artifacts with
+one version number and different contents, which is the failure mode a version
+exists to prevent — a consumer could not tell which one they had. Consumers
+should move to `0.30.1`; there is no reason to stay on `0.30.0`.
+
+---
+
 ## [0.30.0] - 2026-09-06
 
 Security remediation from the 2026-09-05 cashu ecosystem audit, plus the defects an adversarial
