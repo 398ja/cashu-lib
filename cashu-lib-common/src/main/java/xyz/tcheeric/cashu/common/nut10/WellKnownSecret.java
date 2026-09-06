@@ -93,8 +93,14 @@ public abstract class WellKnownSecret implements Secret {
     public WellKnownSecret(@NonNull Kind kind, byte[] data) {
         this.kind = kind;
         this.data = data;
+        // asHex(), not toString(): PrivateKey redacts its toString() so a key
+        // cannot reach a log by accident. A nonce taken from it would be the
+        // constant "PrivateKey(redacted)" for every secret of every kind, and
+        // the nonce is the only thing making two otherwise identical secrets
+        // distinct. Identical secrets share a Y, and the mint keys spent proofs
+        // on Y, so one spend would burn every proof that collided.
         try (PrivateKey randomKey = PrivateKey.generateRandom()) {
-            this.nonce = randomKey.toString();
+            this.nonce = randomKey.asHex();
         }
         this.tags = new ArrayList<>();
     }

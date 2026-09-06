@@ -29,8 +29,15 @@ public class VoucherWellKnownSecret extends VoucherSecret {
         super();
         this.setData(voucherData);
         // Generate unique nonce for BDHKE
+        //
+        // asHex(), not toString(): PrivateKey redacts its toString() so a key
+        // cannot reach a log by accident, and a nonce taken from it would be
+        // the constant "PrivateKey(redacted)" for every proof ever minted.
+        // Identical secrets hash to the same Y, and the mint keys spent proofs
+        // on Y — so a 120 sat voucher split into 64+32+16+8 would have all four
+        // outputs share one Y, and spending any one would mark the rest spent.
         try (PrivateKey randomKey = PrivateKey.generateRandom()) {
-            this.setNonce(randomKey.toString());
+            this.setNonce(randomKey.asHex());
         }
     }
 
