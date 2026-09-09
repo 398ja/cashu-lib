@@ -7,6 +7,98 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.30.1] - 2026-09-06
+
+### Fixed
+
+- **Every voucher proof shared one nonce, making a split voucher unspendable.**
+  `0.30.0` redacted `PrivateKey.toString()` so a key could not reach a log by
+  accident, which was right. But `VoucherWellKnownSecret` and `WellKnownSecret`
+  built their NUT-10 nonce out of exactly that call, so every voucher secret of
+  every kind got the constant `"PrivateKey(redacted)"`.
+
+  The nonce is the only thing distinguishing two otherwise identical secrets.
+  Identical secrets hash to the same curve point, BDHKE gives them the same `Y`,
+  and the mint keys spent proofs on `Y` — so a 120 sat voucher splitting into
+  64+32+16+8 produced four proofs the mint saw as one. Spending any one marked
+  the rest spent, and a swap of all four was refused outright with
+  `11007 duplicate_inputs`. The holder lost three quarters of the value, and the
+  mint was correct to refuse.
+
+  Not confined to a single token either: the constant was shared by every proof
+  in existence, from every wallet.
+
+  Both constructors now use `asHex()`, the accessor the redaction javadoc
+  already directs callers to for the wire form.
+
+### Why this is a patch release rather than an amended 0.30.0
+
+`0.30.0` was tagged before this fix. Re-tagging would leave two artifacts with
+one version number and different contents, which is the failure mode a version
+exists to prevent — a consumer could not tell which one they had. Consumers
+should move to `0.30.1`; there is no reason to stay on `0.30.0`.
+
+---
+
+## [0.30.0] - 2026-09-06
+
+Security remediation from the 2026-09-05 cashu ecosystem audit, plus the defects an adversarial
+review of that remediation found. Minor rather than patch: `Point.mul` and `Point.equals` change
+observable behaviour, and `PublicKey` now rejects inputs it used to accept.
+
+### Security
+
+- **Public keys are verified to be points on secp256k1 at construction** (audit L-4). Only length
+  and the 0x02/0x03 prefix were checked, so `BlindedMessage.B_`, mint `Keys` and every other
+  `PublicKey` deserialization accepted off-curve x values and failed later, deep in the crypto,
+  as an `IllegalStateException`. The check immediately caught two invalid hardcoded keys in the
+  mint's own test fixtures.
+
+- **A locked secret can no longer be downgraded to a bearer secret** (audit M-9). `SecretUtil`
+  could not parse a `P2PK_VOUCHER`, so it fell through to a bearer secret and the lock was
+  ignored: possession of the proof was sufficient, which is the one property the kind exists to
+  prevent. Malformed input now throws `MalformedP2PKSecretException` rather than degrading.
+
+- **Scalar multiplication is constant-time** (audit M-6). The hand-rolled double-and-add ran one
+  point addition per set bit, so its timing leaked the Hamming weight of the private key and the
+  per-signature nonce. Now BouncyCastle's windowed multiply.
+
+- **Amount parsing is strict, and DLEQ scalars are bounded** (audit M-8, M-10). `asInt()` silently
+  truncated and coerced; oversized DLEQ scalars were accepted without limit.
+
+### Fixed
+
+- **`Point.equals` and `Pair.equals` are real overrides.** Both declared `equals(Point)` and
+  `equals(Pair)`, which are overloads: every comparison through an `Object` reference, meaning
+  every collection lookup and every assertion library, silently compared identity instead. Two
+  points with identical coordinates were unequal and a `Point` in a `HashSet` was unfindable.
+  Neither class had a `hashCode`. `Pair.equals` is also null-safe now, where it previously threw
+  `NullPointerException` comparing the point at infinity, whose coordinates are both null.
+
+- **Numeric NUT-10 tag values serialize as JSON numbers.** `TagSerializer` tested for `Integer`
+  specifically, so when `locktime` widened to `Long` it fell through to the string default and was
+  emitted as `"locktime":"1893456000"`. NUT-11 specifies a number. A secret re-serialized through
+  Jackson rather than the canonical `toString()` produced different bytes, so it hashed to a
+  different `Y` and became a different proof; nothing derived `Y` that way, so the damage was one
+  refactor away rather than present.
+
+- **`P2PKVoucherSecret` gained four missing voucher accessors**, and a `P2PK_VOUCHER` is pinned to
+  honour the same spending conditions as a `P2PK`.
+
+### Changed
+
+- **`Point.mul` contract, documented and now tested.** The constant-time swap was described as
+  behaviour-preserving and was not: the scalar is reduced mod n (the old loop iterated a fixed 256
+  bits, so `2^300` returned null and `2n` returned a finite point, both wrong), infinity is
+  reported as `null` rather than a non-null infinity `Point`, and negative scalars normalise. No
+  in-repo caller can reach a divergent scalar, and all 1013 existing tests passed against the
+  change because every BIP-340 and NUT-00 vector uses an in-range scalar.
+
+### CI
+
+- Trivy dependency scanning, blocking on CRITICAL with a documented `.trivyignore`, plus
+  `security-events: write` so the SARIF upload can actually succeed.
+
 ## [0.29.0] - 2026-09-02
 
 ### Security

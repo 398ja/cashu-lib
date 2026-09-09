@@ -135,8 +135,17 @@ public class P2PKSecret extends WellKnownSecret {
         return stringValues(P2PKTag.pubkeys);
     }
 
-    public int getLockTime() {
-        return intValue(P2PKTag.locktime, 0);
+    /**
+     * The NUT-11 locktime, as a Unix timestamp in seconds, or {@code 0} when absent.
+     *
+     * <p>Returns {@code long}, not {@code int}. A locktime is a Unix timestamp, and any value past
+     * 2038-01-19 overflows a signed 32-bit int: {@code 4102444800} (2100-01-01) narrowed to
+     * {@code -192522496}. Every caller phrases the check as "locktime has passed", so a negative
+     * value read as long expired and unlocked the proof. Callers must treat a non-positive result
+     * as "no locktime", which is what an absent tag means.
+     */
+    public long getLockTime() {
+        return longValue(P2PKTag.locktime, 0L);
     }
 
     public List<String> getRefund() {
@@ -186,6 +195,34 @@ public class P2PKSecret extends WellKnownSecret {
         }
 
         requireKnownSigFlag();
+        requireWellFormedLockTime();
+    }
+
+    /**
+     * NUT-11 does not name the locktime among its malformed conditions, but a value that is not a
+     * non-negative integer cannot be compared against the clock, and the getter must not throw.
+     * Rejecting here means a proof carrying a nonsense locktime is refused outright rather than
+     * silently treated as unlocked.
+     */
+    private void requireWellFormedLockTime() {
+        Object raw = firstValue(P2PKTag.locktime);
+        if (raw == null) {
+            return; // absent: no locktime applies
+        }
+        long locktime;
+        if (raw instanceof Number n) {
+            locktime = n.longValue();
+        } else {
+            try {
+                locktime = Long.parseLong(String.valueOf(raw).trim());
+            } catch (NumberFormatException e) {
+                throw new MalformedP2PKSecretException("locktime is not an integer", e);
+            }
+        }
+        if (locktime < 0) {
+            throw new MalformedP2PKSecretException(
+                    "locktime must not be negative, got " + locktime);
+        }
     }
 
     private void requireEachTagAtMostOnce() {
@@ -282,6 +319,28 @@ public class P2PKSecret extends WellKnownSecret {
             return Integer.parseInt(String.valueOf(raw).trim());
         } catch (NumberFormatException e) {
             // Non-numeric is malformed; validate() rejects it. A getter must not throw.
+            return defaultValue;
+        }
+    }
+
+    /**
+     * First tag value as a long, falling back to {@code defaultValue}.
+     *
+     * <p>Used for the locktime, where narrowing to {@code int} silently corrupts any timestamp
+     * past 2038. As with {@link #intValue}, a value that is not an integer at all is malformed and
+     * {@code validate()} rejects it; a getter must not throw.
+     */
+    private long longValue(P2PKTag tag, long defaultValue) {
+        Object raw = firstValue(tag);
+        if (raw == null) {
+            return defaultValue;
+        }
+        if (raw instanceof Number) {
+            return ((Number) raw).longValue();
+        }
+        try {
+            return Long.parseLong(String.valueOf(raw).trim());
+        } catch (NumberFormatException e) {
             return defaultValue;
         }
     }

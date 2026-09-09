@@ -384,12 +384,28 @@ public class VoucherSecret extends WellKnownSecret {
     }
 
     /**
-     * Checks if this voucher is signed.
+     * Whether the signature and public key tags are both present.
      *
-     * @return true if signature and public key are present
+     * <p>Named for what it checks. The former name, {@code isSigned()}, read as "this voucher's
+     * signature is good" and meant only "the fields are filled in" (audit L-11), which is a
+     * dangerous thing for a method guarding a redemption path to be ambiguous about: an attacker
+     * supplies both fields trivially. Verifying the signature is
+     * {@code VoucherSignatureService.verify}, and even that only proves the voucher is
+     * self-consistent unless the key is checked against a registered issuer.
+     *
+     * @return true if both the signature and public key tags are present
      */
-    public boolean isSigned() {
+    public boolean hasSignatureFields() {
         return getIssuerSignature() != null && getIssuerPublicKey() != null;
+    }
+
+    /**
+     * @return true if both the signature and public key tags are present
+     * @deprecated Misleading name: this never verified anything. Use {@link #hasSignatureFields()}.
+     */
+    @Deprecated(forRemoval = true)
+    public boolean isSigned() {
+        return hasSignatureFields();
     }
 
     /**

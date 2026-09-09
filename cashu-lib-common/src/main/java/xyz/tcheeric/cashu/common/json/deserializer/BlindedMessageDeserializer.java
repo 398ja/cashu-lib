@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
+import xyz.tcheeric.cashu.common.json.AmountJson;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import xyz.tcheeric.cashu.common.BlindedMessage;
 import xyz.tcheeric.cashu.common.KeysetId;
@@ -18,7 +19,9 @@ public class BlindedMessageDeserializer extends JsonDeserializer<BlindedMessage>
         JsonNode node = p.readValueAsTree();
         if (node.isObject()) {
             ObjectMapper mapper = (ObjectMapper) p.getCodec();
-            int amount = node.get("amount").asInt();
+            // Strict: asInt() coerces a non-numeric or oversized value to 0, which the protocol
+            // then treats as a real amount (audit M-8).
+            int amount = AmountJson.require(node, "amount");
             JsonNode idNode = node.get("id");
             KeysetId keysetId = null;
             if (idNode != null && !idNode.isNull()) {

@@ -252,8 +252,15 @@ public final class Signature {
      * @param message the message to sign
      * @param privateKey the signing private key
      * @return the Schnorr signature
-     * @throws Exception if signing fails
+     * @throws Exception if signing fails, including when the message is not 32 bytes
      * @see <a href="https://github.com/cashubtc/nuts/blob/main/11.md">NUT-11: P2PK</a>
+     *
+     * <p><b>The message must be exactly 32 bytes when UTF-8 encoded.</b> BIP-340 signs a 32-byte
+     * message, and this overload passes {@code message.getBytes(UTF_8)} straight through, so a
+     * string of any other length raises {@code SignatureException} from the crypto layer rather
+     * than being hashed to fit (audit L-8). That is deliberate: silently hashing would make two
+     * different callers disagree about what was signed. Callers with arbitrary-length input
+     * should hash it themselves and pass the digest, or use the {@code byte[]} overload.
      */
     public static Signature sign(@NonNull String message, @NonNull PrivateKey privateKey) throws Exception {
         byte[] signature = Schnorr.sign(message.getBytes(StandardCharsets.UTF_8), privateKey.getBytes());

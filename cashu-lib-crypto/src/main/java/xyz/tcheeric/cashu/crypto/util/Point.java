@@ -17,6 +17,10 @@ public class Point {
     );
 
     private static final BigInteger BI_TWO = BigInteger.valueOf(2);
+
+    /** secp256k1, for scalar multiplication; see {@link #mul}. */
+    private static final org.bouncycastle.math.ec.custom.sec.SecP256K1Curve CURVE =
+            new org.bouncycastle.math.ec.custom.sec.SecP256K1Curve();
     private final Pair<BigInteger, BigInteger> pair;
 
     public Point(BigInteger x, BigInteger y) {
@@ -108,18 +112,61 @@ public class Point {
         return new Point(x3, lam.multiply(P1.getX().subtract(x3)).subtract(P1.getY()).mod(p));
     }
 
+    /**
+     * Scalar multiplication, delegated to BouncyCastle.
+     *
+     * <p>This used to be a textbook double-and-add: for each of the 256 bits, always double, and
+     * add only when the bit is set. The number of point additions is therefore the Hamming
+     * weight of the scalar, and the scalar here is a private key
+     * ({@code Schnorr.sign} line 112) or a per-signature nonce (line 133). That is a timing side
+     * channel on exactly the two values that must not leak (audit M-6), and BigInteger's own
+     * operations are variable-time on top of it.
+     *
+     * <p>BouncyCastle's {@code ECPoint.multiply} uses a windowed comb with the countermeasures
+     * that implementation has accumulated, and it is already a dependency of this module. Using
+     * it is strictly better than maintaining a hand-rolled ladder here: writing constant-time
+     * arithmetic over {@code BigInteger} is not achievable anyway, since BigInteger allocates and
+     * branches on magnitude.
+     *
+     * <h2>Contract, and how it differs from the old loop</h2>
+     *
+     * <p>The swap was described as behaviour-preserving. It is not, and since this is
+     * {@code public static} on a published class the difference is worth stating rather than
+     * leaving for an external caller to discover:
+     *
+     * <ul>
+     *   <li><b>The scalar is reduced mod n.</b> The old loop iterated a fixed 256 bits and never
+     *       reduced, so a scalar of {@code 2^300} fell off the end and produced {@code null},
+     *       while {@code 2n} produced a finite point. Both were wrong. Now {@code 2^300} gives
+     *       the mathematically correct point and {@code 2n} gives infinity.</li>
+     *   <li><b>Infinity is {@code null}, not a non-null infinity Point.</b> The old code could
+     *       return {@link #infinityPoint()}, a {@code Point} with {@code x} and {@code y} both
+     *       null. A caller distinguishing "no result" from "the point at infinity" sees a
+     *       different object now. {@link #add} accepts both, which is why no in-repo caller
+     *       broke.</li>
+     *   <li><b>Negative scalars normalise.</b> The old signed bit iteration returned a different
+     *       point than {@code n mod order} does. The new answer is the correct one.</li>
+     * </ul>
+     *
+     * <p>Every in-repo caller was traced and none can reach a divergent scalar: {@code Schnorr}
+     * range-checks its private key and nonce, and the one place a scalar of exactly {@code n} can
+     * arise ({@code Schnorr} line 209, when {@code e == 0}) feeds {@link #add}, which null-checks.
+     *
+     * @param n scalar; reduced modulo the group order, so any value is accepted
+     * @return the resulting point, or {@code null} for the point at infinity, which includes the
+     *         cases {@code n == 0} and {@code n} a non-zero multiple of the group order
+     */
     public static Point mul(Point P, BigInteger n) {
-
-        Point R = null;
-
-        for (int i = 0; i < 256; i++) {
-            if (n.shiftRight(i).and(BigInteger.ONE).compareTo(BigInteger.ZERO) > 0) {
-                R = add(R, P);
-            }
-            P = add(P, P);
+        if (P == null || n == null || n.signum() == 0) {
+            return null;
         }
-
-        return R;
+        org.bouncycastle.math.ec.ECPoint bcPoint = CURVE.createPoint(P.getX(), P.getY());
+        org.bouncycastle.math.ec.ECPoint result = bcPoint.multiply(n.mod(Point.n)).normalize();
+        if (result.isInfinity()) {
+            return null;
+        }
+        return new Point(result.getAffineXCoord().toBigInteger(),
+                result.getAffineYCoord().toBigInteger());
     }
 
     public boolean hasEvenY() {
@@ -184,7 +231,36 @@ public class Point {
         return new Point(null, (BigInteger) null);
     }
 
-    public boolean equals(Point P) {
-        return getPair().equals(P.getPair());
+    /**
+     * Value equality on the affine coordinates.
+     *
+     * <p>This was previously declared as {@code equals(Point)}, which is an overload rather than
+     * an override: any comparison through an {@code Object} reference, which includes every
+     * collection lookup and every assertion library, silently fell back to
+     * {@link Object#equals(Object)} and compared identity. Two Points with the same coordinates
+     * were unequal, and the compiler had nothing to say about it because the overload is legal.
+     *
+     * <p>Kept working for callers that pass a {@code Point} statically, by widening the parameter
+     * rather than adding a second method, so there is one definition of equality instead of two
+     * that can disagree.
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof Point point)) {
+            return false;
+        }
+        return getPair().equals(point.getPair());
+    }
+
+    /**
+     * Required with {@link #equals}: a Point in a HashSet or as a HashMap key would otherwise be
+     * unfindable, which is the failure mode that hides longest.
+     */
+    @Override
+    public int hashCode() {
+        return getPair().hashCode();
     }
 }

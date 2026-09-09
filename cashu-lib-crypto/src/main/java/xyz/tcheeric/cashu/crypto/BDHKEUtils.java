@@ -238,14 +238,16 @@ public final class BDHKEUtils {
 
 
     private static boolean verify(byte[] Y, byte[] k, byte[] C) {
-        log.debug("verify(bytes): Y={}, k={}, C={}",
-                Utils.bytesToHexString(Y), Utils.bytesToHexString(k), Utils.bytesToHexString(C));
+        // The mint's keyset private key `k` must never reach log storage: anyone able to read
+        // the logs could forge unlimited ecash for that keyset. Log only the public points.
+        log.debug("verify(bytes): Y={}, C={}",
+                Utils.bytesToHexString(Y), Utils.bytesToHexString(C));
         return verify(CURVE.decodePoint(Y), Utils.bigIntFromBytes(k), CURVE.decodePoint(C));
     }
 
     private static boolean verify(ECPoint Y, BigInteger k, ECPoint C) {
-        log.debug("verify(points): Y={}, k={}, C={}",
-                pointToHex(Y), Utils.bytesToHexString(Utils.bytesFromBigInteger(k)), pointToHex(C));
+        // `k` deliberately omitted; see the note above.
+        log.debug("verify(points): Y={}, C={}", pointToHex(Y), pointToHex(C));
         ECPoint result = Y.multiply(k);
         return C.equals(result);
     }

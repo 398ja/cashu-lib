@@ -30,8 +30,8 @@ import static xyz.tcheeric.cashu.crypto.util.Utils.bigIntFromBytes;
  * Pay-to-Pubkey (P2PK) spending conditions.
  *
  * <h2>Thread Safety</h2>
- * <p>This class is thread-safe. All methods use per-call {@code SecureRandom}
- * instances and operate on local variables without shared mutable state.
+ * <p>This class is thread-safe. Methods operate on local variables without shared mutable
+ * state; the one shared field is a {@link SecureRandom}, which is itself thread-safe.
  *
  * <h2>Security Considerations</h2>
  * <ul>
@@ -54,6 +54,22 @@ import static xyz.tcheeric.cashu.crypto.util.Utils.bigIntFromBytes;
  */
 @ThreadSafe
 public final class Schnorr {
+
+    /**
+     * Shared CSPRNG for per-signature auxiliary randomness.
+     *
+     * <p>{@code SecureRandom.getInstanceStrong()} was being called once per signature (audit
+     * L-10). On Linux that resolves to a blocking source by default, so a host with a depleted
+     * entropy pool stalls every signing operation, and constructing a fresh instance each time
+     * pays the seeding cost repeatedly for no benefit.
+     *
+     * <p>A single shared {@code new SecureRandom()} is the right tool here. It is
+     * cryptographically secure, it is thread-safe, it does not block once seeded, and BIP-340
+     * treats {@code aux_rand} as a hardening measure rather than the source of the nonce: the
+     * nonce is derived from the private key and the message, so a signature remains secure even
+     * if this value were entirely predictable.
+     */
+    private static final SecureRandom AUX_RAND = new SecureRandom();
 
     private Schnorr() {
         // Utility class - prevent instantiation
@@ -100,7 +116,7 @@ public final class Schnorr {
             int len = Utils.bytesFromBigInteger(secKey0).length + P.toBytes().length + msg.length;
             byte[] buf = new byte[len];
             byte[] auxRand = new byte[32];
-            SecureRandom.getInstanceStrong().nextBytes(auxRand);
+            AUX_RAND.nextBytes(auxRand);
             byte[] t = Utils.xor(Utils.bytesFromBigInteger(secKey0), Point.taggedHash("BIP0340/aux", auxRand));
 
             if (t == null) {

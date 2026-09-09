@@ -123,8 +123,13 @@ public final class DLEQUtils {
             ECPoint generator = spec.getG();
             BigInteger n = spec.getN();
 
-            BigInteger challenge = Utils.bigIntFromBytes(Utils.hexStringToBytes(e));
-            BigInteger response = Utils.bigIntFromBytes(Utils.hexStringToBytes(s));
+            // Both scalars come off the wire as hex of arbitrary length. Point multiplication
+            // costs time proportional to the size of the scalar, so an attacker supplying a
+            // megabyte of hex buys a correspondingly long computation on the verifying node for
+            // the price of one request (audit M-10). A DLEQ scalar is a residue mod n, so it is
+            // at most 32 bytes; anything longer is malformed by definition, not merely large.
+            BigInteger challenge = requireScalar(e, "e");
+            BigInteger response = requireScalar(s, "s");
 
             ECPoint sG = generator.multiply(response).normalize();
             ECPoint eA = publicKey.multiply(challenge).normalize();
@@ -143,6 +148,32 @@ public final class DLEQUtils {
             log.error("DLEQ verification failed with exception", ex);
             return false;
         }
+    }
+
+    /**
+     * Parses a wire scalar, refusing anything that could not be a residue mod n.
+     *
+     * <p>Bounded before it reaches point multiplication; see the note in
+     * {@link #verifyProof}. Values are rejected rather than reduced: a scalar larger than the
+     * group order is not a valid proof element, and quietly reducing it would accept a proof the
+     * signer never produced.
+     */
+    private static BigInteger requireScalar(String hex, String name) {
+        if (hex == null || hex.isEmpty()) {
+            throw new IllegalArgumentException("DLEQ scalar '" + name + "' is missing");
+        }
+        // 32 bytes = 64 hex characters. Allow an odd-length string of the same magnitude, since
+        // some encoders drop a leading zero nibble.
+        if (hex.length() > 64) {
+            throw new IllegalArgumentException(
+                    "DLEQ scalar '" + name + "' is longer than 32 bytes: " + hex.length()
+                            + " hex characters");
+        }
+        BigInteger value = Utils.bigIntFromBytes(Utils.hexStringToBytes(hex));
+        if (value.signum() < 0) {
+            throw new IllegalArgumentException("DLEQ scalar '" + name + "' is negative");
+        }
+        return value;
     }
 
     /**
