@@ -48,7 +48,7 @@
         <!-- Annotation Dependency Versions -->
         <lombok.version>1.18.40</lombok.version>
 
-        <bcprov-jdk18on.version>1.81</bcprov-jdk18on.version>
+        <bcprov-jdk18on.version>1.84</bcprov-jdk18on.version>
 
         <jackson-dataformat-cbor.version>2.20.0</jackson-dataformat-cbor.version>
 
@@ -95,6 +95,17 @@
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk18on</artifactId>
+                <version>${bcprov-jdk18on.version}</version>
+            </dependency>
+            <!-- bcprov-jdk15to18 arrives transitively via bip-utils ->
+                 bitcoinj-core at 1.80, which CVE-2025-14813 affects. It is the
+                 same provider built for an older JDK, so it must move with its
+                 sibling; managed here because nothing declares it directly and
+                 a transitive crypto provider is exactly the kind of thing that
+                 sits unnoticed at a vulnerable version. -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15to18</artifactId>
                 <version>${bcprov-jdk18on.version}</version>
             </dependency>
             <dependency>
