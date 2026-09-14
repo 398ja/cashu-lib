@@ -68,9 +68,16 @@ jobs:
       # the current count so ordinary dependency churn never trips it.
       - name: Assert the SBOM actually resolved dependencies
         run: |
+          set -euo pipefail
           test -f target/sbom.json || { echo "::error::No SBOM produced"; exit 1; }
           count=$(python3 -c "import json;print(len(json.load(open('target/sbom.json')).get('components',[])))")
           echo "SBOM components: $count"
+          case "$count" in
+            ''|*[!0-9]*)
+              echo "::error::Could not read a component count from the SBOM."
+              exit 1
+              ;;
+          esac
           if [ "$count" -lt 15 ]; then
             echo "::error::SBOM has only $count components; dependency resolution likely failed."
             echo "::error::Refusing to report a green scan over an unresolved tree (issue #266)."
