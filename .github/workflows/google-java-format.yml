@@ -1,3 +1,22 @@
+name: Format
+
+# Restored after commit f4a0572 (Dec 2025, "clean up redundant configuration") removed the
+# `name:`, `on:` and `permissions:` blocks. They are not redundant: without `on:` GitHub has no
+# trigger to attach the workflow to, so every run fails instantly, before any job starts. The
+# run list shows failure on every push since, on `main` and on branches alike -- roughly nine
+# months of a red check that could never have been green.
+#
+# `contents: write` is likewise required rather than decorative: `--replace` rewrites files in
+# place and the action pushes the result back, which needs write access to do at all.
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
 jobs:
   formatting:
     runs-on: ubuntu-latest
