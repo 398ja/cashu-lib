@@ -22,11 +22,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - name: Set up Java 17
+      # Java 21, not 17. The action downloads the latest google-java-format, which is currently
+      # 1.36.1 and compiled to class file major 65 -- Java 21. Under 17 it fails on `--version`,
+      # before formatting anything, so the job dies with an opaque "Command ... failed with exit
+      # code 1". 21 is also what this project targets, so the toolchain now matches the code.
+      - name: Set up Java 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
       - uses: axel-op/googlejavaformat-action@v4
         with:
           args: "--replace"
