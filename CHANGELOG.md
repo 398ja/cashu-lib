@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.30.2] - 2026-09-14
+
+### Security
+
+- **CI now scans a resolved SBOM, and runs secret scanning.** Part of closing P8 in the
+  2026-09-13 AppSec review: no repository in the estate ran SAST, SCA or secret scanning.
+
+### Added
+
+- **Two NUT invariants are pinned by tests.** Both were unwritten assumptions the review
+  surfaced; an invariant nobody has written down is one the next refactor may quietly break.
+
 ### Security
 
 - **The Maven dependency scan was detecting nothing.** It ran `trivy scan-type: fs`, which
