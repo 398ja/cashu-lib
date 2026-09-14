@@ -216,6 +216,12 @@ public final class BDHKEUtils {
     public static boolean verify(@NonNull String secret, @NonNull BigInteger k, @NonNull ECPoint C) {
         for (SecretEncoding encoding : SecretEncoding.verificationOrder()) {
             if (verifyUnder(encoding, secret, k, C)) {
+                if (encoding == SecretEncoding.LEGACY_HEX) {
+                    // This proof would stop verifying if the legacy path were removed. Counting
+                    // it is what lets an operator know when the sunset (issue #264) is safe:
+                    // zero over a long enough window means no circulating proof depends on it.
+                    LegacyEncodingUsage.recordLegacyOnlyVerification();
+                }
                 log.debug("bdhke verify_succeeded encoding={}", encoding);
                 return true;
             }

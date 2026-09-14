@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Security
+
+- **The Maven dependency scan was detecting nothing.** It ran `trivy scan-type: fs`, which
+  parses `pom.xml`, and in a multi-module project using `dependencyManagement` the coordinate
+  and its version never appear in the same file: the parent declares the `<version>` inside
+  `<dependencyManagement>` (not a dependency), the child declares the dependency without one.
+  The job was green while Dependabot held four open alerts. It now scans a CycloneDX aggregate
+  SBOM produced after resolution, with `includeTestScope=true` — the open high advisory is
+  `assertj-core`, a test dependency, and the default SBOM omits test scope entirely, so the
+  obvious configuration would have reproduced the original bug on the package that motivated
+  the fix. A guard step fails the build if the SBOM comes back implausibly small.
+- **Secret scanning added.** No repository in the ecosystem had any; the dependency scan covers
+  packages, not credentials. gitleaks runs over full history, since a secret that was committed
+  and later removed is still reachable.
+
+### Added
+
+- `LegacyEncodingUsage` counts verifications that succeed *only* under the legacy secret
+  encoding. `SecretEncoding` documents that the legacy path should not be permanent and names
+  the switch that disables it, but nothing told an operator *when* flipping it was safe —
+  doing so while pre-migration proofs are unspent invalidates real money. Zero over a long
+  enough window is the signal that the sunset can be taken.
+- `SigningKeyCounter` moves the NUT-11 distinct-key threshold rule into the library. A
+  threshold counts distinct public keys, not signatures: otherwise one key clears an n-of-m by
+  signing twice, and since Schnorr signing is non-deterministic it need not even be the same
+  signature. The rule was implemented correctly in `cashu-mint` with no test at all.
+
 ## [0.30.1] - 2026-09-06
 
 ### Fixed

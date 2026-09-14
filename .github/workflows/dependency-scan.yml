@@ -7,6 +7,23 @@ name: Dependency vulnerability scan
 #
 # Trivy is used rather than OWASP dependency-check because it needs no NVD API key, caches its
 # database, and understands both the Maven and npm trees in this repository.
+#
+# AppSec review finding L-4 (issue #266): the Maven scan was detecting nothing. `scan-type: fs`
+# parses pom.xml, and in a multi-module project using dependencyManagement the coordinate and its
+# version never appear in the same file -- the parent declares <version> inside
+# <dependencyManagement>, which is not a dependency, and the child declares the dependency with
+# no version. Per file Trivy sees either a managed version nothing depends on, or a dependency
+# with no version, and neither is matchable against an advisory. The scan was green while
+# Dependabot held 4 open alerts on the same tree.
+#
+# The fix is to scan something produced AFTER Maven resolves. CycloneDX emits an aggregate SBOM
+# carrying resolved coordinates, and Trivy reads it natively. Adding flags to the fs scan could
+# not have worked: no file in the tree holds the joined coordinate-plus-version fact.
+#
+# includeTestScope is deliberate. The open high advisory here is assertj-core, a test dependency,
+# and the default SBOM omits test scope entirely -- so the obvious configuration would have
+# reproduced the original bug on the very package that motivated the fix. Test dependencies run
+# in CI and on developer machines, which is worth scanning even though they do not ship.
 
 on:
   push:
@@ -37,16 +54,34 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      # Trivy reads the resolved dependency tree, not just the poms, so transitive dependencies
-      # are covered. The build must therefore run first.
-      - name: Resolve dependencies
-        run: ./mvnw -q -B -DskipTests dependency:resolve
+      # Produces target/sbom.json: the aggregate, fully-resolved dependency set across every
+      # module, test scope included. This is what makes Maven scanning work at all.
+      - name: Generate CycloneDX SBOM
+        run: >-
+          ./mvnw -q -B -DskipTests
+          org.cyclonedx:cyclonedx-maven-plugin:2.9.1:makeAggregateBom
+          -DoutputName=sbom -DoutputFormat=json -DincludeTestScope=true
+
+      # Fail loudly if the SBOM is missing or implausibly small. Without this, a plugin change
+      # that silently stopped emitting components would return the job to exactly the state
+      # issue #266 describes: a green scan over an unresolved tree. The threshold sits well below
+      # the current count so ordinary dependency churn never trips it.
+      - name: Assert the SBOM actually resolved dependencies
+        run: |
+          test -f target/sbom.json || { echo "::error::No SBOM produced"; exit 1; }
+          count=$(python3 -c "import json;print(len(json.load(open('target/sbom.json')).get('components',[])))")
+          echo "SBOM components: $count"
+          if [ "$count" -lt 15 ]; then
+            echo "::error::SBOM has only $count components; dependency resolution likely failed."
+            echo "::error::Refusing to report a green scan over an unresolved tree (issue #266)."
+            exit 1
+          fi
 
       - name: Scan for vulnerabilities
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          scan-type: 'fs'
-          scanners: 'vuln'
+          scan-type: 'sbom'
+          scan-ref: 'target/sbom.json'
           # CRITICAL only blocks. A scan that only reports is a scan nobody reads, but a scan
           # that is always red is also a scan nobody reads, and it blocks merges as well.
           # CRITICAL+HIGH across a Spring Boot, Jackson and Netty tree produces findings most
@@ -67,8 +102,8 @@ jobs:
         if: always()
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          scan-type: 'fs'
-          scanners: 'vuln'
+          scan-type: 'sbom'
+          scan-ref: 'target/sbom.json'
           severity: 'CRITICAL,HIGH'
           exit-code: '0'
           ignore-unfixed: true

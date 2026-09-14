@@ -1,0 +1,50 @@
+# gitleaks configuration for the cashu libraries.
+#
+# Starts from the upstream default ruleset and narrows it, rather than replacing it: the default
+# rules know the shapes of real credentials (AWS keys, GitHub tokens, PEM blocks, Slack tokens),
+# and reimplementing that is how a secret scanner quietly stops finding things.
+[extend]
+useDefault = true
+
+[allowlist]
+description = """
+Cashu cryptographic test data.
+
+The generic-api-key rule fires on any long high-entropy string, and a Cashu secret, blinded
+message, proof commitment or keyset id is exactly that by construction: 64 characters of hex.
+The protocol's own NUT test vectors are made of them. Without an allowlist every scan reports
+dozens of findings that are all test data, which is how a security check gets ignored — and a
+real leak then arrives in the noise.
+
+Deliberately matched by VALUE SHAPE rather than by path. An earlier draft of this file allowlisted
+`src/test/java/**` wholesale, and a check confirmed that a literal AWS key
+(AKIAIOSFODNN7EXAMPLE) committed to a test file went undetected. Exempting a location exempts
+every rule there; exempting a shape exempts only strings that look like Cashu crypto material.
+A real AWS key, GitHub token or PEM block in a test file still fails the job, because none of
+them is 64 characters of hex.
+"""
+
+regexes = [
+    # 64-char lowercase hex: a Cashu secret, a proof C value, or a 32-byte key in test data.
+    '''^[0-9a-f]{64}$''',
+    # 66-char compressed secp256k1 point (02/03 prefix + x-coordinate).
+    '''^0[23][0-9a-f]{64}$''',
+    # 128-char hex: a 64-byte Schnorr signature.
+    '''^[0-9a-f]{128}$''',
+    # Truncated illustrative values in design documents, e.g. `"secret": "a1b2c3d4e5f6..."` or a
+    # `cashuAey...` token abbreviated with an ellipsis. The trailing `...` is what makes them
+    # documentation rather than data: a real credential is never written with its middle removed.
+    '''\.\.\.$''',
+    # Cashu V3/V4 token strings, which are base64 payloads and therefore high-entropy by
+    # construction. A token is public by design -- it is what a wallet hands to a payee -- so it
+    # is not a credential in the sense this scan is looking for.
+    '''^cashu[AB][A-Za-z0-9_-]+$''',
+]
+
+paths = [
+    # Upstream NUT test vectors, copied verbatim from cashubtc/nuts. These are entire documents of
+    # protocol fixtures; editing them to satisfy a scanner would defeat the point of vendoring the
+    # spec's own test data. This is the one place a path exemption is justified, because the file
+    # is not ours to change.
+    '''.*/src/test/resources/vectors/.*''',
+]
