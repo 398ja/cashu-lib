@@ -225,6 +225,22 @@ public class VoucherSecret extends WellKnownSecret {
         return getTagValue(VoucherTags.MERCHANT_METADATA);
     }
 
+    /**
+     * Gets the issuance warrant JSON.
+     *
+     * <p>Null means the tag is ABSENT, which is not the same as a warrant whose form is
+     * {@code none}. Absent says the voucher predates warrants and the issuer signed nothing
+     * about the question; {@code none} is a signed statement that nothing outside the issuing
+     * service authorised it. A reader that collapses the two lets a stripped warrant read as a
+     * legacy voucher.
+     *
+     * @return the JSON string, or null if the tag is absent
+     * @see VoucherTags#ISSUANCE_WARRANT
+     */
+    public String getIssuanceWarrant() {
+        return getTagValue(VoucherTags.ISSUANCE_WARRANT);
+    }
+
     // ===== Tag-based setters =====
 
     /**
@@ -368,6 +384,30 @@ public class VoucherSecret extends WellKnownSecret {
         }
     }
 
+    /**
+     * Sets the issuance warrant.
+     *
+     * <p><b>Call this BEFORE signing.</b> Canonical bytes are built from the tags in insertion
+     * order and exclude only the signature tags, so a warrant added after
+     * {@code setIssuerSignature} would not be covered by the signature that is supposed to
+     * protect it — and an uncovered warrant can be stripped or swapped by anyone handling the
+     * token. The builder below gets this ordering right; a caller mutating a secret by hand
+     * must too.
+     *
+     * @param warrantJson the warrant JSON, or null to clear
+     * @see VoucherTags#ISSUANCE_WARRANT
+     */
+    public void setIssuanceWarrant(String warrantJson) {
+        if (warrantJson != null && !warrantJson.isBlank()) {
+            setTag(VoucherTags.ISSUANCE_WARRANT, List.of(warrantJson));
+        } else {
+            Tag tag = getTag(VoucherTags.ISSUANCE_WARRANT);
+            if (tag != null) {
+                removeTag(tag);
+            }
+        }
+    }
+
     // ===== Helper methods =====
 
     /**
@@ -467,6 +507,7 @@ public class VoucherSecret extends WellKnownSecret {
         private String issuerSignature;
         private String issuerPublicKey;
         private String merchantMetadata;
+        private String issuanceWarrant;
 
         public Builder voucherId(UUID id) {
             this.voucherId = id;
@@ -534,6 +575,18 @@ public class VoucherSecret extends WellKnownSecret {
         }
 
         /**
+         * Sets the issuance warrant, which {@link #build()} applies BEFORE the signature tags
+         * so the issuer's signature covers it.
+         *
+         * @param warrantJson the warrant JSON, or null for a voucher with no warrant tag
+         * @see VoucherTags#ISSUANCE_WARRANT
+         */
+        public Builder issuanceWarrant(String warrantJson) {
+            this.issuanceWarrant = warrantJson;
+            return this;
+        }
+
+        /**
          * Builds the VoucherSecret instance.
          *
          * @return a new VoucherSecret
@@ -556,6 +609,12 @@ public class VoucherSecret extends WellKnownSecret {
             if (faceDecimals != null) vs.setFaceDecimals(faceDecimals);
             vs.setBackingStrategy(backingStrategy);
             vs.setIssuanceRatio(issuanceRatio);
+            // The warrant goes on BEFORE the signature tags. Canonical bytes are built from
+            // tags in insertion order and exclude only issuer_sig/issuer_pubkey, so a warrant
+            // written after them would still be inside the signed bytes - but the ordering is
+            // fixed here deliberately rather than left to chance, because the bytes are hashed
+            // and a reordering is a voucher that no longer verifies.
+            vs.setIssuanceWarrant(issuanceWarrant);
             if (issuerSignature != null) vs.setIssuerSignature(issuerSignature);
             if (issuerPublicKey != null) vs.setIssuerPublicKey(issuerPublicKey);
             vs.setMerchantMetadata(merchantMetadata);
