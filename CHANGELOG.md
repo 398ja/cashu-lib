@@ -9,6 +9,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.30.4] - 2026-09-21
+
+### Added
+
+- **`VoucherTags.ISSUANCE_WARRANT` on `VoucherSecret`**, with getter, setter and builder support,
+  mirroring `merchantMetadata`. A voucher carries one signature and it is the issuing *service's*,
+  so "stall X issued this" is an assertion nobody can verify against X. This tag carries evidence
+  that someone outside the issuing service authorised the issuance. See cashu-voucher's
+  `IssuanceWarrant` for the scheme.
+
+  Two properties are one line from being wrong, so they are stated in the javadoc. The tag must be
+  set *before* the signature tags, because canonical bytes are built in tag insertion order and the
+  issuer's signature over the warrant is what stops a compromised service stripping it. And `null`
+  means ABSENT, which is not a warrant whose form is `none`: absent says the voucher predates
+  warrants, `none` is a signed statement that nothing authorised it beyond the service. A reader
+  that collapses the two lets a stripped warrant read as legacy.
+
+### Fixed
+
+- **0.30.3 was tagged and 0.30.2 was published, and the warrant landed in neither.** The commit
+  that added the tag above also reverted all four poms from 0.30.3 back to 0.30.2, on the stated
+  reasoning that ADR 0006 moves cashu-lib/cashu-voucher/cashu-mint as a set and the BOM pinned
+  0.30.2. That conflated *which versions travel together* with *which version the code is in*, and
+  left three artefacts disagreeing: the BOM pinned 0.30.3, the v0.30.3 tag contained no warrant
+  code at all, and the code that did contain it claimed to be the already-published 0.30.2.
+
+  Local builds stayed green only because `~/.m2` held a locally rebuilt 0.30.2 shadowing the
+  published artefact of the same coordinate; on CI, or any other machine, resolving the BOM's
+  0.30.3 would not have compiled. 0.30.4 is a fresh coordinate precisely so that neither the
+  published 0.30.2 nor the empty 0.30.3 is ever reused with different bytes.
+
 ## [0.30.3] - 2026-09-21
 
 ### Fixed
