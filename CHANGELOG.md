@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.30.2] - 2026-09-21
+## [0.30.3] - 2026-09-21
 
 ### Fixed
 
@@ -36,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Applied to all response types plus `KeySet` and `ActiveKeySet`, with a structural test so a
   response type added later cannot silently lack it.
 
+
+## [0.30.2] - 2026-09-14
 
 ### Security
 
