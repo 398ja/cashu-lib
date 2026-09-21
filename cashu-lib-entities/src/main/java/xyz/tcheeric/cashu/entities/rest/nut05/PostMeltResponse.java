@@ -1,6 +1,7 @@
 package xyz.tcheeric.cashu.entities.rest.nut05;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ import java.util.List;
 @Data
 @JsonPropertyOrder({"quote", "request", "amount", "unit", "method", "fee_reserve", "state",
         "expiry", "payment_preimage", "paid", "change"})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PostMeltResponse {
 
     /**

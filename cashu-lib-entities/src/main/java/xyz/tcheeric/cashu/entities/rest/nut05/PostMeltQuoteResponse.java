@@ -1,6 +1,7 @@
 package xyz.tcheeric.cashu.entities.rest.nut05;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonPropertyOrder({"quote", "request", "amount", "unit", "method", "fee_reserve", "state", "expiry",
         "payment_preimage", "paid"})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PostMeltQuoteResponse {
 
     /** NUT-23 default payment method, the only one this response type has ever described. */

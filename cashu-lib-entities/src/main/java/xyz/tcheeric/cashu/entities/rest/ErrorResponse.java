@@ -2,6 +2,7 @@ package xyz.tcheeric.cashu.entities.rest;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,6 +24,7 @@ import java.util.Optional;
  * @param code numeric error code from the NUT registry, or our reserved extension range
  */
 @JsonPropertyOrder({"detail", "code"})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record ErrorResponse(
         @JsonProperty("detail") String detail,
         @JsonProperty("code") int code) {
