@@ -9,7 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.30.2] - 2026-09-14
+## [0.30.2] - 2026-09-21
+
+### Fixed
+
+- **`GET /v1/keys` omitted the NUT-01 `active` field, locking every modern wallet out of the
+  mint.** Wallets model `active` as required, so its absence did not lose one field — it failed
+  the entire response to deserialise. A current Nutshell wallet could obtain no keyset at all and
+  reported `no active keysets found for unit sat`, which reads like the mint has no keys. Found by
+  pointing a wallet at a live mint rather than at a test harness. `GET /v1/keysets` was always
+  correct because it uses a different type that carried the flag; two types for one concept is how
+  the drift went unnoticed.
+
+- **`PostMeltResponse` returned the pre-NUT-23 shape.** NUT-05 defines the melt response as the
+  melt *quote* response plus the proof of payment; this returned only
+  `{paid, payment_preimage, change}`, and a current wallet rejected it with eight missing fields.
+  That failure is worse than a refusal: by the time the response is parsed the invoice is paid and
+  the customer's proofs are spent, so an unparseable success is indistinguishable from a failure,
+  and a wallet that retries has already lost the proofs. `paid` is retained alongside the new
+  `state` and marked deprecated, so existing consumers keep working.
+
+- **Every response type now ignores unknown properties.** Jackson throws
+  `UnrecognizedPropertyException` by default and none of the sixteen response types carried
+  `@JsonIgnoreProperties(ignoreUnknown = true)`, which meant the two field additions above would
+  have broken every already-deployed client. Verified against the jar actually running on staging.
+  Applied to all response types plus `KeySet` and `ActiveKeySet`, with a structural test so a
+  response type added later cannot silently lack it.
+
 
 ### Security
 
