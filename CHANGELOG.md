@@ -9,6 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.30.5] - 2026-09-22
+
+### Security
+
+- **BouncyCastle 1.84 -> 1.85 for CVE-2026-8763 (CRITICAL).** X.509 Name Constraints can be
+  bypassed with a trailing dot in an `rfc822Name` or URI, so a certificate can assert a name
+  the constraint exists to forbid.
+
+  This repository pins BouncyCastle through its own `bcprov-jdk18on.version` property rather
+  than importing `imani-bom`, so the estate-wide fix at the BOM did not reach it. Both
+  `bcprov-jdk18on` and `bcprov-jdk15to18` take that one property, which is what keeps the two
+  from drifting apart — the previous BouncyCastle CVE survived a fix precisely because the
+  declared version and the transitively-resolved version disagreed.
+
+  Verified with `dependency:tree` rather than by reading the pom: both artifacts now resolve
+  1.85. 1201 tests pass on the new provider.
+
+### Notes for operators
+
+- No API change. A consumer that resolves this version gets the patched provider without any
+  code change of its own.
+
 ## [0.30.4] - 2026-09-21
 
 ### Added
