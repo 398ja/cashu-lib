@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.30.6] - 2026-09-23
+
+### Security
+
+- **jackson-databind 2.21.4 -> 2.21.5**, closing three deserialization filter bypasses:
+  - **CVE-2026-54515** — case-insensitive deserialization bypasses per-property
+    `@JsonIgnoreProperties`
+  - **CVE-2026-59889** — `@JsonView` bypassed for `@JsonUnwrapped` container properties
+  - **GHSA-mhm7-754m-9p8w** — `@JsonView` bypass for creator properties with
+    `@JsonTypeInfo(include = As.EXTERNAL_PROPERTY)`
+
+  All three let a property the model declares as ignored or out-of-view be populated from
+  input anyway. This library parses keysets and NUT-18 payment payloads that arrive from
+  mints and relays, and `KeySet`, `ActiveKeySet`, `VoucherTransport`, `PaymentPayload` and
+  `VoucherPaymentPayload` all rely on those annotations, so the boundary they define is a
+  real one here rather than a formality.
+
+### Notes for operators
+
+- No API change. 1023 tests pass on the new version.
+
+- `jackson-annotations` is deliberately left resolving to **2.21**. Jackson versions that
+  artifact separately from the rest of the family and 2.21.5 does not exist; bumping it in
+  step with databind fails the build outright.
+
+
 ## [Unreleased]
 
 ## [0.30.5] - 2026-09-22
