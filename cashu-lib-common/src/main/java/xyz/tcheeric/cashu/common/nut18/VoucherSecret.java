@@ -341,13 +341,29 @@ public class VoucherSecret extends WellKnownSecret {
      */
     public void setIssuanceRatio(Double issuanceRatio) {
         if (issuanceRatio != null && issuanceRatio != 1.0) {
-            setTag(VoucherTags.ISSUANCE_RATIO, List.of(issuanceRatio));
+            // Stored in the canonical spelling cashu-voucher signs and verifies against: a whole
+            // number as a long ("2", not "2.0"), a fraction via Double.toString. cashu-voucher
+            // 0.15.0 refuses a numeric tag that is not already in this form, so storing
+            // String.valueOf(2.0) made every whole-number ratio other than 1 unverifiable.
+            setTag(VoucherTags.ISSUANCE_RATIO, List.of(canonicalNumber(issuanceRatio)));
         } else {
             Tag tag = getTag(VoucherTags.ISSUANCE_RATIO);
             if (tag != null) {
                 removeTag(tag);
             }
         }
+    }
+
+    /**
+     * The canonical spelling of a numeric tag value, matching cashu-voucher's
+     * {@code VoucherCanonicalBytes}: finite values with a fractional part use
+     * {@link Double#toString(double)}, everything else is written as its {@code long}.
+     */
+    private static String canonicalNumber(double value) {
+        if (Double.isFinite(value) && value != Math.floor(value)) {
+            return Double.toString(value);
+        }
+        return Long.toString((long) value);
     }
 
     /**

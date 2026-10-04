@@ -298,6 +298,32 @@ class VoucherSecretTest {
         assertThat(parsedVoucher.getIssuanceRatio()).isEqualTo(2.0);
     }
 
+    /**
+     * A whole-number ratio must be stored as "2", not "2.0".
+     *
+     * <p>cashu-voucher 0.15.0 (#48) refuses a numeric tag whose wire spelling is not already
+     * canonical, and its canonical spelling of 2.0 is "2". Storing String.valueOf(2.0) meant every
+     * voucher built through this setter with a whole-number ratio other than 1 failed
+     * verification, even though the issuer's signature was good. Fractions keep
+     * Double.toString's spelling, which is what the canonicaliser writes for them.
+     */
+    @Test
+    void shouldStoreIssuanceRatioInCanonicalSpelling() {
+        double[] ratios = {2.0, 3.0, 100.0, 1.0E7, 0.5, 1.5, 0.07516442217350454, 1.0E-4};
+        String[] expected = {"2", "3", "100", "10000000", "0.5", "1.5", "0.07516442217350454", "1.0E-4"};
+
+        for (int i = 0; i < ratios.length; i++) {
+            // Arrange + Act
+            VoucherSecret secret = VoucherSecret.builder().issuerId("merchant").issuanceRatio(ratios[i]).build();
+
+            // Assert
+            assertThat(secret.getTag(VoucherTags.ISSUANCE_RATIO).getValues())
+                    .as("ratio %s", ratios[i])
+                    .containsExactly(expected[i]);
+            assertThat(secret.getIssuanceRatio()).isEqualTo(ratios[i]);
+        }
+    }
+
     // ===== Negative test cases for error handling =====
 
     /**

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Fixed
+
+- **`VoucherSecret.setIssuanceRatio` stores the canonical spelling.** A whole-number ratio was
+  written as `String.valueOf(2.0)`, i.e. `"2.0"`. cashu-voucher 0.15.0 (#48) refuses any numeric
+  tag that is not already canonical, and the canonical spelling of 2 is `"2"`, so every voucher
+  built through this setter (including every CBOR codec that rebuilds a secret via the builder)
+  with a whole-number ratio other than 1 failed verification. Fractions are unchanged
+  (`Double.toString`), matching `VoucherCanonicalBytes.appendNumber`. Signing bytes are
+  unchanged because the canonicaliser already normalised both spellings to `2`.
+
 ## [0.30.6] - 2026-09-23
 
 ### Security
@@ -32,8 +44,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   artifact separately from the rest of the family and 2.21.5 does not exist; bumping it in
   step with databind fails the build outright.
 
-
-## [Unreleased]
 
 ## [0.30.5] - 2026-09-22
 
