@@ -3,6 +3,7 @@ package xyz.tcheeric.cashu.common.nut11;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import xyz.tcheeric.cashu.common.nut10.WellKnownSecret;
+import xyz.tcheeric.cashu.common.nut18.VoucherSecret;
 import xyz.tcheeric.cashu.common.nut18.VoucherTags;
 
 import java.util.List;
@@ -227,8 +228,15 @@ public class P2PKVoucherSecret extends P2PKSecret {
         }
     }
 
+    /**
+     * Sets the issuance ratio in the canonical spelling the plain kind uses ({@code "2"}, not
+     * {@code "2.0"}), which is the only spelling cashu-voucher verifies (cashu-voucher#59).
+     *
+     * @param issuanceRatio the ratio
+     * @throws IllegalArgumentException if the ratio is NaN or infinite
+     */
     public void setIssuanceRatio(double issuanceRatio) {
-        setTag(VoucherTags.ISSUANCE_RATIO, List.of(issuanceRatio));
+        setTag(VoucherTags.ISSUANCE_RATIO, List.of(VoucherSecret.canonicalIssuanceRatio(issuanceRatio)));
     }
 
     /**

@@ -18,6 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with a whole-number ratio other than 1 failed verification. Fractions are unchanged
   (`Double.toString`), matching `VoucherCanonicalBytes.appendNumber`. Signing bytes are
   unchanged because the canonicaliser already normalised both spellings to `2`.
+- **`P2PKVoucherSecret.setIssuanceRatio` stores the same canonical spelling** (cashu-voucher#59).
+  The locked kind still wrote `String.valueOf(2.0)`. Both setters now share
+  `VoucherSecret.canonicalIssuanceRatio`, which also refuses NaN and infinity with an
+  `IllegalArgumentException` instead of silently spelling them as `"0"` or `Long.MAX_VALUE`.
+  No other tag's rendering changes: `face_value`, `expires_at` and `face_decimals` are integral
+  types and were already canonical.
 
 ## [0.30.6] - 2026-09-23
 

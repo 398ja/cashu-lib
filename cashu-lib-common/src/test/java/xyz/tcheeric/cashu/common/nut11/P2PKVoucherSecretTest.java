@@ -7,6 +7,7 @@ import org.bouncycastle.util.encoders.Hex;
 import xyz.tcheeric.cashu.common.nut10.Nut10Option;
 import xyz.tcheeric.cashu.common.nut10.WellKnownSecret;
 import xyz.tcheeric.cashu.common.nut18.VoucherSecret;
+import xyz.tcheeric.cashu.common.nut18.VoucherTags;
 import xyz.tcheeric.cashu.common.util.JsonUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -382,6 +383,36 @@ class P2PKVoucherSecretTest {
             assertThat(locked.getFaceDecimals()).isEqualTo(plain.getFaceDecimals());
             assertThat(locked.getBackingStrategy()).isEqualTo(plain.getBackingStrategy());
             assertThat(locked.getIssuanceRatio()).isEqualTo(plain.getIssuanceRatio());
+        }
+
+        /**
+         * The locked kind writes the same ratio spelling as the plain kind.
+         *
+         * <p>cashu-lib#272 fixed VoucherSecret.setIssuanceRatio but left this setter storing
+         * String.valueOf(2.0), i.e. "2.0". cashu-voucher refuses a numeric tag that is not
+         * already canonical (cashu-voucher#48), so a locked voucher with a whole-number ratio
+         * would be one its own issuer cannot get verified (cashu-voucher#59).
+         */
+        @Test
+        @DisplayName("a whole-number ratio is stored as \"2\", exactly as the plain kind stores it")
+        void ratioSpellingMatches() {
+            for (double ratio : new double[] {2.0, 50.0, 700.0, 0.75, 1.0E-4}) {
+                // Arrange
+                P2PKVoucherSecret locked = new P2PKVoucherSecret(Hex.decode(SPENDING_KEY));
+                VoucherSecret plain = new VoucherSecret();
+
+                // Act
+                locked.setIssuanceRatio(ratio);
+                plain.setIssuanceRatio(ratio);
+
+                // Assert
+                assertThat(locked.getTag(VoucherTags.ISSUANCE_RATIO).getValues())
+                        .as("ratio %s", ratio)
+                        .containsExactlyElementsOf(plain.getTag(VoucherTags.ISSUANCE_RATIO).getValues());
+            }
+            P2PKVoucherSecret fifty = new P2PKVoucherSecret(Hex.decode(SPENDING_KEY));
+            fifty.setIssuanceRatio(50.0);
+            assertThat(fifty.getTag(VoucherTags.ISSUANCE_RATIO).getValues()).containsExactly("50");
         }
 
         @Test
