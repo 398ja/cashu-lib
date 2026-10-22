@@ -341,13 +341,42 @@ public class VoucherSecret extends WellKnownSecret {
      */
     public void setIssuanceRatio(Double issuanceRatio) {
         if (issuanceRatio != null && issuanceRatio != 1.0) {
-            setTag(VoucherTags.ISSUANCE_RATIO, List.of(issuanceRatio));
+            // Stored in the canonical spelling cashu-voucher signs and verifies against: a whole
+            // number as a long ("2", not "2.0"), a fraction via Double.toString. cashu-voucher
+            // 0.15.0 refuses a numeric tag that is not already in this form, so storing
+            // String.valueOf(2.0) made every whole-number ratio other than 1 unverifiable.
+            setTag(VoucherTags.ISSUANCE_RATIO, List.of(canonicalIssuanceRatio(issuanceRatio)));
         } else {
             Tag tag = getTag(VoucherTags.ISSUANCE_RATIO);
             if (tag != null) {
                 removeTag(tag);
             }
         }
+    }
+
+    /**
+     * The canonical spelling of an issuance ratio, matching cashu-voucher's
+     * {@code VoucherCanonicalBytes}: a value with a fractional part uses
+     * {@link Double#toString(double)}, a whole number is written as its {@code long}, so
+     * {@code 50.0} is {@code "50"} and {@code 0.5} is {@code "0.5"}.
+     *
+     * <p>Shared by both voucher kinds so a locked and an unlocked voucher can never spell the
+     * same ratio two ways.
+     *
+     * @param ratio the ratio to spell
+     * @return the tag string cashu-voucher signs and verifies against
+     * @throws IllegalArgumentException if the ratio is NaN or infinite, which have no
+     *                                  canonical spelling (the long cast would silently turn
+     *                                  NaN into {@code "0"})
+     */
+    public static String canonicalIssuanceRatio(double ratio) {
+        if (!Double.isFinite(ratio)) {
+            throw new IllegalArgumentException(VoucherTags.ISSUANCE_RATIO + " must be finite, got " + ratio);
+        }
+        if (ratio != Math.floor(ratio)) {
+            return Double.toString(ratio);
+        }
+        return Long.toString((long) ratio);
     }
 
     /**

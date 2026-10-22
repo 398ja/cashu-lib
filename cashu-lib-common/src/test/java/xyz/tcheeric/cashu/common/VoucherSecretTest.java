@@ -8,6 +8,7 @@ import xyz.tcheeric.cashu.common.util.SecretUtil;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests VoucherSecret serialization, deserialization, and tag-based storage.
@@ -296,6 +297,86 @@ class VoucherSecretTest {
         assertThat(parsed).isInstanceOf(VoucherSecret.class);
         VoucherSecret parsedVoucher = (VoucherSecret) parsed;
         assertThat(parsedVoucher.getIssuanceRatio()).isEqualTo(2.0);
+    }
+
+    /**
+     * A whole-number ratio must be stored as "2", not "2.0".
+     *
+     * <p>cashu-voucher 0.15.0 (#48) refuses a numeric tag whose wire spelling is not already
+     * canonical, and its canonical spelling of 2.0 is "2". Storing String.valueOf(2.0) meant every
+     * voucher built through this setter with a whole-number ratio other than 1 failed
+     * verification, even though the issuer's signature was good. Fractions keep
+     * Double.toString's spelling, which is what the canonicaliser writes for them.
+     */
+    @Test
+    void shouldStoreIssuanceRatioInCanonicalSpelling() {
+        double[] ratios = {2.0, 3.0, 100.0, 1.0E7, 0.5, 1.5, 0.07516442217350454, 1.0E-4};
+        String[] expected = {"2", "3", "100", "10000000", "0.5", "1.5", "0.07516442217350454", "1.0E-4"};
+
+        for (int i = 0; i < ratios.length; i++) {
+            // Arrange + Act
+            VoucherSecret secret = VoucherSecret.builder().issuerId("merchant").issuanceRatio(ratios[i]).build();
+
+            // Assert
+            assertThat(secret.getTag(VoucherTags.ISSUANCE_RATIO).getValues())
+                    .as("ratio %s", ratios[i])
+                    .containsExactly(expected[i]);
+            assertThat(secret.getIssuanceRatio()).isEqualTo(ratios[i]);
+        }
+    }
+
+    /**
+     * A ratio with no number to spell is refused instead of being stored as a different number.
+     *
+     * <p>The canonical rule writes a non-fractional value through {@code (long) value}, so NaN
+     * would become "0" and +Infinity "9223372036854775807": a ratio nobody chose, silently. The
+     * old setter wrote "NaN" / "Infinity", which cashu-voucher refuses outright. Refusing at the
+     * setter keeps that outcome and puts it at the call site.
+     */
+    @Test
+    void shouldRefuseNonFiniteIssuanceRatio() {
+        for (double ratio : new double[] {Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY}) {
+            // Arrange
+            VoucherSecret secret = new VoucherSecret();
+
+            // Act + Assert
+            assertThatThrownBy(() -> secret.setIssuanceRatio(ratio))
+                    .as("ratio %s", ratio)
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("issuance_ratio");
+        }
+    }
+
+    /**
+     * Only the issuance_ratio tag changes spelling; the integral tags and the rendered secret
+     * are otherwise byte-identical to what this library always produced.
+     *
+     * <p>Every live voucher's proof secret and every issuer signature depends on these bytes.
+     * face_value, expires_at and face_decimals are Long/Integer and String.valueOf renders them
+     * with no decimal point, so they were already canonical and must stay exactly so.
+     */
+    @Test
+    void shouldLeaveEveryOtherTagSpellingUnchanged() {
+        // Arrange
+        VoucherSecret secret = VoucherSecret.builder()
+                .voucherId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
+                .nonce("aa")
+                .issuerId("merchant")
+                .unit("EUR")
+                .faceValue(500L)
+                .expiresAt(1893456000L)
+                .faceDecimals(2)
+                .backingStrategy("MINIMAL")
+                .issuanceRatio(50.0)
+                .build();
+
+        // Act
+        String wire = secret.toString();
+
+        // Assert
+        assertThat(wire).contains("[\"face_value\",\"500\"]", "[\"expires_at\",\"1893456000\"]",
+                "[\"face_decimals\",\"2\"]", "[\"issuance_ratio\",\"50\"]");
+        assertThat(wire).doesNotContain("50.0");
     }
 
     // ===== Negative test cases for error handling =====
