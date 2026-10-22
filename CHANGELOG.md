@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.30.7] - 2026-10-22
+
 ### Fixed
 
 - **`VoucherSecret.setIssuanceRatio` stores the canonical spelling.** A whole-number ratio was
@@ -24,6 +26,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `IllegalArgumentException` instead of silently spelling them as `"0"` or `Long.MAX_VALUE`.
   No other tag's rendering changes: `face_value`, `expires_at` and `face_decimals` are integral
   types and were already canonical.
+
+### Notes for operators
+
+- **Wire change:** a newly built locked voucher with ratio 1 now carries `"1"` (was `"1.0"`).
+  The canonical bytes are identical, so signatures are unaffected.
+- **Pair with cashu-voucher 0.17.1.** cashu-voucher 0.17.1 must never be built against 0.30.6.
+- **D10 gate (cashu-voucher#59):** with this version alone, unlocked whole-ratio coupons verify
+  at a mint again. Bumping it into a BOM or the mint is gated on the cashu-mint#540 redemption
+  cap being in ENFORCE. Publishing the artifact changes nothing live.
+- 1205 tests pass.
 
 ## [0.30.6] - 2026-09-23
 
