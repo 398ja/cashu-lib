@@ -55,7 +55,7 @@
         <jackson-databind.version>2.20.0</jackson-databind.version>
 
         <!-- Logging Dependency Versions -->
-        <slf4j.version>2.0.17</slf4j.version>
+        <slf4j.version>2.0.20</slf4j.version>
 
         <!-- Annotation Dependency Versions -->
         <jcip-annotations.version>1.0</jcip-annotations.version>
