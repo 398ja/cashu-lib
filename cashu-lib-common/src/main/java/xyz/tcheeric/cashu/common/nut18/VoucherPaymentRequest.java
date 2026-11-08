@@ -196,6 +196,9 @@ public class VoucherPaymentRequest {
                     request.getPaymentId(), request.getIssuerId());
             return request;
         } catch (IOException e) {
+            if (JsonUtils.isMalformedInput(e)) {
+                throw new IllegalArgumentException("Invalid voucher payment request: " + e.getMessage(), e);
+            }
             throw new RuntimeException("Failed to deserialize VoucherPaymentRequest", e);
         }
     }

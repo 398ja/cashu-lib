@@ -51,7 +51,8 @@ public final class TokenV4CborEncoder {
         int topKeys = (tds != null ? 1 : 0)
                 + (token.getMintUrl() != null ? 1 : 0)
                 + (token.getUnit() != null ? 1 : 0)
-                + (token.getMemo() != null ? 1 : 0);
+                + (token.getMemo() != null ? 1 : 0)
+                + (token.hasVoucherDocuments() ? 1 : 0);
         writeMapHeader(o, topKeys);
         if (tds != null) {
             writeTextString(o, "t");
@@ -94,6 +95,13 @@ public final class TokenV4CborEncoder {
         if (token.getMemo() != null)    { writeTextString(o, "d"); writeTextString(o, token.getMemo()); }
         if (token.getMintUrl() != null) { writeTextString(o, "m"); writeTextString(o, token.getMintUrl()); }
         if (token.getUnit() != null)    { writeTextString(o, "u"); writeTextString(o, token.getUnit()); }
+        if (token.hasVoucherDocuments()) {
+            // ---- v: voucher documents by reference, sorted by key, written last (cashu-voucher#64) ----
+            var documents = token.getVoucherDocuments();
+            writeTextString(o, "v");
+            writeMapHeader(o, documents.size());
+            documents.forEach((key, document) -> { writeTextString(o, key); writeByteString(o, document); });
+        }
         return o.toByteArray();
     }
 }

@@ -144,6 +144,19 @@ class PaymentRequestTest {
             assertThrows(IllegalArgumentException.class, () ->
                     PaymentRequest.deserialize("creqB" + "somedata"));
         }
+
+        /** A CBOR map that repeats a key is an invalid request, not an internal error. */
+        @Test
+        void shouldRejectRepeatedKeyAsInvalidRequest() {
+            // {"a": 1, "a": 2}: map(2), text "a", uint 1, text "a", uint 2
+            byte[] cbor = {(byte) 0xA2, 0x61, 'a', 0x01, 0x61, 'a', 0x02};
+            String encoded = PaymentRequest.REQUEST_PREFIX + PaymentRequest.VERSION_CODE
+                    + java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(cbor);
+
+            IllegalArgumentException refused = assertThrows(IllegalArgumentException.class, () ->
+                    PaymentRequest.deserialize(encoded));
+            assertThat(refused.getMessage()).contains("Duplicate field");
+        }
     }
 
     @Nested

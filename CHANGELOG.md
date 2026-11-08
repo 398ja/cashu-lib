@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Voucher documents by reference (cashu-voucher#64). cashu-lib carries documents; it does not verify vouchers.
+  - `TokenV4` gains an optional top-level `v` map (`hex(SHA256(D)) -> bstr D`), written last and only when non-empty. Helpers: `getVoucherDocuments()`, `hasVoucherDocuments()`, `putVoucherDocument(byte[])`, `retainReferencedDocuments(Set)`, `retainVoucherDocuments(Predicate)`, `validateVoucherDocuments()`, `getProofCount()`. `TokenV4.deserialize` refuses malformed keys, keys that do not hash their value, empty or oversized (> 65,536 bytes) documents, and more documents than proofs.
+  - `PostInputRequest` (swap, melt) gains an optional `vouchers` JSON map (hex key -> hex document) and `voucherDocuments()`, which throws `CashuErrorException` with the new code `voucher_document_invalid` (90032).
+  - `PaymentPayload` and `VoucherPaymentPayload` (NUT-18) gain the same optional `vouchers` map and `voucherDocuments()`.
+  - Shared rules in `xyz.tcheeric.cashu.common.voucher.VoucherDocuments` and the value type `VoucherDocument`.
+- Encodings of tokens, requests and payloads without documents are byte-identical to 0.30.7 (pinned by golden tests).
+
 ## [0.30.7] - 2026-10-22
 
 ### Fixed
