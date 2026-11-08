@@ -11,10 +11,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import xyz.tcheeric.cashu.common.util.JsonUtils;
+import xyz.tcheeric.cashu.common.voucher.VoucherDocuments;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Payment payload for NUT-18V voucher payment request fulfillment.
@@ -31,7 +35,7 @@ import java.util.List;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"id", "r", "memo", "mint", "unit", "proofs"})
+@JsonPropertyOrder({"id", "r", "memo", "mint", "unit", "proofs", "vouchers"})
 public class VoucherPaymentPayload {
 
     /**
@@ -70,6 +74,26 @@ public class VoucherPaymentPayload {
     @JsonProperty("proofs")
     @Builder.Default
     private List<PaymentPayloadProof> proofs = new ArrayList<>();
+
+    /**
+     * Voucher documents carried by reference (cashu-voucher#64): {@code hex(SHA256(D)) -> hex(D)}.
+     * Omitted when empty, so payloads without documents serialize exactly as before.
+     */
+    @JsonProperty("vouchers")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @Builder.Default
+    private Map<String, String> vouchers = new TreeMap<>();
+
+    /**
+     * Decodes and checks the carried voucher documents.
+     *
+     * @return key to document bytes, sorted by key
+     * @throws IllegalArgumentException when a key is malformed or does not hash its value, a value is
+     *                                  empty, not hex or too large, or there are more documents than proofs
+     */
+    public SortedMap<String, byte[]> voucherDocuments() {
+        return VoucherDocuments.fromHex(vouchers == null ? Map.of() : vouchers, getProofCount());
+    }
 
     /**
      * Sets the mint URL, stripping any trailing slashes.
