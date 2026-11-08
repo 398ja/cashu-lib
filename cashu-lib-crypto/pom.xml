@@ -3,7 +3,7 @@
     <parent>
         <groupId>xyz.tcheeric</groupId>
         <artifactId>cashu-lib</artifactId>
-        <version>0.30.7</version>
+        <version>0.31.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>cashu-lib-crypto</artifactId>
