@@ -25,6 +25,12 @@ public final class VoucherDocuments {
     /** Largest document a container may carry. */
     public static final int MAX_DOCUMENT_BYTES = 65_536;
 
+    /**
+     * Largest total of document bytes one container may carry. With up to 1000 proofs or inputs
+     * per container, the per-document bound alone would allow 64 MiB, so the total is bounded too.
+     */
+    public static final int MAX_TOTAL_DOCUMENT_BYTES = 1_048_576;
+
     /** Length of a document reference (a SHA-256 digest) in bytes. */
     public static final int REFERENCE_BYTES = 32;
 
@@ -61,6 +67,15 @@ public final class VoucherDocuments {
             throw new IllegalArgumentException("Voucher document count exceeds proof count. Got: "
                     + documents.size() + " documents for " + maxEntries + " proofs");
         }
+        // Sizes before hashes, so an oversized container costs no hashing.
+        long total = 0;
+        for (byte[] document : documents.values()) {
+            total += document == null ? 0 : document.length;
+        }
+        if (total > MAX_TOTAL_DOCUMENT_BYTES) {
+            throw new IllegalArgumentException("Voucher documents exceed " + MAX_TOTAL_DOCUMENT_BYTES
+                    + " bytes in total. Got: " + total + " bytes");
+        }
         documents.forEach(VoucherDocuments::validateEntry);
     }
 
@@ -71,6 +86,19 @@ public final class VoucherDocuments {
      * @throws IllegalArgumentException when a value is not hex or any container rule is broken
      */
     public static SortedMap<String, byte[]> fromHex(@NonNull Map<String, String> hexDocuments, int maxEntries) {
+        if (hexDocuments.size() > maxEntries) {
+            throw new IllegalArgumentException("Voucher document count exceeds proof count. Got: "
+                    + hexDocuments.size() + " documents for " + maxEntries + " proofs");
+        }
+        // Bound the hex text before decoding any of it: two hex characters per byte.
+        long totalHexChars = 0;
+        for (String value : hexDocuments.values()) {
+            totalHexChars += value == null ? 0 : value.length();
+        }
+        if (totalHexChars > 2L * MAX_TOTAL_DOCUMENT_BYTES) {
+            throw new IllegalArgumentException("Voucher documents exceed " + MAX_TOTAL_DOCUMENT_BYTES
+                    + " bytes in total. Got: " + (totalHexChars / 2) + " bytes");
+        }
         SortedMap<String, byte[]> decoded = new TreeMap<>();
         hexDocuments.forEach((key, value) -> decoded.put(key, decodeHexValue(key, value)));
         validate(decoded, maxEntries);
