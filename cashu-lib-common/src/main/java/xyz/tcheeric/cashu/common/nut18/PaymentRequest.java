@@ -142,6 +142,9 @@ public class PaymentRequest {
             log.debug("Deserialized PaymentRequest with id={}", request.getPaymentId());
             return request;
         } catch (IOException e) {
+            if (JsonUtils.isMalformedInput(e)) {
+                throw new IllegalArgumentException("Invalid payment request: " + e.getMessage(), e);
+            }
             throw new RuntimeException("Failed to deserialize PaymentRequest", e);
         }
     }

@@ -222,10 +222,16 @@ public class TokenV4 implements Token {
             log.debug("Deserialized TokenV4 with {} token data entries", token.getTokenDataList().size());
             return token;
         } catch (IOException e) {
-            for (Throwable cause = e.getCause(); cause != null; cause = cause.getCause()) {
+            // Malformed CBOR, including a map with a repeated key at any depth (Jackson wraps a
+            // nested one in a JsonMappingException), is an invalid token like any other refused
+            // v map, not an internal error.
+            for (Throwable cause = e; cause != null; cause = cause.getCause()) {
                 if (cause instanceof IllegalArgumentException invalid) {
                     throw invalid;
                 }
+            }
+            if (JsonUtils.isMalformedInput(e)) {
+                throw new IllegalArgumentException("Invalid token: " + e.getMessage(), e);
             }
             throw new RuntimeException(e);
         }

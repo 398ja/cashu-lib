@@ -177,7 +177,9 @@ class TokenV4VoucherDocumentsTest {
         String encoded = "cashuB" + Base64.getUrlEncoder().withoutPadding().encodeToString(out.toByteArray());
 
         assertThatThrownBy(() -> TokenV4.deserialize(encoded))
-                .hasStackTraceContaining("Duplicate field");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageStartingWith("Invalid token")
+                .hasMessageContaining("Duplicate field");
     }
 
     /** A key that does not hash its value is refused. */

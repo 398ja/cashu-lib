@@ -1,6 +1,7 @@
 package xyz.tcheeric.cashu.common.util;
 
 import com.fasterxml.jackson.core.StreamReadFeature;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
@@ -42,5 +43,19 @@ public final class JsonUtils {
     }
 
     private JsonUtils() {
+    }
+
+    /**
+     * Whether a CBOR read failed because the input itself is malformed (bad encoding, or a map with
+     * a repeated key at any depth, which Jackson may wrap in a mapping exception). Such input is
+     * invalid caller data, not an internal error.
+     */
+    public static boolean isMalformedInput(Throwable failure) {
+        for (Throwable cause = failure; cause != null; cause = cause.getCause()) {
+            if (cause instanceof StreamReadException) {
+                return true;
+            }
+        }
+        return false;
     }
 }
