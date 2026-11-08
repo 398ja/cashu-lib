@@ -1,5 +1,6 @@
 package xyz.tcheeric.cashu.common.util;
 
+import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
@@ -22,6 +23,10 @@ public final class JsonUtils {
 
         CBORFactory cborFactory = CBORFactory.builder()
                 .enable(CBORGenerator.Feature.WRITE_MINIMAL_INTS)
+                // A map with a repeated key is refused, never read last-wins. Otherwise a token's
+                // `v` documents map (cashu-voucher#64) could carry two values under one key and
+                // Java and the TypeScript wallet would disagree on which one it holds.
+                .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
                 .build();
         CBOR_MAPPER = new ObjectMapper(cborFactory);
         // Deliberately do NOT findAndRegisterModules() on the CBOR mapper. CBOR is used

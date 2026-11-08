@@ -157,6 +157,29 @@ class TokenV4VoucherDocumentsTest {
                 .hasMessageContaining("64 lowercase hex");
     }
 
+    /**
+     * A {@code v} map that repeats a key is refused rather than read last-wins, so Java and the
+     * TypeScript wallet agree that such a token is invalid. Both entries hash correctly, so only
+     * the duplicate check can refuse it.
+     */
+    @Test
+    void shouldRefuseTokenWhenDocumentKeyIsRepeated() {
+        byte[] body = TokenV4CborEncoder.encode(token(2));
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        out.write(body[0] + 1);
+        out.write(body, 1, body.length - 1);
+        TokenV4CborEncoder.writeTextString(out, "v");
+        TokenV4CborEncoder.writeMapHeader(out, 2);
+        for (int i = 0; i < 2; i++) {
+            TokenV4CborEncoder.writeTextString(out, VoucherDocuments.key(DOC_A));
+            TokenV4CborEncoder.writeByteString(out, DOC_A);
+        }
+        String encoded = "cashuB" + Base64.getUrlEncoder().withoutPadding().encodeToString(out.toByteArray());
+
+        assertThatThrownBy(() -> TokenV4.deserialize(encoded))
+                .hasStackTraceContaining("Duplicate field");
+    }
+
     /** A key that does not hash its value is refused. */
     @Test
     void shouldRefuseTokenWhenKeyDoesNotMatchDocumentHash() {
