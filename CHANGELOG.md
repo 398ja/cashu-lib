@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.31.0] - 2026-11-15
+
+> **Readers before producers (cashu-voucher#64).** 0.30.x refuses a token carrying the new
+> top-level `v` map, so every reader in a path must be on 0.31.0 before anything there emits
+> by-reference vouchers. Nothing emits them yet. Encodings without documents are unchanged.
+
 ### Added
 
 - Voucher documents by reference (cashu-voucher#64). cashu-lib carries documents; it does not verify vouchers.
