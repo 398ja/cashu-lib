@@ -177,6 +177,11 @@ public class Point {
                 result.getAffineYCoord().toBigInteger());
     }
 
+    /** {@code k*G} on secp256k1 via the precomputed fixed-base comb; {@code k} is reduced mod n. */
+    public static org.bouncycastle.math.ec.ECPoint mulBase(BigInteger k) {
+        return COMB.multiply(BC_G, k.mod(n));
+    }
+
     public boolean hasEvenY() {
         return hasEvenY(this);
     }
