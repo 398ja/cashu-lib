@@ -182,6 +182,13 @@ public class Point {
         return COMB.multiply(BC_G, k.mod(n));
     }
 
+    /** {@code a*G + b*P} in one interleaved pass; {@code null} for the point at infinity. */
+    public static Point mulAddG(BigInteger a, Point P, BigInteger b) {
+        org.bouncycastle.math.ec.ECPoint r = org.bouncycastle.math.ec.ECAlgorithms.sumOfTwoMultiplies(
+                BC_G, a.mod(n), CURVE.createPoint(P.getX(), P.getY()), b.mod(n)).normalize();
+        return r.isInfinity() ? null : new Point(r.getAffineXCoord().toBigInteger(), r.getAffineYCoord().toBigInteger());
+    }
+
     public boolean hasEvenY() {
         return hasEvenY(this);
     }
