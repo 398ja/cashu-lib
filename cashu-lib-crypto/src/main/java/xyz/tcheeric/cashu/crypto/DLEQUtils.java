@@ -136,9 +136,9 @@ public final class DLEQUtils {
             ECPoint eA = publicKey.multiply(challenge).normalize();
             ECPoint R1 = sG.subtract(eA).normalize();
 
-            ECPoint sB = blindedMessage.multiply(response).normalize();
-            ECPoint eC = blindSignature.multiply(challenge).normalize();
-            ECPoint R2 = sB.subtract(eC).normalize();
+            // Shamir's trick: s*B' + (n-e)*C' in one interleaved pass
+            ECPoint R2 = org.bouncycastle.math.ec.ECAlgorithms.sumOfTwoMultiplies(
+                    blindedMessage, response, blindSignature, n.subtract(challenge.mod(n))).normalize();
 
             BigInteger expectedChallenge = new BigInteger(1, dleqHash(R1, R2, publicKey, blindSignature)).mod(n);
 
