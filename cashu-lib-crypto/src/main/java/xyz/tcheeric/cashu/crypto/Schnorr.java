@@ -89,7 +89,7 @@ public final class Schnorr {
      * the secp256k1 elliptic curve. The message and secret key must each be exactly
      * 32 bytes. The secret key is interpreted as an integer in the range
      * {@code [1, n-1]} where {@code n} is the curve order. The produced signature is
-     * 64 bytes long.
+     * 64 bytes long and is verified internally before being returned.
      * </p>
      *
      * @param msg    32-byte message to sign
@@ -148,6 +148,9 @@ public final class Schnorr {
             byte[] sig = new byte[len];
             System.arraycopy(R.toBytes(), 0, sig, 0, R.toBytes().length);
             System.arraycopy(Utils.bytesFromBigInteger(kes), 0, sig, R.toBytes().length, Utils.bytesFromBigInteger(kes).length);
+            if (!verify(msg, P.toBytes(), sig)) {
+                throw SignatureException.signatureFailed("self-verification failed");
+            }
             return sig;
         } catch (NoSuchAlgorithmException e) {
             throw new CashuCryptoException("Cryptographic algorithm not available", e);
