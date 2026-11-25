@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.31.1] - 2026-11-25
+
+### Changed
+
+- Faster secp256k1 arithmetic in `cashu-lib-crypto`, with no change to results or public signatures (best-of-3 on a loaded host, so figures are directional):
+  - `Point.mul` multiplies the base point G with a precomputed fixed-base comb (Schnorr sign about -42%, verify about -17%).
+  - BDHKE blinding (`BDHKEUtils.blindMessage`) and DLEQ generation and verification use the same comb for `r*G` (blindMessage about -23%).
+  - DLEQ verification computes its second equation with an interleaved double multiplication (about -21%).
+  - Schnorr verification computes `s*G + (n-e)*P` in one interleaved pass (about -30%).
+- `Point` gains two helpers, `mulBase(BigInteger)` and `mulAddG(BigInteger, Point, BigInteger)`.
+- `Schnorr.sign` still verifies each signature before returning it (BIP-340 fault-injection defence); dropping that check was evaluated and rejected.
+
 ## [0.31.0] - 2026-11-15
 
 > **Readers before producers (cashu-voucher#64).** 0.30.x refuses a token carrying the new

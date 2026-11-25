@@ -206,7 +206,7 @@ public final class Schnorr {
             System.arraycopy(pubkey, 0, buf, 32, pubkey.length);
             System.arraycopy(msg, 0, buf, 32 + pubkey.length, msg.length);
             BigInteger e = Utils.bigIntFromBytes(Point.taggedHash("BIP0340/challenge", buf)).mod(Point.getn());
-            Point R = Point.add(Point.mul(Point.getG(), s), Point.mul(P, Point.getn().subtract(e)));
+            Point R = Point.mulAddG(s, P, Point.getn().subtract(e));
             return R != null && R.hasEvenY() && R.getX().compareTo(r) == 0;
         } catch (NoSuchAlgorithmException e) {
             throw new CashuCryptoException("Cryptographic algorithm not available", e);

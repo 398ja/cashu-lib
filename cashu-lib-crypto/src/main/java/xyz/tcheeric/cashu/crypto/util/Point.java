@@ -21,6 +21,12 @@ public class Point {
     /** secp256k1, for scalar multiplication; see {@link #mul}. */
     private static final org.bouncycastle.math.ec.custom.sec.SecP256K1Curve CURVE =
             new org.bouncycastle.math.ec.custom.sec.SecP256K1Curve();
+    private static final org.bouncycastle.math.ec.ECPoint BC_G = CURVE.createPoint(G.getX(), G.getY());
+    private static final org.bouncycastle.math.ec.FixedPointCombMultiplier COMB =
+            new org.bouncycastle.math.ec.FixedPointCombMultiplier();
+    static {
+        org.bouncycastle.math.ec.FixedPointUtil.precompute(BC_G);
+    }
     private final Pair<BigInteger, BigInteger> pair;
 
     public Point(BigInteger x, BigInteger y) {
@@ -160,13 +166,27 @@ public class Point {
         if (P == null || n == null || n.signum() == 0) {
             return null;
         }
-        org.bouncycastle.math.ec.ECPoint bcPoint = CURVE.createPoint(P.getX(), P.getY());
-        org.bouncycastle.math.ec.ECPoint result = bcPoint.multiply(n.mod(Point.n)).normalize();
+        BigInteger k = n.mod(Point.n);
+        org.bouncycastle.math.ec.ECPoint result = P.equals(G)
+                ? COMB.multiply(BC_G, k).normalize()
+                : CURVE.createPoint(P.getX(), P.getY()).multiply(k).normalize();
         if (result.isInfinity()) {
             return null;
         }
         return new Point(result.getAffineXCoord().toBigInteger(),
                 result.getAffineYCoord().toBigInteger());
+    }
+
+    /** {@code k*G} on secp256k1 via the precomputed fixed-base comb; {@code k} is reduced mod n. */
+    public static org.bouncycastle.math.ec.ECPoint mulBase(BigInteger k) {
+        return COMB.multiply(BC_G, k.mod(n));
+    }
+
+    /** {@code a*G + b*P} in one interleaved pass; {@code null} for the point at infinity. */
+    public static Point mulAddG(BigInteger a, Point P, BigInteger b) {
+        org.bouncycastle.math.ec.ECPoint r = org.bouncycastle.math.ec.ECAlgorithms.sumOfTwoMultiplies(
+                BC_G, a.mod(n), CURVE.createPoint(P.getX(), P.getY()), b.mod(n)).normalize();
+        return r.isInfinity() ? null : new Point(r.getAffineXCoord().toBigInteger(), r.getAffineYCoord().toBigInteger());
     }
 
     public boolean hasEvenY() {

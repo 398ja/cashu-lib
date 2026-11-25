@@ -143,7 +143,7 @@ public final class BDHKEUtils {
         BigInteger r = Utils.bigIntFromBytes(KeysUtils.generatePrivateKey());
         ECPoint G = spec.getG();
         ECPoint Y = hashToCurve(secret);
-        ECPoint rG = G.multiply(r);
+        ECPoint rG = xyz.tcheeric.cashu.crypto.util.Point.mulBase(r);
         ECPoint B_ = Y.add(rG);
 
         // Return B_ as uncompressed point without the 0x04 prefix: X(32) || Y(32) = 64 bytes
@@ -159,7 +159,7 @@ public final class BDHKEUtils {
         ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("secp256k1");
         ECPoint G = spec.getG();
         ECPoint Y = hashToCurve(secret);
-        ECPoint rG = G.multiply(Utils.bigIntFromBytes(r));
+        ECPoint rG = xyz.tcheeric.cashu.crypto.util.Point.mulBase(Utils.bigIntFromBytes(r));
         ECPoint B_ = Y.add(rG);
 
         byte[] uncompressed = B_.getEncoded(false); // 0x04 || X || Y

@@ -8,6 +8,7 @@ import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
 import xyz.tcheeric.cashu.crypto.exception.CashuCryptoException;
 import xyz.tcheeric.cashu.crypto.exception.InvalidKeyException;
+import xyz.tcheeric.cashu.crypto.util.Point;
 import xyz.tcheeric.cashu.crypto.util.Utils;
 
 import java.math.BigInteger;
@@ -84,10 +85,10 @@ public final class DLEQUtils {
             throw InvalidKeyException.privateKeyOutOfRange();
         }
 
-        ECPoint publicKey = generator.multiply(privateKey).normalize();
+        ECPoint publicKey = Point.mulBase(privateKey).normalize();
 
         BigInteger nonce = generateRandomScalar(n);
-        ECPoint rG = generator.multiply(nonce).normalize();
+        ECPoint rG = Point.mulBase(nonce).normalize();
         ECPoint rB = blindedMessage.multiply(nonce).normalize();
 
         byte[] eBytes = dleqHash(rG, rB, publicKey, blindSignature);
@@ -131,13 +132,13 @@ public final class DLEQUtils {
             BigInteger challenge = requireScalar(e, "e");
             BigInteger response = requireScalar(s, "s");
 
-            ECPoint sG = generator.multiply(response).normalize();
+            ECPoint sG = Point.mulBase(response).normalize();
             ECPoint eA = publicKey.multiply(challenge).normalize();
             ECPoint R1 = sG.subtract(eA).normalize();
 
-            ECPoint sB = blindedMessage.multiply(response).normalize();
-            ECPoint eC = blindSignature.multiply(challenge).normalize();
-            ECPoint R2 = sB.subtract(eC).normalize();
+            // Shamir's trick: s*B' + (n-e)*C' in one interleaved pass
+            ECPoint R2 = org.bouncycastle.math.ec.ECAlgorithms.sumOfTwoMultiplies(
+                    blindedMessage, response, blindSignature, n.subtract(challenge.mod(n))).normalize();
 
             BigInteger expectedChallenge = new BigInteger(1, dleqHash(R1, R2, publicKey, blindSignature)).mod(n);
 
