@@ -21,6 +21,12 @@ public class Point {
     /** secp256k1, for scalar multiplication; see {@link #mul}. */
     private static final org.bouncycastle.math.ec.custom.sec.SecP256K1Curve CURVE =
             new org.bouncycastle.math.ec.custom.sec.SecP256K1Curve();
+    private static final org.bouncycastle.math.ec.ECPoint BC_G = CURVE.createPoint(G.getX(), G.getY());
+    private static final org.bouncycastle.math.ec.FixedPointCombMultiplier COMB =
+            new org.bouncycastle.math.ec.FixedPointCombMultiplier();
+    static {
+        org.bouncycastle.math.ec.FixedPointUtil.precompute(BC_G);
+    }
     private final Pair<BigInteger, BigInteger> pair;
 
     public Point(BigInteger x, BigInteger y) {
@@ -160,8 +166,10 @@ public class Point {
         if (P == null || n == null || n.signum() == 0) {
             return null;
         }
-        org.bouncycastle.math.ec.ECPoint bcPoint = CURVE.createPoint(P.getX(), P.getY());
-        org.bouncycastle.math.ec.ECPoint result = bcPoint.multiply(n.mod(Point.n)).normalize();
+        BigInteger k = n.mod(Point.n);
+        org.bouncycastle.math.ec.ECPoint result = P.equals(G)
+                ? COMB.multiply(BC_G, k).normalize()
+                : CURVE.createPoint(P.getX(), P.getY()).multiply(k).normalize();
         if (result.isInfinity()) {
             return null;
         }
