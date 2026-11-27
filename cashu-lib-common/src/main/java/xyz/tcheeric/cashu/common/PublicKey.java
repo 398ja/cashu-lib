@@ -63,7 +63,8 @@ public sealed class PublicKey extends BaseKey permits CompressedPublicKey, UnCom
      */
     @Deprecated(forRemoval = true)
     /** secp256k1, for validating that decoded bytes are actually a point on it. */
-    private static final SecP256K1Curve SECP256K1 = new SecP256K1Curve();
+    private static final SecP256K1Curve SECP256K1 =
+            (SecP256K1Curve) org.bouncycastle.crypto.ec.CustomNamedCurves.getByName("secp256k1").getCurve();
 
     protected PublicKey() {
         // For deprecated subclass compatibility

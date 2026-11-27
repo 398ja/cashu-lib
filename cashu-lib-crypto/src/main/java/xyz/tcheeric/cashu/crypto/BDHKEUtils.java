@@ -69,7 +69,10 @@ public final class BDHKEUtils {
 
     private static final byte[] DOMAIN_SEPARATOR = "Secp256k1_HashToCurve_Cashu_".getBytes(StandardCharsets.UTF_8);
 
-    private static final SecP256K1Curve CURVE = new SecP256K1Curve();
+    // The named instance carries the GLV endomorphism multiplier; a bare new SecP256K1Curve()
+    // falls back to plain wNAF, about twice the cost per scalar multiplication.
+    private static final SecP256K1Curve CURVE =
+            (SecP256K1Curve) org.bouncycastle.crypto.ec.CustomNamedCurves.getByName("secp256k1").getCurve();
 
     /**
      * Computes {@code Y = hash_to_curve(secret)} under the encoding used to issue new proofs.

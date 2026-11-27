@@ -20,7 +20,8 @@ public class Point {
 
     /** secp256k1, for scalar multiplication; see {@link #mul}. */
     private static final org.bouncycastle.math.ec.custom.sec.SecP256K1Curve CURVE =
-            new org.bouncycastle.math.ec.custom.sec.SecP256K1Curve();
+            (org.bouncycastle.math.ec.custom.sec.SecP256K1Curve)
+                    org.bouncycastle.crypto.ec.CustomNamedCurves.getByName("secp256k1").getCurve();
     private static final org.bouncycastle.math.ec.ECPoint BC_G = CURVE.createPoint(G.getX(), G.getY());
     private static final org.bouncycastle.math.ec.FixedPointCombMultiplier COMB =
             new org.bouncycastle.math.ec.FixedPointCombMultiplier();
