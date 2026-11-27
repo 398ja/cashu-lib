@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `BDHKEUtils`, `Point` and `PublicKey` now use the `CustomNamedCurves` secp256k1 instance, which
   carries the GLV endomorphism multiplier. A bare `new SecP256K1Curve()` falls back to plain wNAF.
-  Same curve class and identical outputs (NUT-00/NUT-12 vectors unchanged). A mint swap is about 9% faster.
+  Same curve class and identical outputs (NUT-00/NUT-12 vectors unchanged). A mint swap is about 14% faster.
 
 ## [0.31.1] - 2026-11-25
 
