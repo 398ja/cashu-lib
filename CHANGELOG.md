@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.31.2] - 2026-11-28
+
 ### Performance
 
 - `BDHKEUtils`, `Point` and `PublicKey` now use the `CustomNamedCurves` secp256k1 instance, which
